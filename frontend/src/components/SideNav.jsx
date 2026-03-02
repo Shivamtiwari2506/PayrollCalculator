@@ -114,6 +114,7 @@ export default function SideNav({
           sx={{
             minHeight: 48,
             justifyContent: drawerOpen ? 'initial' : 'center',
+            color: location.pathname === item.path ? 'primary.main' : '',
             px: 2.5,
           }}
         >
@@ -122,6 +123,7 @@ export default function SideNav({
               minWidth: 0,
               mr: drawerOpen ? 2 : 'auto',
               justifyContent: 'center',
+              color: location.pathname === item.path ? 'primary.main' : '',
             }}
           >
             {item.icon}
@@ -157,7 +159,7 @@ export default function SideNav({
               sx={{
                 px: 2.5,
                 justifyContent: drawerOpen ? 'initial' : 'center',
-                bgcolor: isOrgRoute ? 'action.selected' : 'inherit',
+                color: isOrgRoute ? 'primary.main' : '',
               }}
             >
               <ListItemIcon
@@ -165,6 +167,7 @@ export default function SideNav({
                   minWidth: 0,
                   mr: drawerOpen ? 2 : 'auto',
                   justifyContent: 'center',
+                  color: isOrgRoute ? 'primary.main' : '',
                 }}
               >
                 <SettingsIcon />
@@ -194,6 +197,7 @@ export default function SideNav({
                     sx={{
                       pl: drawerOpen ? 4 : 2.5,
                       justifyContent: drawerOpen ? 'initial' : 'center',
+                      color: location.pathname === item.path ? 'primary.main' : '',
                     }}
                   >
                     <ListItemIcon
@@ -201,6 +205,7 @@ export default function SideNav({
                         minWidth: 0,
                         mr: drawerOpen ? 2 : 'auto',
                         justifyContent: 'center',
+                        color: location.pathname === item.path ? 'primary.main' : '',
                       }}
                     >
                       {item.icon}

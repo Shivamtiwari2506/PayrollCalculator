@@ -112,7 +112,7 @@ export default function Header({ user, onMenuClick }) {
               sx: {
                 mt: 1,
                 minWidth: 190,
-                borderRadius: 2,
+                borderRadius: 1,
               },
             }}
           >
