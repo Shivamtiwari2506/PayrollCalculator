@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import {
   Typography,
   Paper,
@@ -13,7 +13,6 @@ import {
   TableCell,
   TableBody,
   Chip,
-  Divider,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -23,13 +22,21 @@ import {
   TablePagination,
   Switch,
   Tooltip,
+  Avatar,
+  Card,
+  CardContent,
 } from '@mui/material';
 
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import SearchIcon from '@mui/icons-material/Search';
-import ROLES from '../../utils/roles';
+import PeopleIcon from '@mui/icons-material/People';
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import {ROLES} from '../../utils/commonFunctions/helpers';
+import {getInitials} from '../../utils/commonFunctions/helpers';
 
 const roleOptions = ROLES ? Object.values(ROLES) : [];
 
@@ -131,6 +138,24 @@ const UserRoles = () => {
     );
   };
 
+  // ================= Stats Calculation =================
+  const stats = useMemo(() => {
+    const totalEmployees = employees.length;
+    const activeEmployees = employees.filter(emp => emp.active).length;
+    const adminCount = employees.filter(emp => emp.role === 'Admin' || emp.role === 'Org_Admin').length;
+    const newThisMonth = employees.filter(emp => {
+      // Simulating new employees - in real app, check creation date
+      return emp.id > 1000;
+    }).length;
+
+    return {
+      total: totalEmployees,
+      active: activeEmployees,
+      admins: adminCount,
+      newThisMonth: newThisMonth,
+    };
+  }, [employees]);
+
   // ================= UI =================
 
   return (
@@ -141,7 +166,7 @@ const UserRoles = () => {
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          mb: 2,
+          mb: 3,
           flexWrap: 'wrap',
           gap: 2,
         }}
@@ -154,11 +179,94 @@ const UserRoles = () => {
           variant="contained"
           startIcon={<AddIcon />}
           onClick={handleOpenAdd}
-          sx={{ borderRadius:  0.5 }}
+          sx={{ borderRadius: 0.5 }}
         >
           Add Employee
         </Button>
       </Box>
+
+      {/* STATS CARDS */}
+      <Grid container spacing={3} sx={{ mb: 3 }}>
+        <Grid item xs={12} sm={6} md={3}>
+          <Card elevation={2} sx={{ borderRadius: 0.5 }}>
+            <CardContent>
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <Box>
+                  <Typography variant="body2" color="text.secondary" gutterBottom>
+                    Total Employees
+                  </Typography>
+                  <Typography variant="h4" sx={{ fontWeight: 700 }}>
+                    {stats.total}
+                  </Typography>
+                </Box>
+                <Avatar sx={{ bgcolor: 'primary.main', width: 56, height: 56 }}>
+                  <PeopleIcon fontSize="large" />
+                </Avatar>
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+
+        <Grid item xs={12} sm={6} md={3}>
+          <Card elevation={2} sx={{ borderRadius: 0.5 }}>
+            <CardContent>
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <Box>
+                  <Typography variant="body2" color="text.secondary" gutterBottom>
+                    Active Employees
+                  </Typography>
+                  <Typography variant="h4" sx={{ fontWeight: 700 }}>
+                    {stats.active}
+                  </Typography>
+                </Box>
+                <Avatar sx={{ bgcolor: 'success.main', width: 56, height: 56 }}>
+                  <CheckCircleIcon fontSize="large" />
+                </Avatar>
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+
+        <Grid item xs={12} sm={6} md={3}>
+          <Card elevation={2} sx={{ borderRadius: 0.5 }}>
+            <CardContent>
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <Box>
+                  <Typography variant="body2" color="text.secondary" gutterBottom>
+                    Admins
+                  </Typography>
+                  <Typography variant="h4" sx={{ fontWeight: 700 }}>
+                    {stats.admins}
+                  </Typography>
+                </Box>
+                <Avatar sx={{ bgcolor: 'warning.main', width: 56, height: 56 }}>
+                  <AdminPanelSettingsIcon fontSize="large" />
+                </Avatar>
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+
+        <Grid item xs={12} sm={6} md={3}>
+          <Card elevation={2} sx={{ borderRadius: 0.5 }}>
+            <CardContent>
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <Box>
+                  <Typography variant="body2" color="text.secondary" gutterBottom>
+                    New This Month
+                  </Typography>
+                  <Typography variant="h4" sx={{ fontWeight: 700 }}>
+                    {stats.newThisMonth}
+                  </Typography>
+                </Box>
+                <Avatar sx={{ bgcolor: 'info.main', width: 56, height: 56 }}>
+                  <PersonAddIcon fontSize="large" />
+                </Avatar>
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
 
       {/* FILTER BAR */}
       <Paper elevation={2} sx={{ p: 2, mb: 2, borderRadius:  0.5 }}>
@@ -203,7 +311,7 @@ const UserRoles = () => {
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell><b>Name</b></TableCell>
+              <TableCell><b>Employee</b></TableCell>
               <TableCell><b>Email</b></TableCell>
               <TableCell><b>Role</b></TableCell>
               <TableCell><b>Status</b></TableCell>
@@ -216,7 +324,14 @@ const UserRoles = () => {
               .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
               .map((emp) => (
                 <TableRow key={emp.id} hover>
-                  <TableCell>{emp.name}</TableCell>
+                  <TableCell>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                      <Avatar sx={{ bgcolor: 'primary.main' }}>
+                        {getInitials(emp.name)}
+                      </Avatar>
+                      <Typography>{emp.name}</Typography>
+                    </Box>
+                  </TableCell>
                   <TableCell>{emp.email}</TableCell>
 
                   <TableCell>

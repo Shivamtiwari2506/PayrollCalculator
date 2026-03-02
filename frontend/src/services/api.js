@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
-import { removeFromLocalStorage } from '../utils/commonFunctions/removeFromLocalStorage';
+import { removeFromLocalStorage } from '../utils/commonFunctions/helpers';
 
 const PUBLIC_ENDPOINTS = [
   '/login',

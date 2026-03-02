@@ -7,7 +7,7 @@ const ProtectedRoute = ({ allowedRoles = [] }) => {
   const token = localStorage.getItem("token");
   const location = useLocation();
 
-  // 🚫 No token
+  //  No token
   if (!token) {
     return <Navigate to="/login" replace state={{ from: location }} />;
   }

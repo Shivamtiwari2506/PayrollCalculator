@@ -17,8 +17,8 @@ import PersonIcon from '@mui/icons-material/Person';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import { useNavigate } from 'react-router-dom';
 import { useState, useRef } from 'react';
-import { getInitials } from '../utils/commonFunctions/getInitials';
-import { removeFromLocalStorage } from '../utils/commonFunctions/removeFromLocalStorage';
+import { getInitials } from '../utils/commonFunctions/helpers';
+import { removeFromLocalStorage } from '../utils/commonFunctions/helpers';
 
 export default function Header({ user, onMenuClick }) {
   const navigate = useNavigate();
