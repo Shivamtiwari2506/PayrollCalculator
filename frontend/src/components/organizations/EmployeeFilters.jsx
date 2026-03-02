@@ -38,7 +38,7 @@ const EmployeeFilters = ({ search, setSearch, roleFilter, setRoleFilter, roleOpt
             select
             fullWidth
             size="small"
-            label="Filter by Role"
+            label="Filter by Designation"
             value={roleFilter}
             onChange={(e) => setRoleFilter(e.target.value)}
           >

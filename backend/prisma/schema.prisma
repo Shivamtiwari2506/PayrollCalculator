@@ -25,17 +25,19 @@ model Org {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  email     String
-  password  String
-  name      String?
-  role      Role     @default(User)
+  id            String   @id @default(uuid())
+  email         String
+  password      String
+  name          String?
+  role          Role     @default(User)
+  designation   String   @default("Not Specified")
 
-  orgId     String
-  org       Org      @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  orgId         String
+  org           Org      @relation(fields: [orgId], references: [id], onDelete: Cascade)
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
   @@unique([email, orgId])
   @@index([orgId])
+  @@index([designation])
 }
