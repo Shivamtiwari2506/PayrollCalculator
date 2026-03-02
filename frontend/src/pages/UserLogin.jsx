@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { TextField, Button, Typography, Paper, Box, IconButton } from '@mui/material';
+import { TextField, Button, Typography, Paper, Box, IconButton, CircularProgress } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import api from '../services/api';
 import { toast } from 'react-toastify';
@@ -79,8 +79,9 @@ export default function UserLogin() {
           className="mt-6"
           disabled={loading}
           sx={{ py: 1.5 }}
+          startIcon={loading ? <CircularProgress size={20} /> : null}
         >
-          {loading ? 'Logging in...' : 'Login'}
+          {loading ? '' : 'Login'}
         </Button>
 
         <Button

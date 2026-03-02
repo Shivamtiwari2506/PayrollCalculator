@@ -6,13 +6,15 @@ import SideNav from "../components/SideNav";
 import { useDispatch, useSelector } from "react-redux";
 import { getCurrentUser } from "../redux/actions/userActions";
 import Loader from "../utils/Loader";
+import { getOrgData } from "../redux/actions/orgActions";
 
 const DRAWER_WIDTH = 240;
 const MINI_DRAWER_WIDTH = 72;
 
 export default function AppLayout() {
   const dispatch = useDispatch();
-  const {user, loading} = useSelector((state) => state.userState) || {};
+  const {user, loading: userLoading} = useSelector((state) => state.userState) || {};
+  const {org, loading: orgLoading } = useSelector((state) => state.orgState);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(true);
 
@@ -28,7 +30,12 @@ export default function AppLayout() {
   };
   useEffect(() => {
     dispatch(getCurrentUser());
+    dispatch(getOrgData());
   }, []);
+
+  if(userLoading || orgLoading) return (
+      <Loader fullScreen={true} />
+    );
 
   return (
     <Box sx={{ display: "flex" }}>

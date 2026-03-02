@@ -63,7 +63,7 @@ function App() {
                 <Route path="/org-settings/profile" element={<Profile />} />
                 <Route path="/org-settings/payroll" element={<PayrollSettings />} />
                 <Route path="/org-settings/leave" element={<LeaveAttendence />} />
-                <Route path="/org-settings/users" element={<UserRoles />} />
+                <Route path="/org-settings/employees" element={<UserRoles />} />
                 <Route path="/org-settings/payslip" element={<Payslip />} />
                 <Route path="/org-settings/notifications" element={<Notifications />} />
               </Route>

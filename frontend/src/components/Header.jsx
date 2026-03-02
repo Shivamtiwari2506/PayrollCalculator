@@ -19,9 +19,8 @@ import { useNavigate } from 'react-router-dom';
 import { useState, useRef } from 'react';
 import { getInitials } from '../utils/commonFunctions/getInitials';
 import { removeFromLocalStorage } from '../utils/commonFunctions/removeFromLocalStorage';
-import { getCurrentUser } from '../redux/actions/userActions';
 
-export default function Header({user, onMenuClick }) {
+export default function Header({ user, onMenuClick }) {
   const navigate = useNavigate();
   const avatarRef = useRef(null);
   const currentUser = JSON.parse(localStorage.getItem('user')) || user;
@@ -56,25 +55,29 @@ export default function Header({user, onMenuClick }) {
       sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}
     >
       <Toolbar>
-        {/* Sidebar toggle */}
-        <IconButton
-          color="inherit"
-          edge="start"
-          onClick={onMenuClick}
-          sx={{ mr: 2 }}
-        >
-          <MenuIcon />
-        </IconButton>
 
-        {/* Title */}
-        <Typography
-          variant="h6"
-          noWrap
-          component="div"
-          sx={{ flexGrow: 1 }}
-        >
-          Dashboard
-        </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', flexGrow: 1 }}>
+          <IconButton
+            color="inherit"
+            edge="start"
+            onClick={onMenuClick}
+            sx={{ mr: 2 }}
+          >
+            <MenuIcon />
+          </IconButton>
+          <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+            <Typography variant="h6" component="span" noWrap>
+              PAYRUN <span className='italic text-sm'>{currentUser?.role === 'Org_Admin' ? `(Org Admin Panel)` : currentUser?.role === 'User' ? `(Employee Panel)` : `(Admin Panel)`}</span>
+            </Typography>
+
+            <Typography
+              variant="subtitle2"
+              sx={{ fontSize: '0.75rem', lineHeight: 1 }}
+            >
+              Payroll Management System
+            </Typography>
+          </Box>
+        </Box>
 
         {/* Right section */}
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>

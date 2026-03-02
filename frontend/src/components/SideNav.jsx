@@ -67,9 +67,9 @@ const orgSettingsItems = [
     path: "/org-settings/leave",
   },
   {
-    text: "Users & Roles",
+    text: "Employees & Roles",
     icon: <PeopleIcon />,
-    path: "/org-settings/users",
+    path: "/org-settings/employees",
   },
   {
     text: "Payslip",
