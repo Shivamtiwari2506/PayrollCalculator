@@ -67,11 +67,9 @@ const EmployeeFilters = ({ search, setSearch, roleFilter, setRoleFilter, roleOpt
             startIcon={<AddIcon />}
             onClick={handleOpenAdd}
             sx={{
-              borderRadius: 1.5,
               textTransform: 'none',
               fontWeight: 600,
               height: 40,
-              px: 3,
             }}
           >
             Add Employee

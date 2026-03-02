@@ -91,9 +91,6 @@ router.get('/me', async (req, res) => {
         role: true,
         createdAt: true,
         updatedAt: true,
-        org: {
-          select: { id: true},
-        }
       },
     });
 
