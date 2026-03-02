@@ -49,23 +49,13 @@ function App() {
                 <Route path="/dashboard" element={<Dashboard />} />
               </Route>
 
-              {/* Users → Admin + Org_Admin */}
-              <Route
-                element={
-                  <ProtectedRoute
-                    allowedRoles={[ROLES.ADMIN, ROLES.ORG_ADMIN]}
-                  />
-                }
-              >
-                <Route path="/users" element={<Users />} />
-              </Route>
-
               {/* Settings → Admin only */}
               <Route
                 element={
                   <ProtectedRoute allowedRoles={[ROLES.ADMIN]} />
                 }
               >
+                  <Route path="/users" element={<Users />} />
                 <Route path="/settings" element={<Settings />} />
               </Route>
 

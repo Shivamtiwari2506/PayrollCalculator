@@ -1,13 +1,18 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Box, Toolbar, useTheme, useMediaQuery } from "@mui/material";
 import { Outlet } from "react-router-dom";
 import Header from "../components/Header";
 import SideNav from "../components/SideNav";
+import { useDispatch, useSelector } from "react-redux";
+import { getCurrentUser } from "../redux/actions/userActions";
+import Loader from "../utils/Loader";
 
 const DRAWER_WIDTH = 240;
 const MINI_DRAWER_WIDTH = 72;
 
 export default function AppLayout() {
+  const dispatch = useDispatch();
+  const {user, loading} = useSelector((state) => state.userState) || {};
   const [mobileOpen, setMobileOpen] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(true);
 
@@ -21,12 +26,16 @@ export default function AppLayout() {
       setDrawerOpen(!drawerOpen);
     }
   };
+  useEffect(() => {
+    dispatch(getCurrentUser());
+  }, []);
 
   return (
     <Box sx={{ display: "flex" }}>
-      <Header onMenuClick={handleDrawerToggle} />
+      <Header user={user} onMenuClick={handleDrawerToggle} />
 
       <SideNav
+        user={user}
         mobileOpen={mobileOpen}
         drawerOpen={drawerOpen}
         onDrawerToggle={handleDrawerToggle}

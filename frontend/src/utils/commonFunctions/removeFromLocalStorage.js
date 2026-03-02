@@ -1,4 +1,5 @@
 export const removeFromLocalStorage = ( ) => {
     localStorage.removeItem('token');
-    localStorage.removeItem('orgId');
+    localStorage.removeItem('user');
+    localStorage.removeItem('org');
 };

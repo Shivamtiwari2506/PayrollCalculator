@@ -10,8 +10,6 @@ export default function Dashboard() {
   const dispatch = useDispatch();
   const { org, loading: orgLoading } = useSelector((state) => state.orgState);
   const { user, loading: userLoading } =useSelector((state) => state.userState);
-  console.log(user, "...........", org);
-
 
   useEffect(()=> {
     dispatch(getCurrentUser());

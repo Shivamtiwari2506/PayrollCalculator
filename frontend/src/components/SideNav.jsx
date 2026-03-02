@@ -24,13 +24,9 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { getCurrentUser } from '../redux/actions/userActions';
-import { useDispatch, useSelector } from 'react-redux';
 
 const drawerWidth = 240;
 const collapsedWidth = 72;
-
-/* ========= MAIN MENU ========= */
 
 const menuItems = [
   {
@@ -43,7 +39,7 @@ const menuItems = [
     text: "Users",
     icon: <PeopleIcon />,
     path: "/users",
-    roles: ["Admin", "Org_Admin"],
+    roles: ["Admin"],
   },
   {
     text: "Settings",
@@ -88,16 +84,14 @@ const orgSettingsItems = [
 ];
 
 export default function SideNav({
+  user,
   mobileOpen,
   drawerOpen,
   onDrawerToggle,
 }) {
   const navigate = useNavigate();
   const location = useLocation();
-  const dispatch = useDispatch();
-  const {user} = useSelector((state) => state.userState);
   const role = JSON.parse(localStorage.getItem("user"))?.role || user?.role;
-  console.log('role: ', role);
 
   const isOrgRoute = location.pathname.startsWith("/org-settings");
 
@@ -110,10 +104,6 @@ export default function SideNav({
   const filteredMenu = menuItems.filter((item) =>
     item.roles.includes(role)
   );
-
-  useEffect(() => {
-    dispatch(getCurrentUser());
-  }, []);
 
   const renderMenu = (items) =>
     items.map((item) => (
