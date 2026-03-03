@@ -108,6 +108,7 @@ const EmployeeTable = ({
           setPagination({ ...pagination, page: 1, limit: parseInt(e.target.value, 10) })
         }
         rowsPerPageOptions={[10, 20, 50, 100]}
+        hidden={filteredEmployees.length<=0}
       />
     </Paper>
   );
