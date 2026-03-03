@@ -5,43 +5,35 @@ import EmployeeStatsCards from '../../components/organizations/EmployeeStatsCard
 import EmployeeFilters from '../../components/organizations/EmployeeFilters';
 import EmployeeTable from '../../components/organizations/EmployeeTable';
 import EmployeeFormDialog from '../../components/organizations/EmployeeFormDialog';
+import { handleApiError } from '../../utils/commonFunctions/errorHandler';
+import api from '../../services/api';
+import { useEffect } from 'react';
+import Loader from '../../utils/Loader';
 
 const roleOptions = ROLES ? Object.values(ROLES) : [];
 
-const dummyEmployees = [
-  {
-    id: 1,
-    name: 'Rahul Sharma',
-    email: 'rahul@company.com',
-    role: 'User',
-    active: true,
-  },
-  {
-    id: 2,
-    name: 'Priya Verma',
-    email: 'priya@company.com',
-    role: 'Org_Admin',
-    active: true,
-  },
-];
-
 const UserRoles = () => {
-  const [employees, setEmployees] = useState(dummyEmployees);
+  const [employees, setEmployees] = useState([]);
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState(null);
-
+  const [loading, setLoading] = useState(false);
+  const [designations, setDesignations] = useState([]);
   const [form, setForm] = useState({
     name: '',
     email: '',
     role: 'User',
     active: true,
+    designation: '',
+    dateOfJoining: '',
   });
 
   const [search, setSearch] = useState('');
-  const [roleFilter, setRoleFilter] = useState('All');
-
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [designationFilter, setDesignationFilter] = useState('All');
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: 10,
+    total: 0
+  })
 
   // Filtered data
   const filteredEmployees = useMemo(() => {
@@ -50,12 +42,9 @@ const UserRoles = () => {
         emp.name.toLowerCase().includes(search.toLowerCase()) ||
         emp.email.toLowerCase().includes(search.toLowerCase());
 
-      const matchRole =
-        roleFilter === 'All' || emp.role === roleFilter;
-
-      return matchSearch && matchRole;
+      return matchSearch;
     });
-  }, [employees, search, roleFilter]);
+  }, [employees, search]);
 
   // Stats Calculation
   const stats = useMemo(() => {
@@ -74,10 +63,33 @@ const UserRoles = () => {
     };
   }, [employees]);
 
+  const getEmployees = async() => {
+    setLoading(true);
+      try {
+        const response = await api.get('/employees', {
+          params: {
+            page: pagination.page,
+            limit: pagination.limit,
+            designation: designationFilter === 'All' ? '' : designationFilter
+          }
+        });
+        if(response?.data && response?.data?.success === true) {
+          setEmployees(response?.data?.data);
+          setPagination(response?.data?.pagination);
+          let allDesignation = response?.data?.designations.map((d) => d.designation);
+          setDesignations(allDesignation);
+        }
+      } catch (error) {
+        handleApiError(error);
+      } finally {
+        setLoading(false);
+      }
+  };
+
   // Handlers
   const handleOpenAdd = () => {
     setEditing(null);
-    setForm({ name: '', email: '', role: 'User', active: true });
+    setForm({ name: '', email: '', role: 'User', active: true, designation: '', dateOfJoining: '' });
     setOpen(true);
   };
 
@@ -116,6 +128,14 @@ const UserRoles = () => {
     );
   };
 
+  useEffect(() => {
+    getEmployees();
+  }, [pagination.page, pagination.limit, designationFilter]);
+
+  if(loading === true) {
+    return <Loader />
+  }
+
   return (
     <Box>
       {/* HEADER */}
@@ -147,19 +167,17 @@ const UserRoles = () => {
       <EmployeeFilters
         search={search}
         setSearch={setSearch}
-        roleFilter={roleFilter}
-        setRoleFilter={setRoleFilter}
-        roleOptions={roleOptions}
+        designationFilter={designationFilter}
+        setDesignationFilter={setDesignationFilter}
+        designations={designations}
         handleOpenAdd={handleOpenAdd}
       />
 
       {/* TABLE */}
       <EmployeeTable
         filteredEmployees={filteredEmployees}
-        page={page}
-        setPage={setPage}
-        rowsPerPage={rowsPerPage}
-        setRowsPerPage={setRowsPerPage}
+        pagination={pagination}
+        setPagination={setPagination}
         handleEdit={handleEdit}
         handleDelete={handleDelete}
         handleStatusToggle={handleStatusToggle}

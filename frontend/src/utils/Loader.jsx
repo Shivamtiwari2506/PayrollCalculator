@@ -42,7 +42,9 @@ export default function Loader({ message = 'Loading...', fullScreen = false }) {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: 4,
+        width: '100%',
+        flex: 1,
+        minHeight: '60vh',
       }}
     >
       {content}

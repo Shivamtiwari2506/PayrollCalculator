@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import authRoutes from './routes/authRoutes.js';
 import orgRoutes from './routes/orgRoutes.js'
+import empRoutes from './routes/employeeRoutes.js'
 dotenv.config();
 
 const app = express();
@@ -13,6 +14,7 @@ app.use(express.json());
 
 app.use('/api/auth', authRoutes);
 app.use('/api/org', orgRoutes);
+app.use('/api/employees', empRoutes);
 
 app.get('/', (req, res) => {
   res.json({ message: 'API is running' });

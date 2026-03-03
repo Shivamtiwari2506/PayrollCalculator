@@ -2,7 +2,7 @@ import { Paper, Grid, TextField, MenuItem, InputAdornment, Button } from '@mui/m
 import SearchIcon from '@mui/icons-material/Search';
 import AddIcon from '@mui/icons-material/Add';
 
-const EmployeeFilters = ({ search, setSearch, roleFilter, setRoleFilter, roleOptions, handleOpenAdd }) => {
+const EmployeeFilters = ({ search, setSearch, designationFilter, setDesignationFilter, designations, handleOpenAdd }) => {
   return (
     <Paper
       elevation={2}
@@ -17,7 +17,7 @@ const EmployeeFilters = ({ search, setSearch, roleFilter, setRoleFilter, roleOpt
         {/* 🔍 Search */}
         <Grid item xs={12} md={5}>
           <TextField
-            fullWidth
+            fullWidth={true}
             size="small"
             placeholder="Search by name or email..."
             value={search}
@@ -39,11 +39,11 @@ const EmployeeFilters = ({ search, setSearch, roleFilter, setRoleFilter, roleOpt
             fullWidth
             size="small"
             label="Filter by Designation"
-            value={roleFilter}
-            onChange={(e) => setRoleFilter(e.target.value)}
+            value={designationFilter}
+            onChange={(e) => setDesignationFilter(e.target.value)}
           >
             <MenuItem value="All">All</MenuItem>
-            {roleOptions.map((r) => (
+            {designations.map((r) => (
               <MenuItem key={r} value={r}>
                 {r}
               </MenuItem>

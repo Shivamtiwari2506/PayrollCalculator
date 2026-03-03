@@ -26,10 +26,8 @@ const getRoleColor = (role) => {
 
 const EmployeeTable = ({
   filteredEmployees,
-  page,
-  setPage,
-  rowsPerPage,
-  setRowsPerPage,
+  pagination,
+  setPagination,
   handleEdit,
   handleDelete,
   handleStatusToggle,
@@ -42,15 +40,13 @@ const EmployeeTable = ({
             <TableCell><b>Employee</b></TableCell>
             <TableCell><b>Email</b></TableCell>
             <TableCell><b>Role</b></TableCell>
-            <TableCell><b>Status</b></TableCell>
-            <TableCell align="right"><b>Actions</b></TableCell>
+            <TableCell><b>Designation</b></TableCell>
+            <TableCell align="center"><b>Actions</b></TableCell>
           </TableRow>
         </TableHead>
 
         <TableBody>
-          {filteredEmployees
-            .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-            .map((emp) => (
+          {filteredEmployees.map((emp) => (
               <TableRow key={emp.id} hover>
                 <TableCell>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
@@ -71,13 +67,14 @@ const EmployeeTable = ({
                 </TableCell>
 
                 <TableCell>
-                  <Switch
-                    checked={emp.active}
-                    onChange={() => handleStatusToggle(emp.id)}
+                  <Chip
+                    label={emp.designation}
+                    color={"secondary"}
+                    size="small"
                   />
                 </TableCell>
 
-                <TableCell align="right">
+                <TableCell align="center">
                   <Tooltip title="Edit">
                     <IconButton onClick={() => handleEdit(emp)}>
                       <EditIcon />
@@ -100,13 +97,14 @@ const EmployeeTable = ({
 
       <TablePagination
         component="div"
-        count={filteredEmployees.length}
-        page={page}
-        onPageChange={(_, newPage) => setPage(newPage)}
-        rowsPerPage={rowsPerPage}
+        count={pagination.total}
+        page={pagination.page-1}
+        onPageChange={(_, newPage) => setPagination({ ...pagination, page: newPage + 1 })}
+        rowsPerPage={pagination.limit}
         onRowsPerPageChange={(e) =>
-          setRowsPerPage(parseInt(e.target.value, 10))
+          setPagination({ ...pagination, page: 1, limit: parseInt(e.target.value, 10) })
         }
+        rowsPerPageOptions={[10, 20, 50, 100]}
       />
     </Paper>
   );

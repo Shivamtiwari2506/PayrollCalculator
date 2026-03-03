@@ -45,6 +45,14 @@ export const getEmployees = async (req, res) => {
             prisma.user.count({ where }),
         ]);
 
+        const designations = await prisma.user.findMany({
+            where: { orgId },
+            distinct: ['designation'],
+            select: {
+                designation: true,
+            },
+        });
+
         return res.status(200).json({
             success: true,
             data: employees,
@@ -52,10 +60,8 @@ export const getEmployees = async (req, res) => {
                 page,
                 limit,
                 total,
-                totalPages: Math.ceil(total / limit),
-                hasNext: skip + employees.length < total,
-                hasPrev: page > 1,
             },
+            designations
         });
     } catch (error) {
         console.error("Get Employees list Error:", error);
