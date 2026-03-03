@@ -36,7 +36,7 @@ const EmployeeFilters = ({ search, setSearch, designationFilter, setDesignationF
         <Grid item xs={12} md={4}>
           <TextField
             select
-            fullWidth
+            fullWidth={true}
             size="small"
             label="Filter by Designation"
             value={designationFilter}
@@ -62,7 +62,7 @@ const EmployeeFilters = ({ search, setSearch, designationFilter, setDesignationF
           }}
         >
           <Button
-            fullWidth={{ xs: true, md: false }}
+            fullWidth={false}
             variant="contained"
             startIcon={<AddIcon />}
             onClick={handleOpenAdd}
@@ -70,6 +70,7 @@ const EmployeeFilters = ({ search, setSearch, designationFilter, setDesignationF
               textTransform: 'none',
               fontWeight: 600,
               height: 40,
+              width: { xs: '100%', sm: 'auto' }
             }}
           >
             Add Employee

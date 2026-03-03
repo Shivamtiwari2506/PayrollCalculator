@@ -9,6 +9,7 @@ import { handleApiError } from '../../utils/commonFunctions/errorHandler';
 import api from '../../services/api';
 import { useEffect } from 'react';
 import Loader from '../../utils/Loader';
+import { toast } from 'react-toastify';
 
 const roleOptions = ROLES ? Object.values(ROLES) : [];
 
@@ -17,6 +18,7 @@ const UserRoles = () => {
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [formLoading, setFormLoading] = useState(false);
   const [designations, setDesignations] = useState([]);
   const [form, setForm] = useState({
     name: '',
@@ -86,6 +88,22 @@ const UserRoles = () => {
       }
   };
 
+  const addEmployee = async() => {
+    setFormLoading(true);
+    try {
+      const response = await api.post('/employees', form);
+      if(response?.data && response?.data.success === true) {
+        toast.success(response?.data?.message || 'employee added successfully');
+        getEmployees();
+      }
+    } catch (error) {
+      handleApiError(error);
+    } finally {
+      setFormLoading(false);
+      setOpen(false);
+    }
+  }
+
   // Handlers
   const handleOpenAdd = () => {
     setEditing(null);
@@ -111,13 +129,8 @@ const UserRoles = () => {
         prev.map((e) => (e.id === editing.id ? { ...form } : e))
       );
     } else {
-      setEmployees((prev) => [
-        ...prev,
-        { ...form, id: Date.now() },
-      ]);
+      addEmployee();
     }
-
-    setOpen(false);
   };
 
   const handleStatusToggle = (id) => {
@@ -192,6 +205,7 @@ const UserRoles = () => {
         setForm={setForm}
         handleSubmit={handleSubmit}
         roleOptions={roleOptions}
+        formLoading={formLoading}
       />
     </Box>
   );

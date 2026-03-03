@@ -12,6 +12,7 @@ import {
   IconButton,
   Divider,
   InputAdornment,
+  CircularProgress,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import PersonIcon from '@mui/icons-material/Person';
@@ -28,6 +29,7 @@ const EmployeeFormDialog = ({
   setForm,
   handleSubmit,
   roleOptions,
+  formLoading
 }) => {
   const [errors, setErrors] = useState({});
 
@@ -93,7 +95,7 @@ const EmployeeFormDialog = ({
       maxWidth="md"
       PaperProps={{
         sx: {
-          borderRadius: 3,
+          borderRadius: 2,
           boxShadow: '0px 24px 48px rgba(0, 0, 0, 0.2)',
         }
       }}
@@ -283,6 +285,8 @@ const EmployeeFormDialog = ({
         <Button 
           variant="contained" 
           onClick={handleFormSubmit}
+          startIcon={formLoading ? <CircularProgress size={20} /> : ""}
+          disabled={formLoading}
           size="large"
           sx={{ 
             minWidth: 120,

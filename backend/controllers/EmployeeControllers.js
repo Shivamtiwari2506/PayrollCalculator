@@ -38,6 +38,8 @@ export const getEmployees = async (req, res) => {
                     name: true,
                     role: true,
                     designation: true,
+                    dateOfJoining: true,
+                    active: true,
                     createdAt: true,
                     updatedAt: true,
                 },
@@ -73,7 +75,54 @@ export const getEmployees = async (req, res) => {
 };
 
 export const addEmployee = async (req, res) => {
+    try {
+        const { orgId, userId } = req;
+        const {name, email, designation, role, dateOfJoining, active} = req.body;
+        if(!name || !email || !designation || !role || !dateOfJoining) {
+            return res.status(400).json({
+                success: false,
+                message: "All fields are required",
+            });
+        };
+        const isExisting = await prisma.user.findUnique({
+            where: {
+                email_orgId: {
+                    email,
+                    orgId,
+                },
+            },
+        });
+        if(isExisting) {
+            return res.status(409).json({
+                success: false,
+                message: "Employee already exists with this email",
+            });
+        }
 
+        await prisma.user.create({
+            data: {
+                name,
+                email,
+                password: "newUser",
+                designation,
+                role,
+                dateOfJoining,
+                active,
+                orgId,
+                createdBy: userId,
+            }
+        });
+        return res.status(201).json({
+            success: true,
+            message: "Employee added successfully",
+        });
+    } catch (error) {
+        console.error("add Employee Error:", error);
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error",
+        });
+    }
 };
 
 export const updateEmployee = async (req, res) => {

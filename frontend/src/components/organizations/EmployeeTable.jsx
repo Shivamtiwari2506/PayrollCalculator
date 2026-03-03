@@ -41,6 +41,7 @@ const EmployeeTable = ({
             <TableCell><b>Email</b></TableCell>
             <TableCell><b>Role</b></TableCell>
             <TableCell><b>Designation</b></TableCell>
+            <TableCell><b>Date of Joining</b></TableCell>
             <TableCell align="center"><b>Actions</b></TableCell>
           </TableRow>
         </TableHead>
@@ -73,6 +74,8 @@ const EmployeeTable = ({
                     size="small"
                   />
                 </TableCell>
+
+                <TableCell>{emp.dateOfJoining}</TableCell>
 
                 <TableCell align="center">
                   <Tooltip title="Edit">
