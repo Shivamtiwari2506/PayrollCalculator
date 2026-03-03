@@ -238,7 +238,7 @@ const EmployeeFormDialog = ({
                 ),
               }}
             >
-              {roleOptions.map((r) => (
+              {roleOptions.filter((r) => r !== 'Admin').map((r) => (
                 <MenuItem key={r} value={r}>
                   {r.replace('_', ' ')}
                 </MenuItem>
