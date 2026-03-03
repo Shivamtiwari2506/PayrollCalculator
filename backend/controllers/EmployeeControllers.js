@@ -1,5 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-
+import bcrypt from "bcryptjs";
 const prisma = new PrismaClient();
 
 export const getEmployees = async (req, res) => {
@@ -98,12 +98,12 @@ export const addEmployee = async (req, res) => {
                 message: "Employee already exists with this email",
             });
         }
-
+        let password = await bcrypt.hash("newUser", 10);
         await prisma.user.create({
             data: {
                 name,
                 email,
-                password: "newUser",
+                password,
                 designation,
                 role,
                 dateOfJoining,
@@ -126,11 +126,132 @@ export const addEmployee = async (req, res) => {
 };
 
 export const updateEmployee = async (req, res) => {
+    try {
+        const { orgId, userId } = req;
+        const {
+            id,
+            name,
+            email,
+            designation,
+            role,
+            dateOfJoining,
+            active,
+            password,
+        } = req.body;
 
+        let updatedData = {};
+
+        if (!id) {
+            return res.status(400).json({
+                success: false,
+                message: "Id is required",
+            });
+        }
+
+        const employee = await prisma.user.findFirst({
+            where: { id, orgId },
+        });
+
+        if (!employee) {
+            return res.status(404).json({
+                success: false,
+                message: "Employee not found in this organization",
+            });
+        }
+
+        if (email && email !== employee.email) {
+            const emailExists = await prisma.user.findUnique({
+                where: {
+                    email_orgId: { email, orgId },
+                },
+            });
+
+            if (emailExists) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Email already exists in this organization",
+                });
+            }
+        }
+
+        if (name) updatedData.name = name;
+        if (email) updatedData.email = email.toLowerCase();
+        if (designation) updatedData.designation = designation;
+        if (role) updatedData.role = role;
+        if (dateOfJoining) updatedData.dateOfJoining = dateOfJoining;
+        if (active !== undefined) updatedData.active = active;
+
+        if (password) {
+            updatedData.password = await bcrypt.hash(password, 10);
+        }
+
+        if (Object.keys(updatedData).length === 0) {
+            return res.status(400).json({
+                success: false,
+                message: "No fields to update",
+            });
+        }
+
+        await prisma.user.update({
+            where: { id },
+            data: { ...updatedData, updatedBy: userId },
+        });
+
+        return res.status(200).json({
+            success: true,
+            message: "Employee details updated successfully",
+        });
+
+    } catch (error) {
+        if (error.code === "P2002") {
+            return res.status(409).json({
+                success: false,
+                message: "Email already exists in this organization",
+            });
+        }
+        console.error("update Employee Error:", error);
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error",
+        });
+    }
 };
 
 export const deleteEmployee = async (req, res) => {
-
+    try {
+        const {orgId, userId} = req;
+        
+        const {id} = req.params;
+        if(!id) {
+            return res.status(400).json({
+                success: false,
+                message: "Id is required",
+            });
+        }
+        const employeeExists = await prisma.user.findUnique({
+            where: {id, orgId},
+        });
+        if(!employeeExists) {
+            return res.status(404).json({
+                success: false,
+                message: "Employee not found in this organization",
+            });
+        }
+        await prisma.user.delete({
+            where: {id, orgId},
+        });
+        return res.status(200).json({
+            success: true,
+            message: "Employee deleted successfully",
+        });
+        
+    } catch (error) {
+        console.error("delete Employee Error:", error);
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error",
+        });
+    }
 };
 
 export const getEmployeeById = async (req, res) => {

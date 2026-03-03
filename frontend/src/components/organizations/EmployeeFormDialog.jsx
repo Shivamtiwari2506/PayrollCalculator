@@ -13,6 +13,8 @@ import {
   Divider,
   InputAdornment,
   CircularProgress,
+  Switch,
+  FormControlLabel,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import PersonIcon from '@mui/icons-material/Person';
@@ -20,6 +22,7 @@ import EmailIcon from '@mui/icons-material/Email';
 import BadgeIcon from '@mui/icons-material/Badge';
 import WorkIcon from '@mui/icons-material/Work';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
+import StatusToggle from '../StatusToggle';
 
 const EmployeeFormDialog = ({
   open,
@@ -247,6 +250,16 @@ const EmployeeFormDialog = ({
               ))}
             </TextField>
           </Grid>
+
+          {/* active */}
+          <StatusToggle
+            value={form.active}
+            onChange={(val) => handleFieldChange("active", val)}
+            title="Account Activation"
+            subtitle="Control login permission"
+            activeLabel="Enabled"
+            inactiveLabel="Disabled"
+          />
         </Grid>
 
         {/* Info Box */}
@@ -271,6 +284,7 @@ const EmployeeFormDialog = ({
         <Button 
           onClick={handleClose}
           variant="outlined"
+          disabled={formLoading}
           size="large"
           sx={{ 
             minWidth: 100,

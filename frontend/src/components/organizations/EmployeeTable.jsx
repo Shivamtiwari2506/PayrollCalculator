@@ -17,6 +17,7 @@ import {
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { getInitials } from '../../utils/commonFunctions/helpers';
+import dayjs from 'dayjs';
 
 const getRoleColor = (role) => {
   if (role === 'Admin') return 'error';
@@ -30,7 +31,6 @@ const EmployeeTable = ({
   setPagination,
   handleEdit,
   handleDelete,
-  handleStatusToggle,
 }) => {
   return (
     <Paper elevation={3} sx={{ borderRadius: 0.5 }}>
@@ -42,6 +42,7 @@ const EmployeeTable = ({
             <TableCell><b>Role</b></TableCell>
             <TableCell><b>Designation</b></TableCell>
             <TableCell><b>Date of Joining</b></TableCell>
+            <TableCell align="center"><b>Account Status</b></TableCell>
             <TableCell align="center"><b>Actions</b></TableCell>
           </TableRow>
         </TableHead>
@@ -75,7 +76,14 @@ const EmployeeTable = ({
                   />
                 </TableCell>
 
-                <TableCell>{emp.dateOfJoining}</TableCell>
+                <TableCell>{dayjs(emp.dateOfJoining).format('DD/MMM/YYYY')}</TableCell>
+                <TableCell align="center">
+                  <Chip
+                    label={emp.active ? 'Active' : 'Inactive'}
+                    color={emp.active ? 'success' : 'error'}
+                    size="small"
+                  />
+                </TableCell>
 
                 <TableCell align="center">
                   <Tooltip title="Edit">
@@ -84,14 +92,14 @@ const EmployeeTable = ({
                     </IconButton>
                   </Tooltip>
 
-                  <Tooltip title="Delete">
+                  {(JSON.parse(localStorage.getItem('user')).id !== emp.id) &&<Tooltip title="Delete">
                     <IconButton
                       color="error"
-                      onClick={() => handleDelete(emp.id)}
+                      onClick={() => handleDelete(emp)}
                     >
                       <DeleteIcon />
                     </IconButton>
-                  </Tooltip>
+                  </Tooltip>}
                 </TableCell>
               </TableRow>
             ))}

@@ -33,12 +33,13 @@ model User {
   designation     String   @default("Not Specified")
   dateOfJoining   String?
 
-  active          Boolean  @default(true)
+  active          Boolean  @default(false)
 
   orgId           String
   org             Org      @relation(fields: [orgId], references: [id], onDelete: Cascade)
 
-  createdBy       String?  // who created this user (admin/org admin id)
+  createdBy       String?  // who created this user (org admin id)
+  updatedBy       String?  // who updated this user (org admin id)
 
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt

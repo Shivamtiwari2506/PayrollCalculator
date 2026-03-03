@@ -10,24 +10,27 @@ import api from '../../services/api';
 import { useEffect } from 'react';
 import Loader from '../../utils/Loader';
 import { toast } from 'react-toastify';
+import DeleteConfirmDialog from '../../components/DeleteConfirmDialog';
 
 const roleOptions = ROLES ? Object.values(ROLES) : [];
-
+const defaultForm = {
+  name: '',
+  email: '',
+  role: 'User',
+  active: false,
+  designation: '',
+  dateOfJoining: '',
+}
 const UserRoles = () => {
   const [employees, setEmployees] = useState([]);
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState(null);
+  console.log(editing);
   const [loading, setLoading] = useState(false);
   const [formLoading, setFormLoading] = useState(false);
   const [designations, setDesignations] = useState([]);
-  const [form, setForm] = useState({
-    name: '',
-    email: '',
-    role: 'User',
-    active: true,
-    designation: '',
-    dateOfJoining: '',
-  });
+  const [openDelete, setOpenDelete] = useState(false);
+  const [form, setForm] = useState(defaultForm);
 
   const [search, setSearch] = useState('');
   const [designationFilter, setDesignationFilter] = useState('All');
@@ -53,9 +56,10 @@ const UserRoles = () => {
     const totalEmployees = employees.length;
     const activeEmployees = employees.filter(emp => emp.active).length;
     const adminCount = employees.filter(emp => emp.role === 'Admin' || emp.role === 'Org_Admin').length;
-    const newThisMonth = employees.filter(emp => {
-      return emp.id > 1000;
-    }).length;
+    const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+    const newThisMonth = employees.filter(
+      emp => emp.dateOfJoining && new Date(emp.dateOfJoining) >= startOfMonth
+    ).length;
 
     return {
       total: totalEmployees,
@@ -104,10 +108,46 @@ const UserRoles = () => {
     }
   }
 
+  const updateEmployee = async() => {
+    setFormLoading(true);
+    try {
+      const response = await api.put(`/employees/update`, {
+        ...form,
+        id: editing.id
+      });
+      if(response?.data && response?.data.success === true) {
+        toast.success(response?.data?.message || 'employee updated successfully');
+        getEmployees();
+      }
+    } catch (error) {
+      handleApiError(error);
+    } finally {
+      setFormLoading(false);
+      setOpen(false);
+    }
+  }
+
+  const deleteEmployee = async() => {
+    setFormLoading(true);
+    try {
+      const response = await api.delete(`/employees/${editing.id}`);
+      if(response?.data && response?.data.success === true) {
+        toast.success(response?.data?.message || 'employee deleted successfully');
+        getEmployees();
+      }
+    } catch (error) {
+      handleApiError(error);
+    } finally {
+      setFormLoading(false);
+      setEditing(null);
+      setOpenDelete(false);
+    }
+  }
+
   // Handlers
   const handleOpenAdd = () => {
     setEditing(null);
-    setForm({ name: '', email: '', role: 'User', active: true, designation: '', dateOfJoining: '' });
+    setForm(defaultForm);
     setOpen(true);
   };
 
@@ -117,17 +157,14 @@ const UserRoles = () => {
     setOpen(true);
   };
 
-  const handleDelete = (id) => {
-    setEmployees((prev) => prev.filter((e) => e.id !== id));
+  const handleDelete = async (emp) => {
+    setOpenDelete(true);
+    setEditing(emp);
   };
 
   const handleSubmit = () => {
-    if (!form.name || !form.email) return;
-
     if (editing) {
-      setEmployees((prev) =>
-        prev.map((e) => (e.id === editing.id ? { ...form } : e))
-      );
+      updateEmployee();
     } else {
       addEmployee();
     }
@@ -206,6 +243,14 @@ const UserRoles = () => {
         handleSubmit={handleSubmit}
         roleOptions={roleOptions}
         formLoading={formLoading}
+      />
+
+      <DeleteConfirmDialog
+        open={openDelete}
+        onClose={() => {setOpenDelete(false); setEditing(null)}}
+        onConfirm={deleteEmployee}
+        loading={formLoading}
+        itemName={editing?.name}
       />
     </Box>
   );
