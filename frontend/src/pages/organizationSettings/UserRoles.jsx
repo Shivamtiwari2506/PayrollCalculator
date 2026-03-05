@@ -1,10 +1,10 @@
 import { useMemo, useState } from 'react';
 import { Typography, Box, Button } from '@mui/material';
 import { ROLES } from '../../utils/commonFunctions/helpers';
-import EmployeeStatsCards from '../../components/organizations/EmployeeStatsCards';
-import EmployeeFilters from '../../components/organizations/EmployeeFilters';
-import EmployeeTable from '../../components/organizations/EmployeeTable';
-import EmployeeFormDialog from '../../components/organizations/EmployeeFormDialog';
+import EmployeeStatsCards from '../../components/organizations/userRoles/EmployeeStatsCards';
+import EmployeeFilters from '../../components/organizations/userRoles/EmployeeFilters';
+import EmployeeTable from '../../components/organizations/userRoles/EmployeeTable';
+import EmployeeFormDialog from '../../components/organizations/userRoles/EmployeeFormDialog';
 import { handleApiError } from '../../utils/commonFunctions/errorHandler';
 import api from '../../services/api';
 import { useEffect } from 'react';

@@ -16,7 +16,7 @@ import {
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { getInitials } from '../../utils/commonFunctions/helpers';
+import { getInitials } from '../../../utils/commonFunctions/helpers';
 import dayjs from 'dayjs';
 
 const getRoleColor = (role) => {

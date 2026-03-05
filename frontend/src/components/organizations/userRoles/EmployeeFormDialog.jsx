@@ -22,7 +22,7 @@ import EmailIcon from '@mui/icons-material/Email';
 import BadgeIcon from '@mui/icons-material/Badge';
 import WorkIcon from '@mui/icons-material/Work';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
-import StatusToggle from '../StatusToggle';
+import StatusToggle from '../../StatusToggle';
 
 const EmployeeFormDialog = ({
   open,
