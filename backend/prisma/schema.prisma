@@ -22,7 +22,56 @@ model Org {
   updatedAt DateTime @updatedAt
 
   users     User[]
+  profile   OrgProfile?  @relation("OrgProfile")
 }
+
+model OrgProfile {
+  id              String   @id @default(uuid())
+  orgId           String   @unique
+  org             Org      @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  // Basic Information
+  phone           String?
+  website         String?
+  logo            String?  // URL to logo image
+  description     String?  @db.Text
+
+  // Company Details
+  industry        String?
+  companySize     String?
+  foundedYear     String?
+  registrationNumber String?
+
+  // Address Information
+  address         String?
+  city            String?
+  state           String?
+  pincode         String?
+  country         String   @default("India")
+
+  // Tax & Legal Information
+  pan             String?
+  gst             String?
+  taxId           String?
+
+  // Banking Information
+  bankName        String?
+  accountNumber   String?
+  ifscCode        String?
+
+  // Payroll & Financial Settings
+  currency        String   @default("INR")
+  timezone        String   @default("Asia/Kolkata")
+  fiscalYearStart String   @default("April")
+  payrollStartDate Int     @default(1) // Day of month (1-31)
+  workingDays     String   @default("Monday to Friday")
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([orgId])
+}
+
 
 model User {
   id              String   @id @default(uuid())

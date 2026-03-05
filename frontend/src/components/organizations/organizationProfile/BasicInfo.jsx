@@ -4,6 +4,7 @@ import PhotoCameraIcon from '@mui/icons-material/PhotoCamera';
 import EmailIcon from '@mui/icons-material/Email';
 import PhoneIcon from '@mui/icons-material/Phone';
 import LanguageIcon from '@mui/icons-material/Language';
+import CloseIcon from "@mui/icons-material/Close";
 
 const BasicInfo = ({form, editMode, handleChange}) => {
   return (
@@ -12,45 +13,82 @@ const BasicInfo = ({form, editMode, handleChange}) => {
           <Grid container spacing={4} alignItems="center">
             {/* Logo */}
             <Grid item xs={12} md={3}>
-              <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-                <Box sx={{ position: "relative" }}>
-                  <Avatar
-                    src={form.logo}
+            <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+              <Box
+                sx={{
+                  position: "relative",
+                  "&:hover .delete-icon": {
+                    opacity: 1,
+                  },
+                }}
+              >
+                <Avatar
+                  src={form.logo}
+                  sx={{
+                    width: 140,
+                    height: 140,
+                    border: "4px solid",
+                    borderColor: "primary.main",
+                    boxShadow: 3,
+                  }}
+                >
+                  <BusinessIcon sx={{ fontSize: 60 }} />
+                </Avatar>
+
+                {/* Upload Icon */}
+                {editMode && (
+                  <IconButton
+                    component="label"
                     sx={{
-                      width: 140,
-                      height: 140,
-                      border: "4px solid",
-                      borderColor: "primary.main",
-                      boxShadow: 3,
+                      position: "absolute",
+                      bottom: 0,
+                      right: 0,
+                      backgroundColor: "primary.main",
+                      color: "white",
+                      "&:hover": {
+                        backgroundColor: "primary.dark",
+                      },
                     }}
                   >
-                    <BusinessIcon sx={{ fontSize: 60 }} />
-                  </Avatar>
-                  {editMode && (
-                    <IconButton
-                      component="label"
-                      sx={{
-                        position: "absolute",
-                        bottom: 0,
-                        right: 0,
-                        backgroundColor: "primary.main",
-                        color: "white",
-                        "&:hover": {
-                          backgroundColor: "primary.dark",
-                        },
-                      }}
-                    >
-                      <PhotoCameraIcon />
-                      <input hidden type="file" accept="image/*" />
-                    </IconButton>
-                  )}
-                </Box>
-                {editMode && (
-                  <Typography variant="caption" color="text.secondary" sx={{ mt: 2, textAlign: "center" }}>
-                    Upload company logo (Max 2MB)
-                  </Typography>
+                    <PhotoCameraIcon />
+                    <input
+                      hidden
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => handleChange("logo", e.target.files[0])}
+                    />
+                  </IconButton>
+                )}
+
+                {/* Delete Icon */}
+                {editMode && form.logo !== '' && (
+                  <IconButton
+                    className="delete-icon"
+                    onClick={() => handleChange("logo", "remove")}
+                    sx={{
+                      position: "absolute",
+                      top: "50%",
+                      left: "50%",
+                      transform: "translate(-50%, -50%)",
+                      backgroundColor: "info.main",
+                      color: "white",
+                      opacity: 0,
+                      transition: "0.2s",
+                      "&:hover": {
+                        backgroundColor: "info.dark",
+                      },
+                    }}
+                  >
+                    <CloseIcon fontSize="small" />
+                  </IconButton>
                 )}
               </Box>
+              {editMode && (
+                <Typography variant="caption" color="text.secondary" sx={{ mt: 2, textAlign: "center" }}>
+                  Upload company logo (Max 1MB)
+                </Typography>
+              )}
+            </Box>
             </Grid>
 
             {/* Basic Info */}
@@ -61,8 +99,7 @@ const BasicInfo = ({form, editMode, handleChange}) => {
                     label="Organization Name"
                     fullWidth
                     value={form.orgName}
-                    disabled={!editMode}
-                    onChange={(e) => handleChange("orgName", e.target.value)}
+                    disabled={true}
                     InputProps={{
                       startAdornment: (
                         <InputAdornment position="start">
@@ -79,8 +116,7 @@ const BasicInfo = ({form, editMode, handleChange}) => {
                     fullWidth
                     type="email"
                     value={form.email}
-                    disabled={!editMode}
-                    onChange={(e) => handleChange("email", e.target.value)}
+                    disabled={true}
                     InputProps={{
                       startAdornment: (
                         <InputAdornment position="start">

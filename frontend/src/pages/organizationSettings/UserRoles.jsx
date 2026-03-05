@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import {useDispatch} from 'react-redux';
 import { Typography, Box, Button } from '@mui/material';
 import { ROLES } from '../../utils/commonFunctions/helpers';
 import EmployeeStatsCards from '../../components/organizations/userRoles/EmployeeStatsCards';
@@ -11,6 +12,8 @@ import { useEffect } from 'react';
 import Loader from '../../utils/Loader';
 import { toast } from 'react-toastify';
 import DeleteConfirmDialog from '../../components/DeleteConfirmDialog';
+import { getCurrentUser } from '../../redux/actions/userActions';
+import { getOrgData } from '../../redux/actions/orgActions';
 
 const roleOptions = ROLES ? Object.values(ROLES) : [];
 const defaultForm = {
@@ -22,6 +25,7 @@ const defaultForm = {
   dateOfJoining: '',
 }
 const UserRoles = () => {
+  const dispatch = useDispatch();
   const [employees, setEmployees] = useState([]);
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState(null);
@@ -117,6 +121,8 @@ const UserRoles = () => {
       });
       if(response?.data && response?.data.success === true) {
         toast.success(response?.data?.message || 'employee updated successfully');
+        dispatch(getCurrentUser());
+        dispatch(getOrgData());
         getEmployees();
       }
     } catch (error) {

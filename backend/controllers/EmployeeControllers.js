@@ -126,95 +126,141 @@ export const addEmployee = async (req, res) => {
 };
 
 export const updateEmployee = async (req, res) => {
-    try {
-        const { orgId, userId } = req;
-        const {
-            id,
-            name,
-            email,
-            designation,
-            role,
-            dateOfJoining,
-            active,
-            password,
-        } = req.body;
+  try {
+    const { orgId, userId } = req;
+    const {
+      id,
+      name,
+      email,
+      designation,
+      role,
+      dateOfJoining,
+      active,
+      password,
+    } = req.body;
 
-        let updatedData = {};
-
-        if (!id) {
-            return res.status(400).json({
-                success: false,
-                message: "Id is required",
-            });
-        }
-
-        const employee = await prisma.user.findFirst({
-            where: { id, orgId },
-        });
-
-        if (!employee) {
-            return res.status(404).json({
-                success: false,
-                message: "Employee not found in this organization",
-            });
-        }
-
-        if (email && email !== employee.email) {
-            const emailExists = await prisma.user.findUnique({
-                where: {
-                    email_orgId: { email, orgId },
-                },
-            });
-
-            if (emailExists) {
-                return res.status(400).json({
-                    success: false,
-                    message: "Email already exists in this organization",
-                });
-            }
-        }
-
-        if (name) updatedData.name = name;
-        if (email) updatedData.email = email.toLowerCase();
-        if (designation) updatedData.designation = designation;
-        if (role) updatedData.role = role;
-        if (dateOfJoining) updatedData.dateOfJoining = dateOfJoining;
-        if (active !== undefined) updatedData.active = active;
-
-        if (password) {
-            updatedData.password = await bcrypt.hash(password, 10);
-        }
-
-        if (Object.keys(updatedData).length === 0) {
-            return res.status(400).json({
-                success: false,
-                message: "No fields to update",
-            });
-        }
-
-        await prisma.user.update({
-            where: { id },
-            data: { ...updatedData, updatedBy: userId },
-        });
-
-        return res.status(200).json({
-            success: true,
-            message: "Employee details updated successfully",
-        });
-
-    } catch (error) {
-        if (error.code === "P2002") {
-            return res.status(409).json({
-                success: false,
-                message: "Email already exists in this organization",
-            });
-        }
-        console.error("update Employee Error:", error);
-        return res.status(500).json({
-            success: false,
-            message: "Internal server error",
-        });
+    if (!id) {
+      return res.status(400).json({
+        success: false,
+        message: "Employee id is required",
+      });
     }
+
+    // Find employee
+    const employee = await prisma.user.findFirst({
+      where: { id, orgId },
+    });
+
+    if (!employee) {
+      return res.status(404).json({
+        success: false,
+        message: "Employee not found in this organization",
+      });
+    }
+
+    const organization = await prisma.org.findUnique({
+      where: { id: orgId },
+      select: { email: true, name: true },
+    });
+
+    if (!organization) {
+      return res.status(404).json({
+        success: false,
+        message: "Organization not found",
+      });
+    }
+
+      if (
+          employee.role === "Org_Admin" &&
+          organization.email === employee.email &&
+          role &&
+          role !== "Org_Admin"
+      ) {
+          return res.status(403).json({
+              success: false,
+              message: "Organization admin role cannot be changed",
+          });
+      }
+
+    const updatedData = {};
+
+    if (name && name !== employee.name) {
+      updatedData.name = name;
+    }
+
+    if (designation) updatedData.designation = designation;
+
+    if (role) updatedData.role = role;
+
+    if (dateOfJoining) updatedData.dateOfJoining = dateOfJoining;
+
+    if (active !== undefined) updatedData.active = active;
+
+    if (email && email.toLowerCase() !== employee.email) {
+      updatedData.email = email.toLowerCase();
+    }
+
+    if (password) {
+      updatedData.password = await bcrypt.hash(password, 10);
+    }
+
+    if (Object.keys(updatedData).length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "No fields to update",
+      });
+    }
+
+    let shouldUpdateOrg = false;
+
+    // Check if employee is org owner (same email)
+    if (
+        email &&
+        employee.email.toLowerCase() === organization.email.toLowerCase() &&
+        email.toLowerCase() !== organization.email.toLowerCase()
+    ) {
+        shouldUpdateOrg = true;
+    }
+
+    await prisma.$transaction(async (tx) => {
+      await tx.user.update({
+        where: { id },
+        data: {
+          ...updatedData,
+          updatedBy: userId,
+        },
+      });
+
+      if (shouldUpdateOrg) {
+        await tx.org.update({
+          where: { id: orgId },
+          data: {
+            email: updatedData.email,
+            name: name || organization.name,
+          },
+        });
+      }
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Employee updated successfully",
+    });
+  } catch (error) {
+    if (error.code === "P2002") {
+      return res.status(409).json({
+        success: false,
+        message: "Email already exists in this organization",
+      });
+    }
+
+    console.error("Update Employee Error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
 };
 
 export const deleteEmployee = async (req, res) => {

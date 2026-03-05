@@ -1,75 +1,150 @@
-import { useState } from "react";
-import {
-  Typography,
-  Grid,
-  TextField,
-  Button,
-  Avatar,
-  Box,
-  MenuItem,
-  Card,
-  CardContent,
-  IconButton,
-  InputAdornment,
-  Chip,
-} from "@mui/material";
-import BusinessIcon from '@mui/icons-material/Business';
-import EmailIcon from '@mui/icons-material/Email';
-import PhoneIcon from '@mui/icons-material/Phone';
-import LanguageIcon from '@mui/icons-material/Language';
+import { useEffect, useState } from "react";
+import {Typography,Button,Box, CircularProgress} from "@mui/material";
 import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
 import CancelIcon from '@mui/icons-material/Cancel';
-import PhotoCameraIcon from '@mui/icons-material/PhotoCamera';
-import LocationOnIcon from '@mui/icons-material/LocationOn';
-import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import BasicInfo from "../../components/organizations/organizationProfile/BasicInfo";
 import CompanyDetails from "../../components/organizations/organizationProfile/CompanyDetails";
 import AddressInfo from "../../components/organizations/organizationProfile/AddressInfo";
 import TaxLegalInfo from "../../components/organizations/organizationProfile/TaxLegalInfo";
 import BankInfo from "../../components/organizations/organizationProfile/BankInfo";
 import PayrollFinanceInfo from "../../components/organizations/organizationProfile/PayrollFinanceInfo";
+import { toast } from 'react-toastify';
+import api from "../../services/api";
+import Loader from "../../utils/Loader";
+import { hasFormChanged, getChangedFields } from "../../utils/commonFunctions/hasFormChanged";
 
 const Profile = () => {
   const [editMode, setEditMode] = useState(false);
-
-  const [form, setForm] = useState({
-    orgName: "Helios Tech Labs",
-    industry: "Software",
-    companySize: "50-100",
-    pan: "ABCDE1234F",
-    gst: "22ABCDE1234F1Z5",
-    address: "New Delhi, India",
-    city: "New Delhi",
-    state: "Delhi",
-    pincode: "110001",
-    country: "India",
-    timezone: "Asia/Kolkata",
-    currency: "INR",
-    logo: "",
-    email: "contact@heliostechlabs.com",
-    phone: "+91 98765 43210",
-    website: "www.heliostechlabs.com",
-    foundedYear: "2020",
-    registrationNumber: "U72900DL2020PTC123456",
-    taxId: "ABCDE1234F",
-    bankName: "HDFC Bank",
-    accountNumber: "1234567890",
-    ifscCode: "HDFC0001234",
-    payrollStartDate: "1",
-    fiscalYearStart: "April",
-    workingDays: "Monday to Friday",
-    description: "Leading software development company specializing in enterprise solutions",
-  });
+  const [form, setForm] = useState({});
+  const [originalData, setOriginalData] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   const handleChange = (field, value) => {
-    setForm({ ...form, [field]: value });
+
+    if (field === "logo") {
+      if (value === "remove") {
+        setForm((prev) => ({
+          ...prev,
+          logo: "",
+          logoFile: null
+        }));
+        return;
+      }
+
+      const file = value;
+      if (!file) return;
+
+      const maxSize = 1 * 1024 * 1024;
+
+      if (file.size > maxSize) {
+        toast.info("File size should be less than 1MB");
+        return;
+      }
+
+      const preview = URL.createObjectURL(file);
+
+      setForm((prev) => ({
+        ...prev,
+        logo: preview,
+        logoFile: file
+      }));
+
+    } else {
+      setForm((prev) => ({
+        ...prev,
+        [field]: value
+      }));
+    }
   };
 
-  const handleSave = () => {
-    console.log(form);
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      // Check if any field has changed (exclude logoFile from comparison)
+      const fieldsToExclude = ['logoFile', 'logo'];
+      const hasChanged = hasFormChanged(originalData, form, fieldsToExclude);
+      
+      // Check if logo has changed
+      const logoChanged = form.logoFile !== null && form.logoFile !== undefined;
+
+      if (!hasChanged && !logoChanged) {
+        toast.info("No changes detected");
+        setEditMode(false);
+        return;
+      }
+
+      // Log which fields changed (for debugging)
+      const changedFields = getChangedFields(originalData, form, fieldsToExclude);
+      if (changedFields.length > 0) {
+        console.log("Changed fields:", changedFields);
+      }
+      if (logoChanged) {
+        console.log("Logo changed");
+      }
+
+      const formData = new FormData();
+
+      Object.keys(form).forEach((key) => {
+        if (key === "logoFile" && form.logoFile) {
+          formData.append("logo", form.logoFile);
+        } else if (key !== "logo" && key !== "logoFile") {
+          formData.append(key, form[key]);
+        }
+      });
+
+      console.log("Sending Data:", formData);
+
+      const response = await api.put("/org/profile", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      
+      if(response?.data && response?.data.success === true) {
+        toast.success("Profile updated successfully");
+        getProfileData();
+        return;
+      }
+
+    } catch (error) {
+      toast.error("Failed to update profile");
+    } finally {
+      setEditMode(false);
+      setSaving(false);
+    }
+  };
+
+  const handleCancel = () => {
+    setForm(originalData);
     setEditMode(false);
   };
+
+  const getProfileData = async () => {
+    setLoading(true);
+    try {
+      const response = await api.get("/org/profile");
+      if(response?.data && response?.data.success === true) {
+        let data  = response?.data?.data;
+        const profileData = {...data, orgName: data.org.name, email: data.org.email};
+        setForm(profileData);
+        setOriginalData(profileData); // Store original data for comparison
+      }
+    } catch (error) {
+      toast.error("Failed to fetch profile data");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    getProfileData();
+  }, []);
+
+  if(loading) {
+    return <Loader />
+  }
 
   return (
     <Box>
@@ -88,6 +163,7 @@ const Profile = () => {
           <Typography variant="h4" sx={{ fontWeight: 700, mb: 0.5 }}>
             Organization Profile
           </Typography>
+
           <Typography variant="body2" color="text.secondary">
             Manage your organization's information and settings
           </Typography>
@@ -106,16 +182,19 @@ const Profile = () => {
           <Box display="flex" gap={2}>
             <Button
               variant="contained"
-              startIcon={<SaveIcon />}
+              startIcon={saving ? <CircularProgress size={20} /> : <SaveIcon />}
               onClick={handleSave}
+              disabled={saving}
               size="large"
             >
               Save Changes
             </Button>
+
             <Button
               variant="outlined"
               startIcon={<CancelIcon />}
-              onClick={() => setEditMode(false)}
+              onClick={handleCancel}
+              disabled={saving}
               size="large"
             >
               Cancel
@@ -124,22 +203,12 @@ const Profile = () => {
         )}
       </Box>
 
-      {/* Basic Information */}
+      {/* Sections */}
       <BasicInfo form={form} editMode={editMode} handleChange={handleChange} />
-
-      {/* Company Details */}
       <CompanyDetails form={form} editMode={editMode} handleChange={handleChange} />
-
-      {/* Address Information */}
       <AddressInfo form={form} editMode={editMode} handleChange={handleChange} />
-
-      {/* Tax & Legal Information */}
       <TaxLegalInfo form={form} editMode={editMode} handleChange={handleChange} />
-
-      {/* Banking Information */}
       <BankInfo form={form} editMode={editMode} handleChange={handleChange} />
-
-      {/* Payroll Settings */}
       <PayrollFinanceInfo form={form} editMode={editMode} handleChange={handleChange} />
 
     </Box>

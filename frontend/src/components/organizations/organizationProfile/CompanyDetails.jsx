@@ -69,13 +69,23 @@ const CompanyDetails = ({form, editMode, handleChange}) => {
             </Grid>
 
             <Grid item xs={12} md={6}>
-              <TextField
-                label="Founded Year"
-                fullWidth
-                value={form.foundedYear}
-                disabled={!editMode}
-                onChange={(e) => handleChange("foundedYear", e.target.value)}
-              />
+            <TextField
+              label="Founded Year"
+              select
+              fullWidth
+              value={form.foundedYear}
+              disabled={!editMode}
+              onChange={(e) => handleChange("foundedYear", e.target.value)}
+            >
+              {Array.from({ length: 150 }, (_, i) => {
+                const year = new Date().getFullYear() - i;
+                return (
+                  <MenuItem key={year} value={year}>
+                    {year}
+                  </MenuItem>
+                );
+              })}
+            </TextField>
             </Grid>
 
             <Grid item xs={12} md={6}>
