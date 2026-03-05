@@ -1,4 +1,5 @@
 import { Box, CircularProgress, Typography } from '@mui/material';
+import { HashLoader } from "react-spinners";
 
 export default function Loader({ message = 'Loading...', fullScreen = false }) {
   const content = (
@@ -11,7 +12,8 @@ export default function Loader({ message = 'Loading...', fullScreen = false }) {
         gap: 2,
       }}
     >
-      <CircularProgress size={60} thickness={4} />
+      <HashLoader color='#6366f1' />
+
       {message && (
         <Typography variant="body1" color="text.secondary">
           {message}
