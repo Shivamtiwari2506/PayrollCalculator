@@ -165,6 +165,11 @@ const BasicInfo = ({ form, editMode, handleChange }) => {
                       </InputAdornment>
                     ),
                   }}
+                  inputProps={{
+                    inputMode: 'numeric',
+                    pattern: '[0-9]*',
+                    maxLength: 10
+                  }}
                 />
               </Grid>
 

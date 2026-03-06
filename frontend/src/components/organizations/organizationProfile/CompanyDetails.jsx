@@ -2,17 +2,25 @@ import {Card, CardContent, Grid, MenuItem, TextField, Typography } from '@mui/ma
 import BusinessIcon from '@mui/icons-material/Business';
 
 const industryOptions = [
-    "Software",
-    "IT Services",
-    "Manufacturing",
-    "Healthcare",
-    "Finance",
-    "Education",
-    "Retail",
-    "E-commerce",
-    "Consulting",
-    "Other",
-  ];
+  "Technology",
+  "Software / SaaS",
+  "Finance",
+  "Healthcare",
+  "Education",
+  "Manufacturing",
+  "Retail",
+  "Consulting",
+  "Marketing",
+  "Real Estate",
+  "Construction",
+  "Hospitality",
+  "Logistics",
+  "Telecommunications",
+  "Media",
+  "Non-Profit",
+  "Government",
+  "other"
+];
   
 const companySizeOptions = [
     "1-10",
