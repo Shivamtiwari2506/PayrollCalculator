@@ -16,3 +16,8 @@ export const ROLES = {
   USER: 'User',
   ORG_ADMIN: 'Org_Admin',
 };
+
+export const formatIndianRuppee = (amount) => {
+  return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0,
+    maximumFractionDigits: 0 }).format(amount);
+}

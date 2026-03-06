@@ -22,13 +22,13 @@ model Org {
   updatedAt DateTime @updatedAt
 
   users     User[]
-  profile   OrgProfile?  @relation("OrgProfile")
+  profile   OrgProfile?  @relation("OrgToProfile")
 }
 
 model OrgProfile {
   id              String   @id @default(uuid())
   orgId           String   @unique
-  org             Org      @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  org             Org      @relation("OrgToProfile",fields: [orgId], references: [id], onDelete: Cascade)
 
   // Basic Information
   phone           String?
@@ -81,6 +81,7 @@ model User {
   role            Role     @default(User)
   designation     String   @default("Not Specified")
   dateOfJoining   String?
+  ctc             Int?    @default(0)
 
   active          Boolean  @default(false)
 

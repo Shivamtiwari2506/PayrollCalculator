@@ -23,6 +23,7 @@ const defaultForm = {
   active: false,
   designation: '',
   dateOfJoining: '',
+  ctc: null,
 }
 const UserRoles = () => {
   const dispatch = useDispatch();

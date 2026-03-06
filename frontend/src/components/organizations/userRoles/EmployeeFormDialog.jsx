@@ -23,6 +23,7 @@ import BadgeIcon from '@mui/icons-material/Badge';
 import WorkIcon from '@mui/icons-material/Work';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import StatusToggle from '../../StatusToggle';
+import PaymentIcon from '@mui/icons-material/Payment';
 
 const EmployeeFormDialog = ({
   open,
@@ -64,6 +65,10 @@ const EmployeeFormDialog = ({
 
     if (!form.role) {
       newErrors.role = 'Role is required';
+    }
+
+    if(!form.ctc) {
+      newErrors.ctc = 'CTC is required';
     }
 
     setErrors(newErrors);
@@ -251,6 +256,26 @@ const EmployeeFormDialog = ({
             </TextField>
           </Grid>
 
+          <Grid item xs={12} md={6}>
+            <TextField
+              fullWidth
+              label="CTC"
+              type="number"
+              value={form.ctc}
+              onChange={(e) => handleFieldChange('ctc', e.target.value)}
+              error={!!errors.ctc}
+              helperText={errors.ctc || 'Select user role and permissions'}
+              required
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <PaymentIcon color="action" />
+                  </InputAdornment>
+                ),
+              }}
+            />
+          </Grid>
+
           {/* active */}
           <StatusToggle
             value={form.active}
@@ -299,7 +324,7 @@ const EmployeeFormDialog = ({
         <Button 
           variant="contained" 
           onClick={handleFormSubmit}
-          startIcon={formLoading ? <CircularProgress size={20} /> : ""}
+          startIcon={formLoading ? <CircularProgress color="inherit" size={20} /> : ""}
           disabled={formLoading}
           size="large"
           sx={{ 

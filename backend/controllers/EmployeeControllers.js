@@ -40,6 +40,7 @@ export const getEmployees = async (req, res) => {
                     designation: true,
                     dateOfJoining: true,
                     active: true,
+                    ctc: true,
                     createdAt: true,
                     updatedAt: true,
                 },
@@ -77,8 +78,8 @@ export const getEmployees = async (req, res) => {
 export const addEmployee = async (req, res) => {
     try {
         const { orgId, userId } = req;
-        const {name, email, designation, role, dateOfJoining, active} = req.body;
-        if(!name || !email || !designation || !role || !dateOfJoining) {
+        const {name, email, designation, role, dateOfJoining, active, ctc} = req.body;
+        if(!name || !email || !designation || !role || !dateOfJoining || !ctc) {
             return res.status(400).json({
                 success: false,
                 message: "All fields are required",
@@ -107,6 +108,7 @@ export const addEmployee = async (req, res) => {
                 designation,
                 role,
                 dateOfJoining,
+                ctc,
                 active,
                 orgId,
                 createdBy: userId,
@@ -137,6 +139,7 @@ export const updateEmployee = async (req, res) => {
       dateOfJoining,
       active,
       password,
+      ctc,
     } = req.body;
 
     if (!id) {
@@ -199,6 +202,8 @@ export const updateEmployee = async (req, res) => {
     if (email && email.toLowerCase() !== employee.email) {
       updatedData.email = email.toLowerCase();
     }
+
+    if (ctc) updatedData.ctc = ctc ? Number(ctc) : null;
 
     if (password) {
       updatedData.password = await bcrypt.hash(password, 10);

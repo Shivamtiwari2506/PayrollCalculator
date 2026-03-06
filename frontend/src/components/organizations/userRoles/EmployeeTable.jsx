@@ -16,7 +16,7 @@ import {
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { getInitials } from '../../../utils/commonFunctions/helpers';
+import { formatIndianRuppee, getInitials } from '../../../utils/commonFunctions/helpers';
 import dayjs from 'dayjs';
 
 const getRoleColor = (role) => {
@@ -38,10 +38,10 @@ const EmployeeTable = ({
         <TableHead>
           <TableRow>
             <TableCell><b>Employee</b></TableCell>
-            <TableCell><b>Email</b></TableCell>
             <TableCell><b>Role</b></TableCell>
             <TableCell><b>Designation</b></TableCell>
             <TableCell><b>Date of Joining</b></TableCell>
+            <TableCell align="center"><b>CTC</b></TableCell>
             <TableCell align="center"><b>Account Status</b></TableCell>
             <TableCell align="center"><b>Actions</b></TableCell>
           </TableRow>
@@ -55,10 +55,13 @@ const EmployeeTable = ({
                     <Avatar sx={{ bgcolor: 'primary.main', fontSize: 16 }}>
                       {getInitials(emp)}
                     </Avatar>
+                    <Box>
                     <Typography>{emp.name}</Typography>
+                    <Typography variant="body2" color="textSecondary">{emp.email}</Typography>
+                    </Box>
+
                   </Box>
                 </TableCell>
-                <TableCell>{emp.email}</TableCell>
 
                 <TableCell>
                   <Chip
@@ -77,6 +80,7 @@ const EmployeeTable = ({
                 </TableCell>
 
                 <TableCell>{dayjs(emp.dateOfJoining).format('DD/MMM/YYYY')}</TableCell>
+                <TableCell align="center">{emp?.ctc ? formatIndianRuppee(emp?.ctc) : '-'}</TableCell>
                 <TableCell align="center">
                   <Chip
                     label={emp.active ? 'Active' : 'Inactive'}
