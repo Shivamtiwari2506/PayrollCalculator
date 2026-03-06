@@ -6,13 +6,13 @@ import PhoneIcon from '@mui/icons-material/Phone';
 import LanguageIcon from '@mui/icons-material/Language';
 import CloseIcon from "@mui/icons-material/Close";
 
-const BasicInfo = ({form, editMode, handleChange}) => {
+const BasicInfo = ({ form, editMode, handleChange }) => {
   return (
     <Card elevation={2} sx={{ mb: 3, borderRadius: 1 }}>
-        <CardContent sx={{ p: 4 }}>
-          <Grid container spacing={4} alignItems="center">
-            {/* Logo */}
-            <Grid item xs={12} md={3}>
+      <CardContent sx={{ p: 4 }}>
+        <Grid container spacing={4} alignItems="center">
+          {/* Logo */}
+          <Grid item xs={12} md={3}>
             <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
               <Box
                 sx={{
@@ -23,16 +23,40 @@ const BasicInfo = ({form, editMode, handleChange}) => {
                 }}
               >
                 <Avatar
-                  src={form.logo}
                   sx={{
                     width: 140,
                     height: 140,
                     border: "4px solid",
                     borderColor: "primary.main",
                     boxShadow: 3,
+                    bgcolor: "white",
                   }}
                 >
-                  <BusinessIcon sx={{ fontSize: 60 }} />
+                  <Box
+                    sx={{
+                      width: "100%",
+                      height: "100%",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      p: 2, // spacing so logo doesn't touch border
+                    }}
+                  >
+                    {form.logo ? (
+                      <Box
+                        component="img"
+                        src={form.logo}
+                        alt="Company Logo"
+                        sx={{
+                          maxWidth: "100%",
+                          maxHeight: "100%",
+                          objectFit: "contain",
+                        }}
+                      />
+                    ) : (
+                      <BusinessIcon sx={{ fontSize: 60 }} />
+                    )}
+                  </Box>
                 </Avatar>
 
                 {/* Upload Icon */}
@@ -89,82 +113,82 @@ const BasicInfo = ({form, editMode, handleChange}) => {
                 </Typography>
               )}
             </Box>
-            </Grid>
+          </Grid>
 
-            {/* Basic Info */}
-            <Grid item xs={12} md={9}>
-              <Grid container spacing={3}>
-                <Grid item xs={12}>
-                  <TextField
-                    label="Organization Name"
-                    fullWidth
-                    value={form.orgName}
-                    disabled={true}
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <BusinessIcon color="action" />
-                        </InputAdornment>
-                      ),
-                    }}
-                  />
-                </Grid>
+          {/* Basic Info */}
+          <Grid item xs={12} md={9}>
+            <Grid container spacing={3}>
+              <Grid item xs={12}>
+                <TextField
+                  label="Organization Name"
+                  fullWidth
+                  value={form.orgName}
+                  disabled={true}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <BusinessIcon color="action" />
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+              </Grid>
 
-                <Grid item xs={12} md={6}>
-                  <TextField
-                    label="Email Address"
-                    fullWidth
-                    type="email"
-                    value={form.email}
-                    disabled={true}
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <EmailIcon color="action" />
-                        </InputAdornment>
-                      ),
-                    }}
-                  />
-                </Grid>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  label="Email Address"
+                  fullWidth
+                  type="email"
+                  value={form.email}
+                  disabled={true}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <EmailIcon color="action" />
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+              </Grid>
 
-                <Grid item xs={12} md={6}>
-                  <TextField
-                    label="Phone Number"
-                    fullWidth
-                    value={form.phone}
-                    disabled={!editMode}
-                    onChange={(e) => handleChange("phone", e.target.value)}
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <PhoneIcon color="action" />
-                        </InputAdornment>
-                      ),
-                    }}
-                  />
-                </Grid>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  label="Phone Number"
+                  fullWidth
+                  value={form.phone}
+                  disabled={!editMode}
+                  onChange={(e) => handleChange("phone", e.target.value)}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <PhoneIcon color="action" />
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+              </Grid>
 
-                <Grid item xs={12}>
-                  <TextField
-                    label="Website"
-                    fullWidth
-                    value={form.website}
-                    disabled={!editMode}
-                    onChange={(e) => handleChange("website", e.target.value)}
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <LanguageIcon color="action" />
-                        </InputAdornment>
-                      ),
-                    }}
-                  />
-                </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  label="Website"
+                  fullWidth
+                  value={form.website}
+                  disabled={!editMode}
+                  onChange={(e) => handleChange("website", e.target.value)}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <LanguageIcon color="action" />
+                      </InputAdornment>
+                    ),
+                  }}
+                />
               </Grid>
             </Grid>
           </Grid>
-        </CardContent>
-      </Card>
+        </Grid>
+      </CardContent>
+    </Card>
   )
 }
 

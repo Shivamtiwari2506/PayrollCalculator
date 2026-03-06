@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import {useDispatch} from "react-redux";
 import {Typography,Button,Box, CircularProgress} from "@mui/material";
 import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
@@ -13,8 +14,11 @@ import { toast } from 'react-toastify';
 import api from "../../services/api";
 import Loader from "../../utils/Loader";
 import { hasFormChanged, getChangedFields } from "../../utils/commonFunctions/hasFormChanged";
+import { getOrgData } from "../../redux/actions/orgActions";
+import { getCurrentUser } from "../../redux/actions/userActions";
 
 const Profile = () => {
+  const dispatch = useDispatch();
   const [editMode, setEditMode] = useState(false);
   const [form, setForm] = useState({});
   const [originalData, setOriginalData] = useState({});
@@ -104,8 +108,9 @@ const Profile = () => {
       
       if(response?.data && response?.data.success === true) {
         toast.success("Profile updated successfully");
+        await dispatch(getOrgData());
+        await dispatch(getCurrentUser());
         getProfileData();
-        return;
       }
 
     } catch (error) {
