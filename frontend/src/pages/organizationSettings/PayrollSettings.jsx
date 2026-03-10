@@ -143,7 +143,7 @@ const PayrollSettings = () => {
   return (
     <Box>
       {/* Header */}
-      <Box sx={{ mb: 4 }}>
+      <Box sx={{ mb: 2 }}>
         <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
           <ReceiptLongIcon sx={{ mr: 1.5, color: "warning.main", fontSize: 32 }} />
           <Typography variant="h4" sx={{ fontWeight: 700 }}>
