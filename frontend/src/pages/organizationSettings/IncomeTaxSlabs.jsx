@@ -18,7 +18,6 @@ import {
   MenuItem,
   InputAdornment,
   Alert,
-  Snackbar
 } from "@mui/material";
 
 import AddIcon from "@mui/icons-material/Add";
@@ -37,7 +36,6 @@ const IncomeTaxSlabs = () => {
   const [error, setError] = useState(null);
   const [selectedRegime, setSelectedRegime] = useState("new");
   const [openModal, setOpenModal] = useState(false);
-  const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
 
   const [newSlab, setNewSlab] = useState({
     minIncome: "",
@@ -102,12 +100,10 @@ const IncomeTaxSlabs = () => {
     setTaxSlabs([...taxSlabs, slab]);
     setNewSlab({ minIncome: "", maxIncome: "", rate: "" });
     setOpenModal(false);
-    setSnackbar({ open: true, message: "Tax slab added successfully", severity: "success" });
   };
 
   const handleDeleteSlab = (id) => {
     setTaxSlabs(taxSlabs.filter(slab => slab.id !== id));
-    setSnackbar({ open: true, message: "Tax slab deleted successfully", severity: "success" });
   };
 
   const handleSaveTaxSettings = async () => {
@@ -115,9 +111,7 @@ const IncomeTaxSlabs = () => {
       // Here you would make the API call to save tax settings
       // await api.saveTaxSettings(taxSettings);
       console.log("Saving tax settings:", taxSettings);
-      setSnackbar({ open: true, message: "Tax settings saved successfully", severity: "success" });
     } catch (error) {
-      setSnackbar({ open: true, message: "Failed to save tax settings", severity: "error" });
     }
   };
 
@@ -125,15 +119,12 @@ const IncomeTaxSlabs = () => {
     try {
       const slabsToSave = slabsForSelection;
       if (slabsToSave.length === 0) {
-        setSnackbar({ open: true, message: "Please add at least one tax slab", severity: "warning" });
         return;
       }
       // Here you would make the API call to save tax slabs
       // await api.saveTaxSlabs(slabsToSave);
       console.log("Saving tax slabs:", slabsToSave);
-      setSnackbar({ open: true, message: "Tax slabs saved successfully", severity: "success" });
     } catch (error) {
-      setSnackbar({ open: true, message: "Failed to save tax slabs", severity: "error" });
     }
   };
 
@@ -319,6 +310,14 @@ const IncomeTaxSlabs = () => {
                       </TableCell>
 
                       <TableCell align="center">
+
+                        <IconButton
+                          color="primary"
+                          onClick={() => handleEditSlab(slab.id)}
+                          size="small"
+                        >
+                          <EditIcon />
+                        </IconButton>
                         <IconButton
                           color="error"
                           onClick={() => handleDeleteSlab(slab.id)}
@@ -348,13 +347,6 @@ const IncomeTaxSlabs = () => {
         handleAddSlab={handleAddSlab}
         error={error}
         setError={setError}
-      />
-      {/* Snackbar for notifications */}
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={4000}
-        onClose={() => setSnackbar({ ...snackbar, open: false })}
-        message={snackbar.message}
       />
 
     </Box>
