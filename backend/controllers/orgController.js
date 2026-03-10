@@ -182,6 +182,7 @@ export const updateOrgProfile = async (req, res) => {
       state,
       pincode,
       country,
+      officeLocations,
       pan,
       gst,
       taxId,
@@ -189,10 +190,7 @@ export const updateOrgProfile = async (req, res) => {
       accountNumber,
       ifscCode,
       currency,
-      timezone,
-      fiscalYearStart,
-      payrollStartDate,
-      workingDays,
+      timezone
     } = req.body;
 
     let logoUrl = null;
@@ -217,14 +215,6 @@ export const updateOrgProfile = async (req, res) => {
       });
     }
 
-    // Validate payrollStartDate if provided
-    if (payrollStartDate && (payrollStartDate < 1 || payrollStartDate > 31)) {
-      return res.status(400).json({
-        success: false,
-        message: "Payroll start date must be between 1 and 31",
-      });
-    }
-
     // Prepare data for upsert
     const profileData = {
       phone: phone || null,
@@ -239,6 +229,7 @@ export const updateOrgProfile = async (req, res) => {
       state: state || null,
       pincode: pincode || null,
       country: country || "India",
+      officeLocations: officeLocations || [],
       pan: pan || null,
       gst: gst || null,
       taxId: taxId || null,
@@ -247,9 +238,6 @@ export const updateOrgProfile = async (req, res) => {
       ifscCode: ifscCode || null,
       currency: currency || "INR",
       timezone: timezone || "Asia/Kolkata",
-      fiscalYearStart: fiscalYearStart || "April",
-      payrollStartDate: payrollStartDate ? parseInt(payrollStartDate) : 1,
-      workingDays: workingDays || "Monday to Friday",
     };
 
     if (logoUrl) {
@@ -277,7 +265,6 @@ export const updateOrgProfile = async (req, res) => {
     return res.status(200).json({
       success: true,
       message: "Organization profile updated successfully",
-      data: profile,
     });
   } catch (error) {
     console.error("Update Org Profile Error:", error);

@@ -94,7 +94,12 @@ const Profile = () => {
       Object.keys(form).forEach((key) => {
         if (key === "logoFile" && form.logoFile) {
           formData.append("logo", form.logoFile);
-        } else if (key !== "logo" && key !== "logoFile") {
+        } else if (key === "officeLocations") {
+          form.officeLocations.forEach((loc) => {
+            formData.append("officeLocations", loc);
+          });
+        }
+        else if (key !== "logo" && key !== "logoFile") {
           formData.append(key, form[key]);
         }
       });
@@ -134,7 +139,7 @@ const Profile = () => {
       if(response?.data && response?.data.success === true) {
         let data  = response?.data?.data;
         const profileData = {...data, orgName: data.org.name, email: data.org.email};
-        setForm({...profileData, officeLocations: []});
+        setForm(profileData);
         setOriginalData(profileData); // Store original data for comparison
       }
     } catch (error) {

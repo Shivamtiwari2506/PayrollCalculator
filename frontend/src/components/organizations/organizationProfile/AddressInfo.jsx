@@ -186,6 +186,7 @@ const AddressInfo = ({ form, editMode, handleChange }) => {
                       color="primary"
                       onMouseDown={(event) => event.stopPropagation()}
                       onDelete={(event) => {
+                        if(!editMode) return;
                         event.stopPropagation();
                         removeOfficeLocation(value);
                       }}
