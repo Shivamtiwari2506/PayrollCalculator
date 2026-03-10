@@ -135,7 +135,7 @@ useEffect(() => {
               variant="subtitle2"
               sx={{ fontSize: '0.75rem', lineHeight: 1 }}
             >
-              Payroll Management System
+              Payroll Generator
             </Typography>
           </Box>
         </Box>

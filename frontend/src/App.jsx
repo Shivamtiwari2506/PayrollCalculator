@@ -23,6 +23,7 @@ import UserRoles from './pages/organizationSettings/UserRoles';
 import Payslip from './pages/organizationSettings/Payslip';
 import Notifications from './pages/organizationSettings/Notifications';
 import { checkTokenValidity } from './utils/commonFunctions/checkTokenValidity';
+import IncomeTaxSlabs from './pages/organizationSettings/IncomeTaxSlabs';
 
 function AppContent() {
   const navigate = useNavigate();
@@ -83,6 +84,7 @@ function AppContent() {
         <Route element={<ProtectedRoute allowedRoles={[ROLES.ORG_ADMIN]} />}>
           <Route path="/org-settings/profile" element={<Profile />} />
           <Route path="/org-settings/payroll" element={<PayrollSettings />} />
+          <Route path="/org-settings/income-tax" element={<IncomeTaxSlabs />} />
           <Route path="/org-settings/leave" element={<LeaveAttendence />} />
           <Route path="/org-settings/employees" element={<UserRoles />} />
           <Route path="/org-settings/payslip" element={<Payslip />} />

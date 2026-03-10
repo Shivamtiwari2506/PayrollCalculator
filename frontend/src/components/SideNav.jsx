@@ -16,6 +16,7 @@ import PeopleIcon from '@mui/icons-material/People';
 import SettingsIcon from '@mui/icons-material/Settings';
 import BusinessIcon from '@mui/icons-material/Business';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
+import PaidIcon from '@mui/icons-material/Paid';
 import EventAvailableIcon from '@mui/icons-material/EventAvailable';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import DescriptionIcon from '@mui/icons-material/Description';
@@ -60,6 +61,11 @@ const orgSettingsItems = [
     text: "Payroll",
     icon: <ReceiptLongIcon />,
     path: "/org-settings/payroll",
+  },
+  {
+    text: "Income Tax Slabs",
+    icon: <PaidIcon />,
+    path: "/org-settings/income-tax",
   },
   {
     text: "Leave & Attendance",

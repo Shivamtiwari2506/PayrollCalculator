@@ -4,7 +4,10 @@ import {
   Grid,
   TextField,
   Typography,
-  MenuItem
+  MenuItem,
+  Select,
+  Box,
+  Chip
 } from "@mui/material";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import { useEffect, useState } from "react";
@@ -12,9 +15,19 @@ import axios from "axios";
 
 const AddressInfo = ({ form, editMode, handleChange }) => {
 
+  console.log("form: ", form);
+
   const [countries, setCountries] = useState([]);
   const [states, setStates] = useState([]);
   const [cities, setCities] = useState([]);
+
+  const removeOfficeLocation = (location) => {
+    const updated = (form.officeLocations || []).filter(
+      (loc) => loc !== location
+    );
+
+    handleChange("officeLocations", updated);
+  };
 
   // Fetch countries
   useEffect(() => {
@@ -150,6 +163,43 @@ const AddressInfo = ({ form, editMode, handleChange }) => {
                 maxLength: 6
               }}
             />
+          </Grid>
+
+          <Grid item xs={12}>
+            <Typography sx={{ fontWeight: 600, mb: 1 }}>
+              Add Office Locations
+            </Typography>
+
+            <Select
+              multiple
+              fullWidth
+              value={form.officeLocations || []}
+              disabled={!editMode}
+              onChange={(e) => handleChange("officeLocations", e.target.value)}
+              renderValue={(selected) => (
+                <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+                  {selected.map((value) => (
+                    <Chip
+                      key={value}
+                      label={value}
+                      size="small"
+                      color="primary"
+                      onMouseDown={(event) => event.stopPropagation()}
+                      onDelete={(event) => {
+                        event.stopPropagation();
+                        removeOfficeLocation(value);
+                      }}
+                    />
+                  ))}
+                </Box>
+              )}
+            >
+              {states.map((s) => (
+                <MenuItem key={s.name} value={s.name}>
+                  {s.name}
+                </MenuItem>
+              ))}
+            </Select>
           </Grid>
         </Grid>
       </CardContent>

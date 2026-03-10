@@ -48,6 +48,7 @@ model OrgProfile {
   state           String?
   pincode         String?
   country         String   @default("India")
+  officeLocations  String[]
 
   // Tax & Legal Information
   pan             String?
@@ -62,16 +63,14 @@ model OrgProfile {
   // Payroll & Financial Settings
   currency        String   @default("INR")
   timezone        String   @default("Asia/Kolkata")
-  fiscalYearStart String   @default("April")
-  payrollStartDate Int     @default(1) // Day of month (1-31)
-  workingDays     String   @default("Monday to Friday")
 
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
+  payrollSettings PayrollSettings?
+
   @@index([orgId])
 }
-
 
 model User {
   id              String   @id @default(uuid())
@@ -97,4 +96,125 @@ model User {
   @@unique([email, orgId])
   @@index([orgId])
   @@index([designation])
+}
+
+enum PayrollCycle {
+  monthly
+  biweekly
+  weekly
+}
+
+enum OvertimeCalculation {
+  hourly
+  daily
+}
+
+model PayrollSettings {
+  id              String   @id @default(uuid())
+
+  orgProfileId    String  @unique
+  orgProfile      OrgProfile @relation(fields: [orgProfileId], references: [id], onDelete: Cascade)
+
+  // Version Tracking
+  version         Int      @default(1)
+  effectiveFrom   DateTime
+  effectiveTo     DateTime?
+  isActive        Boolean  @default(true)
+
+  // Payroll Cycle Configuration
+  payrollCycle    PayrollCycle @default(monthly)
+  payrollStartDay Int      @default(1)
+  payrollEndDay   Int      @default(31)
+  paymentDate     Int      @default(5)
+  workingDaysPerMonth Int  @default(26)
+  weekendDays     String[] @default(["Saturday", "Sunday"])
+
+  // Salary Structure
+  basicPercent     Float   @default(50.0)
+  hraPercent       Float   @default(40.0)
+  allowancePercent Float   @default(10.0)
+
+  // Overtime
+  overtimeEnabled  Boolean @default(true)
+  overtimeRate     Float   @default(1.5)
+  overtimeCalculation OvertimeCalculation @default(hourly)
+
+  // PF
+  pfEnabled        Boolean @default(true)
+  pfPercent        Float   @default(12.0)
+  pfEmployerContribution Float @default(12.0)
+  pfCeiling        Int     @default(15000)
+
+  // ESI
+  esiEnabled       Boolean @default(true)
+  esiPercent       Float   @default(0.75)
+  esiEmployerPercent Float @default(3.25)
+  esiCeiling       Int     @default(21000)
+
+  // Gratuity
+  gratuityEnabled  Boolean @default(true)
+  gratuityYears    Int     @default(5)
+
+  // Professional Tax
+  professionalTaxEnabled Boolean @default(true)
+  professionalTaxAmount  Int     @default(200)
+
+  // TDS
+  tdsEnabled       Boolean @default(true)
+
+  // Bonus
+  bonusEnabled     Boolean @default(true)
+  bonusMonth       String  @default("March")
+  performanceBonusEnabled Boolean @default(true)
+
+  // Leave Encashment
+  leaveEncashmentEnabled Boolean @default(true)
+  maxEncashmentDays Int   @default(30)
+
+  // Loan & Advance
+  loanEnabled      Boolean @default(true)
+  maxLoanAmount    Int     @default(100000)
+  advanceEnabled   Boolean @default(true)
+  maxAdvanceAmount Int     @default(50000)
+
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([orgProfileId])
+  @@unique([orgProfileId, version])
+}
+
+enum TaxRegime {
+  old
+  new
+}
+
+model IncomeTaxSetting {
+  id                String   @id @default(uuid())
+  financialYear     String
+  regime            TaxRegime
+
+  standardDeduction Float
+  cessPercentage    Float
+
+  slabs             IncomeTaxSlab[]
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@unique([financialYear, regime])
+}
+
+model IncomeTaxSlab {
+  id            String   @id @default(uuid())
+
+  settingId     String
+  setting       IncomeTaxSetting @relation(fields: [settingId], references: [id], onDelete: Cascade)
+
+  minIncome     Float
+  maxIncome     Float?
+  taxRate       Float
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }

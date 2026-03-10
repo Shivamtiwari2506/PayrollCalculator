@@ -72,7 +72,7 @@ const PayrollFinanceInfo = ({ form, editMode, handleChange }) => {
             </TextField>
           </Grid>
 
-          <Grid item xs={12} md={6}>
+          {/* <Grid item xs={12} md={6}>
             <TextField
               label="Fiscal Year Start"
               select
@@ -109,7 +109,7 @@ const PayrollFinanceInfo = ({ form, editMode, handleChange }) => {
               disabled={!editMode}
               onChange={(e) => handleChange("workingDays", e.target.value)}
             />
-          </Grid>
+          </Grid> */}
         </Grid>
       </CardContent>
     </Card>

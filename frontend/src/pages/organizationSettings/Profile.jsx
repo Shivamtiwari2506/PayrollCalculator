@@ -3,6 +3,7 @@ import {useDispatch} from "react-redux";
 import {Typography,Button,Box, CircularProgress} from "@mui/material";
 import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
+import BusinessIcon from '@mui/icons-material/Business';
 import CancelIcon from '@mui/icons-material/Cancel';
 import BasicInfo from "../../components/organizations/organizationProfile/BasicInfo";
 import CompanyDetails from "../../components/organizations/organizationProfile/CompanyDetails";
@@ -133,7 +134,7 @@ const Profile = () => {
       if(response?.data && response?.data.success === true) {
         let data  = response?.data?.data;
         const profileData = {...data, orgName: data.org.name, email: data.org.email};
-        setForm(profileData);
+        setForm({...profileData, officeLocations: []});
         setOriginalData(profileData); // Store original data for comparison
       }
     } catch (error) {
@@ -165,9 +166,12 @@ const Profile = () => {
         }}
       >
         <Box>
-          <Typography variant="h4" sx={{ fontWeight: 700, mb: 0.5 }}>
+          <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
+          <BusinessIcon sx={{ mr: 1.5, color: "warning.main", fontSize: 32 }} />
+          <Typography variant="h4" sx={{ fontWeight: 700 }}>
             Organization Profile
           </Typography>
+        </Box>
 
           <Typography variant="body2" color="text.secondary">
             Manage your organization's information and settings

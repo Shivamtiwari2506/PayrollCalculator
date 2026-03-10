@@ -3,6 +3,7 @@ import {useDispatch} from 'react-redux';
 import { Typography, Box, Button } from '@mui/material';
 import { ROLES } from '../../utils/commonFunctions/helpers';
 import EmployeeStatsCards from '../../components/organizations/userRoles/EmployeeStatsCards';
+import PeopleIcon from '@mui/icons-material/People';
 import EmployeeFilters from '../../components/organizations/userRoles/EmployeeFilters';
 import EmployeeTable from '../../components/organizations/userRoles/EmployeeTable';
 import EmployeeFormDialog from '../../components/organizations/userRoles/EmployeeFormDialog';
@@ -207,9 +208,12 @@ const UserRoles = () => {
         }}
       >
         <Box >
-          <Typography variant="h5" sx={{ fontWeight: 700 }}>
+          <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
+          <PeopleIcon sx={{ mr: 1.5, color: "warning.main", fontSize: 32 }} />
+          <Typography variant="h4" sx={{ fontWeight: 700 }}>
             Employees & Roles
           </Typography>
+        </Box>
           <Typography variant="body2" color="text.secondary">
             Manage your employees and their roles
           </Typography>
