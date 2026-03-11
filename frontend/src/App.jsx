@@ -77,14 +77,14 @@ function AppContent() {
             <ProtectedRoute allowedRoles={[ROLES.ADMIN]} />
           }
         >
-            <Route path="/users" element={<Users />} />
+          <Route path="/users" element={<Users />} />
           <Route path="/settings" element={<Settings />} />
+          <Route path="/settings/income-tax" element={<IncomeTaxSlabs />} />
         </Route>
 
         <Route element={<ProtectedRoute allowedRoles={[ROLES.ORG_ADMIN]} />}>
           <Route path="/org-settings/profile" element={<Profile />} />
           <Route path="/org-settings/payroll" element={<PayrollSettings />} />
-          <Route path="/org-settings/income-tax" element={<IncomeTaxSlabs />} />
           <Route path="/org-settings/leave" element={<LeaveAttendence />} />
           <Route path="/org-settings/employees" element={<UserRoles />} />
           <Route path="/org-settings/payslip" element={<Payslip />} />

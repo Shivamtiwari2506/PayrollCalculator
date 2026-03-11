@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Box,
   Typography,
@@ -13,29 +13,42 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  IconButton,
   Chip,
   MenuItem,
-  InputAdornment,
   Alert,
+  Tabs,
+  Tab,
 } from "@mui/material";
 
 import AddIcon from "@mui/icons-material/Add";
-import DeleteIcon from "@mui/icons-material/Delete";
 import PaidIcon from "@mui/icons-material/Paid";
-import SaveIcon from "@mui/icons-material/Save";
 import EditIcon from "@mui/icons-material/Edit";
-import CancelIcon from "@mui/icons-material/Cancel";
-
 import AddTaxSlabModal from "../../components/organizations/taxslab/AddTaxSlabModal";
+import api from "../../services/api";
+import { toast } from 'react-toastify';
+import { handleApiError } from "../../utils/commonFunctions/errorHandler";
+import { formatIndianRuppee } from "../../utils/commonFunctions/helpers";
+import Loader from "../../utils/Loader";
+
 
 const IncomeTaxSlabs = () => {
-
-  const [selectedFY, setSelectedFY] = useState("2025-26");
-  const [disabled, setDisabled] = useState(true);
-  const [error, setError] = useState(null);
+  const [financialYears, setFinancialYears] = useState([]);
+  const [selectedFY, setSelectedFY] = useState("");
   const [selectedRegime, setSelectedRegime] = useState("new");
+  console.log(selectedRegime, selectedFY)
   const [openModal, setOpenModal] = useState(false);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [regimeLoading, setRegimeLoading] = useState(false);
+  const [updating, setUpdating] = useState(false);
+
+  // Form data for the modal
+  const [regimeData, setRegimeData] = useState({
+    standardDeduction: "",
+    cessPercentage: "",
+    taxSlabs: []
+  });
+  console.log("formData",regimeData)
 
   const [newSlab, setNewSlab] = useState({
     minIncome: "",
@@ -43,30 +56,59 @@ const IncomeTaxSlabs = () => {
     rate: ""
   });
 
-  const [taxSettings, setTaxSettings] = useState({
-    standardDeduction: 50000,
-    cessPercentage: 4
-  });
+  // Stored tax regimes data
+  const [taxRegimes, setTaxRegimes] = useState(null);
+  console.log("taxRegimes",taxRegimes)
 
-  const [taxSlabs, setTaxSlabs] = useState([]);
+  const handleTabChange = (event, newValue) => {
+    setSelectedRegime(newValue);
+  };
 
-  const financialYears = ["2024-25", "2025-26", "2026-27"];
-
-  const handleFormChange = (name, value) => {
-    if (name === "maxIncome" && value === "") {
-      value = null; // Allow empty max income
+  const handleOpenModal = (type = "new") => {
+    if (type === "edit") {
+      setUpdating(true);
+    } else {
+      setRegimeData({
+        standardDeduction: "",
+        cessPercentage: "",
+        taxSlabs: []
+      });
+      setNewSlab({ minIncome: "", maxIncome: "", rate: "" });
     }
-
-    if (error && error[name]) {
-      setError({ ...error, [name]: null });
-    }
-    setNewSlab((prevSlab) => ({ ...prevSlab, [name]: value }));
+    setError(null);
+    setOpenModal(true);
   };
 
   const handleCloseModal = () => {
+    setOpenModal(false);
+    setRegimeData({
+      standardDeduction: "",
+      cessPercentage: "",
+      taxSlabs: []
+    });
     setNewSlab({ minIncome: "", maxIncome: "", rate: "" });
     setError(null);
-    setOpenModal(false);
+  };
+
+  const handleRegimeDataChange = (field, value) => {
+    setRegimeData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleSlabChange = (field, value) => {
+    if (field === "maxIncome" && value === "") {
+      value = null;
+    }
+    setNewSlab(prev => ({
+      ...prev,
+      [field]: value
+    }));
+    
+    if (error && error[field]) {
+      setError({ ...error, [field]: null });
+    }
   };
 
   const handleAddSlab = () => {
@@ -76,7 +118,7 @@ const IncomeTaxSlabs = () => {
 
     // Validation
     if (isNaN(min) || min < 0) {
-      setError({ ...error, minIncome: "Please enter a valid minimum income" })
+      setError({ ...error, minIncome: "Please enter a valid minimum income" });
       return;
     }
     if (max && max <= min) {
@@ -89,52 +131,131 @@ const IncomeTaxSlabs = () => {
     }
 
     const slab = {
-      id: Date.now(),
-      financialYear: selectedFY,
-      regime: selectedRegime,
       minIncome: min,
       maxIncome: max,
       rate: rate
     };
 
-    setTaxSlabs([...taxSlabs, slab]);
+    setRegimeData(prev => ({
+      ...prev,
+      taxSlabs: [...prev.taxSlabs, slab]
+    }));
+
     setNewSlab({ minIncome: "", maxIncome: "", rate: "" });
-    setOpenModal(false);
+    setError(null);
   };
 
-  const handleDeleteSlab = (id) => {
-    setTaxSlabs(taxSlabs.filter(slab => slab.id !== id));
+  const handleResetForm = () => {
+    setRegimeData({
+        standardDeduction: "",
+        cessPercentage: "",
+        taxSlabs: []
+      });
+      setNewSlab({ minIncome: "", maxIncome: "", rate: "" });
   };
 
-  const handleSaveTaxSettings = async () => {
-    try {
-      // Here you would make the API call to save tax settings
-      // await api.saveTaxSettings(taxSettings);
-      console.log("Saving tax settings:", taxSettings);
-    } catch (error) {
+  const handleSaveRegime = () => {
+    // Validation
+    if (!regimeData.standardDeduction || !regimeData.cessPercentage) {
+      setError({ general: "Please fill in standard deduction and cess percentage" });
+      return;
     }
+
+    if (regimeData.taxSlabs.length === 0) {
+      setError({ general: "Please add at least one tax slab" });
+      return;
+    }
+
+    const newRegime = {
+      financialYear: selectedFY,
+      regime: selectedRegime,
+      standardDeduction: parseInt(regimeData.standardDeduction),
+      cessPercentage: parseFloat(regimeData.cessPercentage),
+      slabs: regimeData.taxSlabs
+    };
+
+    handleCreateTaxSlab(newRegime);
   };
 
-  const handleSaveTaxSlabs = async () => {
+  const handleCreateTaxSlab = async (newRegime) => {
+    console.log(newRegime)
+    setLoading(true);
     try {
-      const slabsToSave = slabsForSelection;
-      if (slabsToSave.length === 0) {
-        return;
+      let response;
+      if(updating) {
+        response = await api.put('/tax-slab', newRegime);
+      } else {
+        response = await api.post('/tax-slab', newRegime);
       }
-      // Here you would make the API call to save tax slabs
-      // await api.saveTaxSlabs(slabsToSave);
-      console.log("Saving tax slabs:", slabsToSave);
+
+      if(response?.data && response?.data?.success === true) {
+        toast.success(response?.data?.message);
+        getCurrentRegime();
+      }
     } catch (error) {
+      handleApiError(error);
+    } finally {
+      setLoading(false);
+      handleCloseModal();
+      setUpdating(false);
+    }
+  }
+
+  const getCurrentRegime = async () => {
+    setRegimeLoading(true);
+    try {
+      const response = await api.get('/tax-slab', {
+        params: {
+          financialYear: selectedFY,
+          regime: selectedRegime
+        }
+      });
+      if(response?.data && response?.data?.success === true) {
+        setTaxRegimes(response?.data?.data);
+      }
+    } catch (error) {
+      toast.info(error?.response?.data?.message);
+        setTaxRegimes(null);
+    } finally {
+      setRegimeLoading(false);
     }
   };
 
-  const slabsForSelection = taxSlabs.filter(
-    s => s.financialYear === selectedFY && s.regime === selectedRegime
-  );
+  useEffect(() => {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = today.getMonth();
+
+    let startYear;
+    if (month >= 3) {
+      startYear = year;
+    } else {
+      startYear = year - 1;
+    }
+
+    const years = [];
+
+    for (let i = 0; i < 5; i++) {
+      const start = startYear + i;
+      const end = start + 1;
+      years.push(`${start}-${end}`);
+    }
+
+    setFinancialYears(years);
+    setSelectedFY(`${startYear}-${startYear + 1}`);
+  }, []);
+
+  useEffect(() => {
+    if(!selectedFY || !selectedRegime) return;
+    getCurrentRegime();
+  }, [selectedFY, selectedRegime]);
+
+  if(regimeLoading) {
+    return <Loader />;
+  }
 
   return (
     <Box>
-
       {/* Header */}
       <Box sx={{ mb: 3 }}>
         <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
@@ -144,50 +265,21 @@ const IncomeTaxSlabs = () => {
           </Typography>
         </Box>
         <Typography variant="body2" color="text.secondary">
-          Select a financial year and tax regime to configure tax slabs.
+          Configure income tax slabs for different financial years and tax regimes.
         </Typography>
       </Box>
+
       <Alert severity="info" sx={{ mb: 3 }}>
         Configure income tax slabs used for TDS calculation.
       </Alert>
 
-      {/* Tax Settings */}
-      <Card sx={{ mb: 3 }}>
-        <CardContent>
-          <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-            <Typography fontWeight={600}>
-              Tax Settings
-            </Typography>
-            <Box sx={{ display: "flex", gap: 1 }}>
-              <Button
-                variant="outlined"
-                startIcon={disabled ? <EditIcon /> : <CancelIcon />}
-                onClick={() => {setDisabled(!disabled)}}
-                size="small"
-              >
-                {disabled ? "Edit" : "Cancel"}
-              </Button>
-              <Button
-                variant="contained"
-                startIcon={<SaveIcon />}
-                disabled={disabled}
-                onClick={handleSaveTaxSettings}
-                size="small"
-              >
-                Save Settings
-              </Button>
-            </Box>
-          </Box>
+      {/* Financial Year Selection */}
 
-          <Grid container spacing={2}>
-
-
+          <Grid container spacing={2} alignItems="center">
             <Grid item xs={12} md={6}>
               <TextField
                 select
                 label="Financial Year"
-                fullWidth
-                disabled={disabled}
                 value={selectedFY}
                 onChange={(e) => setSelectedFY(e.target.value)}
               >
@@ -196,159 +288,110 @@ const IncomeTaxSlabs = () => {
                 ))}
               </TextField>
             </Grid>
-
-            <Grid item xs={12} md={6}>
-              <TextField
-                select
-                label="Tax Regime"
-                disabled={disabled}
-                fullWidth
-                value={selectedRegime}
-                onChange={(e) => setSelectedRegime(e.target.value)}
-              >
-                <MenuItem value="new">New Regime</MenuItem>
-                <MenuItem value="old">Old Regime</MenuItem>
-              </TextField>
-            </Grid>
-
-            <Grid item xs={6}>
-              <TextField
-                label="Standard Deduction"
-                type="number"
-                fullWidth
-                disabled={disabled}
-                value={taxSettings.standardDeduction}
-                onChange={(e) => setTaxSettings({ ...taxSettings, standardDeduction: parseInt(e.target.value) || 0 })}
-                InputProps={{
-                  startAdornment: <InputAdornment position="start">₹</InputAdornment>
-                }}
-              />
-            </Grid>
-
-            <Grid item xs={6}>
-              <TextField
-                label="Cess"
-                type="number"
-                fullWidth
-                disabled={disabled}
-                value={taxSettings.cessPercentage}
-                onChange={(e) => setTaxSettings({ ...taxSettings, cessPercentage: parseFloat(e.target.value) || 0 })}
-                InputProps={{
-                  endAdornment: <InputAdornment position="end">%</InputAdornment>
-                }}
-              />
-            </Grid>
           </Grid>
 
-        </CardContent>
-      </Card>
+      {/* Tax Regimes Table */}
+      <Box>
+        {/* Tabs */}
+        <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
+          <Tabs value={selectedRegime} onChange={handleTabChange}>
+            <Tab label="New Tax Regime" value="new" />
+            <Tab label="Old Tax Regime" value="old" />
+          </Tabs>
+        </Box>
 
-      {/* Slabs Table */}
-      <Card>
-        <CardContent>
-          <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-            <Typography fontWeight={600}>
-              Tax Slabs for {selectedFY} ({selectedRegime === "new" ? "New" : "Old"} Regime)
-            </Typography>
-            <Box sx={{ display: "flex", gap: 1 }}>
-              <Button
-                variant="outlined"
-                startIcon={<AddIcon />}
-                onClick={() => setOpenModal(true)}
-                size="small"
-              >
-                Add Tax Slab
-              </Button>
-              <Button
-                variant="contained"
-                startIcon={<SaveIcon />}
-                onClick={handleSaveTaxSlabs}
-                size="small"
-                disabled={slabsForSelection.length === 0}
-              >
-                Save Slabs
-              </Button>
-            </Box>
-          </Box>
+        {/* Table Content */}
+        {taxRegimes!==null ? (
+          <Card>
+            <CardContent>
+              <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
+                <Typography variant="h6">
+                  {selectedRegime === "new" ? "New" : "Old"} Tax Regime - {selectedFY}
+                </Typography>
+                <Button
+                  variant="outlined"
+                  startIcon={<EditIcon />}
+                  onClick={() => handleOpenModal("edit")}
+                  size="small"
+                >
+                  Edit Regime
+                </Button>
+              </Box>
 
-          <TableContainer>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Income Range</TableCell>
-                  <TableCell>Tax Rate</TableCell>
-                  <TableCell align="center">Action</TableCell>
-                </TableRow>
-              </TableHead>
+              {/* Regime Info */}
+              <Grid container spacing={2} sx={{ mb: 3 }}>
+                <Grid item xs={6}>
+                  <Typography variant="body2" color="text.secondary">Standard Deduction</Typography>
+                  <Typography variant="h6">{formatIndianRuppee(taxRegimes.standardDeduction)}</Typography>
+                </Grid>
+                <Grid item xs={6}>
+                  <Typography variant="body2" color="text.secondary">Cess</Typography>
+                  <Typography variant="h6">{taxRegimes.cessPercentage}%</Typography>
+                </Grid>
+              </Grid>
 
-              <TableBody>
-                {slabsForSelection.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={3} align="center" sx={{ py: 4 }}>
-                      <Typography color="text.secondary">
-                        No tax slabs configured for {selectedFY} ({selectedRegime === "new" ? "New" : "Old"} Regime)
-                      </Typography>
-                      <Button
-                        variant="text"
-                        startIcon={<AddIcon />}
-                        onClick={() => setOpenModal(true)}
-                        sx={{ mt: 1 }}
-                      >
-                        Add your first tax slab
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  slabsForSelection.map((slab) => (
-                    <TableRow key={slab.id}>
-                      <TableCell>
-                        ₹{slab.minIncome.toLocaleString()} - {slab.maxIncome ? `₹${slab.maxIncome.toLocaleString()}` : "Above"}
-                      </TableCell>
-
-                      <TableCell>
-                        <Chip label={`${slab.rate}%`} color="success" />
-                      </TableCell>
-
-                      <TableCell align="center">
-
-                        <IconButton
-                          color="primary"
-                          onClick={() => handleEditSlab(slab.id)}
-                          size="small"
-                        >
-                          <EditIcon />
-                        </IconButton>
-                        <IconButton
-                          color="error"
-                          onClick={() => handleDeleteSlab(slab.id)}
-                          size="small"
-                        >
-                          <DeleteIcon />
-                        </IconButton>
-                      </TableCell>
+              {/* Tax Slabs Table */}
+              <TableContainer>
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>Income Range</TableCell>
+                      <TableCell>Tax Rate</TableCell>
                     </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </TableContainer>
+                  </TableHead>
+                  <TableBody>
+                    {taxRegimes?.slabs?.map((slab) => (
+                      <TableRow key={slab.id}>
+                        <TableCell>
+                          {formatIndianRuppee(slab.minIncome)} - {slab.maxIncome ? `${formatIndianRuppee(slab.maxIncome)}` : "Above"}
+                        </TableCell>
+                        <TableCell>
+                          <Chip label={`${slab.rate}%`} color="success" />
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </CardContent>
+          </Card>
+        ) : (
+          <Card>
+            <CardContent>
+              <Box sx={{ textAlign: "center", py: 4 }}>
+                <Typography variant="h6" color="text.secondary" sx={{ mb: 2 }}>
+                  No {selectedRegime === "new" ? "New" : "Old"} Tax Regime configured for {selectedFY}
+                </Typography>
+                <Button
+                  variant="contained"
+                  startIcon={<AddIcon />}
+                  onClick={handleOpenModal}
+                >
+                  Add Tax Regime
+                </Button>
+              </Box>
+            </CardContent>
+          </Card>
+        )}
+      </Box>
 
-        </CardContent>
-      </Card>
-
-      {/* Add Tax Slab Modal */}
+      {/* Add/Edit Regime Modal */}
       <AddTaxSlabModal
         openModal={openModal}
         handleCloseModal={handleCloseModal}
         selectedFY={selectedFY}
         selectedRegime={selectedRegime}
+        regimeData={regimeData}
         newSlab={newSlab}
-        handleFormChange={handleFormChange}
+        handleSlabChange={handleSlabChange}
         handleAddSlab={handleAddSlab}
         error={error}
-        setError={setError}
+        handleSaveRegime={handleSaveRegime}
+        handleResetForm={handleResetForm}
+        handleRegimeDataChange={handleRegimeDataChange}
+        loading={loading}
+        updating={updating}
       />
-
     </Box>
   );
 };

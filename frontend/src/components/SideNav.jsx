@@ -48,6 +48,12 @@ const menuItems = [
     path: "/settings",
     roles: ["Admin"],
   },
+  {
+    text: "Income Tax Slabs",
+    icon: <PaidIcon />,
+    path: "/settings/income-tax",
+    roles: ["Admin"],
+  },
 ];
 
 
@@ -61,11 +67,6 @@ const orgSettingsItems = [
     text: "Payroll",
     icon: <ReceiptLongIcon />,
     path: "/org-settings/payroll",
-  },
-  {
-    text: "Income Tax Slabs",
-    icon: <PaidIcon />,
-    path: "/org-settings/income-tax",
   },
   {
     text: "Leave & Attendance",

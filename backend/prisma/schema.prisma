@@ -213,7 +213,7 @@ model IncomeTaxSlab {
 
   minIncome     Float
   maxIncome     Float?
-  taxRate       Float
+  rate          Float
 
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
