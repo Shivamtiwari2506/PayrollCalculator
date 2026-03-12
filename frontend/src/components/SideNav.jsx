@@ -7,8 +7,9 @@ import {
   ListItemText,
   Toolbar,
   Box,
-  Divider,
   Collapse,
+  Typography,
+  Divider,
 } from '@mui/material';
 
 import HomeIcon from '@mui/icons-material/Home';
@@ -42,17 +43,13 @@ const menuItems = [
     path: "/users",
     roles: ["Admin"],
   },
-  {
-    text: "Settings",
-    icon: <SettingsIcon />,
-    path: "/settings",
-    roles: ["Admin"],
-  },
+];
+
+const settingsItems = [
   {
     text: "Income Tax Slabs",
     icon: <PaidIcon />,
     path: "/settings/income-tax",
-    roles: ["Admin"],
   },
 ];
 
@@ -99,14 +96,48 @@ export default function SideNav({
   const navigate = useNavigate();
   const location = useLocation();
   const role = JSON.parse(localStorage.getItem("user"))?.role || user?.role;
+  const currentOrg = JSON.parse(localStorage.getItem('org'));
 
   const isOrgRoute = location.pathname.startsWith("/org-settings");
+  const isSettingsRoute = location.pathname.startsWith("/settings");
 
   const [orgOpen, setOrgOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [companyLogo, setCompanyLogo] = useState(null);
+  const [logoPadding, setLogoPadding] = useState(0.5);
 
   useEffect(() => {
     setOrgOpen(isOrgRoute);
-  }, [isOrgRoute]);
+    setSettingsOpen(isSettingsRoute);
+  }, [isOrgRoute, isSettingsRoute]);
+
+  useEffect(() => {
+    const logo = JSON.parse(localStorage.getItem("org"))?.profile?.logo;
+
+    if (!logo) return;
+
+    setCompanyLogo(logo);
+
+    const img = new Image();
+    img.src = logo;
+
+    img.onload = () => {
+      const ratio = img.width / img.height;
+
+      if (ratio > 2) {
+        // very wide logos
+        setLogoPadding(1.2);
+      } 
+      else if (ratio < 0.7) {
+        // very tall logos
+        setLogoPadding(1);
+      } 
+      else {
+        // normal logos
+        setLogoPadding(0.5);
+      }
+    };
+  }, []);
 
   const filteredMenu = menuItems.filter((item) =>
     item.roles.includes(role)
@@ -117,7 +148,9 @@ export default function SideNav({
       <ListItem key={item.text} disablePadding sx={{ display: 'block' }}>
         <ListItemButton
           selected={location.pathname === item.path}
-          onClick={() => navigate(item.path)}
+          onClick={() => {
+            mobileOpen ? onDrawerToggle() : null;
+            navigate(item.path)}}
           sx={{
             minHeight: 48,
             justifyContent: drawerOpen ? 'initial' : 'center',
@@ -152,8 +185,168 @@ export default function SideNav({
     <Box>
       <Toolbar />
 
+      {/* COMPANY SECTION */}
+      {currentOrg && (
+        <Box sx={{ px: 2, py: 2, mb: 1 }}>
+          <Box 
+            sx={{ 
+              display: 'flex', 
+              alignItems: 'center',
+              justifyContent: drawerOpen ? 'flex-start' : 'center',
+              gap: drawerOpen ? 1.5 : 0,
+            }}
+          >
+            {/* Company Logo */}
+            {companyLogo && (
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  height: drawerOpen ? 48 : 40,
+                  width: drawerOpen ? 48 : 40,
+                  overflow: "hidden",
+                  borderRadius: 2,
+                  bgcolor: "background.paper",
+                  boxShadow: "0px 2px 8px rgba(0,0,0,0.08)",
+                  border: "1px solid",
+                  borderColor: "divider",
+                  p: logoPadding,
+                  flexShrink: 0,
+                }}
+              >
+                <Box
+                  component="img"
+                  src={companyLogo}
+                  alt="Company Logo"
+                  sx={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "contain",
+                  }}
+                />
+              </Box>
+            )}
+            
+            {/* Company Info */}
+            {drawerOpen && (
+              <Box sx={{ 
+                display: 'flex', 
+                flexDirection: 'column',
+                minWidth: 0,
+                flex: 1,
+              }}>
+                <Typography 
+                  variant="subtitle1"
+                  sx={{ 
+                    color: 'text.primary',
+                    fontSize: '0.95rem',
+                    fontWeight: 600,
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                    lineHeight: 1.2,
+                  }}
+                >
+                  {currentOrg?.name}
+                </Typography>
+                <Typography
+                  variant="caption"
+                  sx={{
+                    color: 'text.secondary',
+                    fontSize: '0.75rem',
+                    lineHeight: 1,
+                    mt: 0.5,
+                  }}
+                >
+                  Organization
+                </Typography>
+              </Box>
+            )}
+          </Box>
+        </Box>
+      )}
+
+      {currentOrg && <Divider/>}
+
       {/* MAIN MENU */}
       <List>{renderMenu(filteredMenu)}</List>
+
+      {/* SETTINGS GROUP */}
+      {role === "Admin" && (
+        <>
+          <ListItem disablePadding>
+            <ListItemButton
+              selected={isSettingsRoute}
+              onClick={() => setSettingsOpen((prev) => !prev)}
+              sx={{
+                px: 2.5,
+                justifyContent: drawerOpen ? 'initial' : 'center',
+                color: isSettingsRoute ? 'primary.main' : '',
+              }}
+            >
+              <ListItemIcon
+                sx={{
+                  minWidth: 0,
+                  mr: drawerOpen ? 2 : 'auto',
+                  justifyContent: 'center',
+                  color: isSettingsRoute ? 'primary.main' : '',
+                }}
+              >
+                <SettingsIcon />
+              </ListItemIcon>
+
+              <ListItemText
+                primary="Settings"
+                sx={{ opacity: drawerOpen ? 1 : 0 }}
+              />
+
+              {drawerOpen &&
+                (settingsOpen ? <ExpandLessIcon /> : <ExpandMoreIcon />)}
+            </ListItemButton>
+          </ListItem>
+
+          <Collapse in={settingsOpen} timeout="auto" unmountOnExit>
+            <List component="div" disablePadding>
+              {settingsItems.map((item) => (
+                <ListItem
+                  key={item.text}
+                  disablePadding
+                  sx={{ display: 'block' }}
+                >
+                  <ListItemButton
+                    selected={location.pathname === item.path}
+                    onClick={() => {
+                      mobileOpen ? onDrawerToggle() : null;
+                      navigate(item.path)}}
+                    sx={{
+                      pl: drawerOpen ? 4 : 2.5,
+                      justifyContent: drawerOpen ? 'initial' : 'center',
+                      color: location.pathname === item.path ? 'primary.main' : '',
+                    }}
+                  >
+                    <ListItemIcon
+                      sx={{
+                        minWidth: 0,
+                        mr: drawerOpen ? 2 : 'auto',
+                        justifyContent: 'center',
+                        color: location.pathname === item.path ? 'primary.main' : '',
+                      }}
+                    >
+                      {item.icon}
+                    </ListItemIcon>
+
+                    <ListItemText
+                      primary={item.text}
+                      sx={{ display: drawerOpen ? 'block' : 'none' }}
+                    />
+                  </ListItemButton>
+                </ListItem>
+              ))}
+            </List>
+          </Collapse>
+        </>
+      )}
 
       {/* ORG SETTINGS GROUP */}
       {role === "Org_Admin" && (
