@@ -161,8 +161,20 @@ const PayrollSettings = () => {
       </Alert>
 
       {/* Stepper */}
-      <Paper elevation={2} sx={{ p: 3, mb: 3, borderRadius: 1 }}>
-        <Stepper activeStep={activeStep} alternativeLabel>
+      <Paper
+        elevation={2}
+        sx={{
+          p: { xs: 1.5, sm: 3 },
+          mb: 3,
+          borderRadius: 1,
+          overflowX: "auto"
+        }}
+      >
+        <Stepper
+          activeStep={activeStep}
+          alternativeLabel
+          sx={{ minWidth: "500px" }}
+        >
           {steps.map((label) => (
             <Step key={label}>
               <StepLabel>{label}</StepLabel>

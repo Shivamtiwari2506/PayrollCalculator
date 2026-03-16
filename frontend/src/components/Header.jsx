@@ -93,7 +93,7 @@ export default function Header({ user, onMenuClick }) {
           >
             <Box
               component="img"
-              src="/logo.png" // Your application logo from public folder
+              src="/PayPilotLogo.png"
               alt="PayPilot Logo"
               sx={{
                 height: { xs: 32, sm: 40 },
