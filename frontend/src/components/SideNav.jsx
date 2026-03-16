@@ -187,7 +187,7 @@ export default function SideNav({
 
       {/* COMPANY SECTION */}
       {currentOrg && (
-        <Box sx={{ px: 2, py: 2, mb: 1 }}>
+        <Box sx={{ px: 2, py: 1.5,}}>
           <Box 
             sx={{ 
               display: 'flex', 
@@ -230,38 +230,22 @@ export default function SideNav({
             
             {/* Company Info */}
             {drawerOpen && (
-              <Box sx={{ 
-                display: 'flex', 
-                flexDirection: 'column',
-                minWidth: 0,
-                flex: 1,
-              }}>
                 <Typography 
                   variant="subtitle1"
                   sx={{ 
+                    padding: 0,
+                    margin: 0,
                     color: 'text.primary',
                     fontSize: '0.95rem',
                     fontWeight: 600,
                     overflow: 'hidden',
                     textOverflow: 'ellipsis',
                     whiteSpace: 'nowrap',
-                    lineHeight: 1.2,
+                    // lineHeight: 1.2,
                   }}
                 >
                   {currentOrg?.name}
                 </Typography>
-                <Typography
-                  variant="caption"
-                  sx={{
-                    color: 'text.secondary',
-                    fontSize: '0.75rem',
-                    lineHeight: 1,
-                    mt: 0.5,
-                  }}
-                >
-                  Organization
-                </Typography>
-              </Box>
             )}
           </Box>
         </Box>

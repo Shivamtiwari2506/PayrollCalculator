@@ -195,7 +195,7 @@ export default function Header({ user, onMenuClick }) {
                 </Typography>
 
                 <Chip
-                  label={`${currentUser?.role} User`}
+                  label={`${currentUser?.role === 'Admin' ? 'Platform Admin' : currentUser?.role === 'Org_Admin' ? 'Organization Admin' : 'User' }`}
                   size="small"
                   variant="filled"
                   sx={{
