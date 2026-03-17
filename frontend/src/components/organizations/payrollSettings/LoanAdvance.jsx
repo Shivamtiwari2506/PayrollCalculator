@@ -1,6 +1,6 @@
 import { Grid, Card, CardContent, Typography, TextField, Switch, FormControlLabel, InputAdornment, Chip, Box } from "@mui/material";
 
-const LoanAdvance = ({ settings, handleChange }) => {
+const LoanAdvance = ({ settings, handleChange, errors }) => {
   return (
     <Grid container spacing={3}>
       {/* Loan Configuration */}
@@ -32,6 +32,9 @@ const LoanAdvance = ({ settings, handleChange }) => {
               <TextField
                 label="Maximum Loan Amount"
                 type="number"
+                required={settings.loanEnabled ? true : false}
+                error={!!errors.maxLoanAmount}
+                helperText={errors.maxLoanAmount}
                 fullWidth
                 sx={{ mt: 2 }}
                 value={settings.maxLoanAmount}
@@ -75,6 +78,9 @@ const LoanAdvance = ({ settings, handleChange }) => {
                 label="Maximum Advance Amount"
                 type="number"
                 fullWidth
+                required={settings.advanceEnabled ? true : false}
+                error={!!errors.maxAdvanceAmount}
+                helperText={errors.maxAdvanceAmount}
                 sx={{ mt: 2 }}
                 value={settings.maxAdvanceAmount}
                 onChange={(e) => handleChange("maxAdvanceAmount", parseInt(e.target.value))}

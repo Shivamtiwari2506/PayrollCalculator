@@ -2,7 +2,7 @@ import { Grid, Card, CardContent, Typography, TextField, Switch, MenuItem, FormC
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 
-const OvertimeBonus = ({ settings, handleChange }) => {
+const OvertimeBonus = ({ settings, handleChange, errors }) => {
   const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
   return (
@@ -40,16 +40,21 @@ const OvertimeBonus = ({ settings, handleChange }) => {
                 <TextField
                   label="Overtime Rate Multiplier"
                   type="number"
+                  required={settings.overtimeEnabled ? true : false}
+                  error={!!errors.overtimeRate}
                   fullWidth
                   value={settings.overtimeRate}
                   onChange={(e) => handleChange("overtimeRate", parseFloat(e.target.value))}
                   sx={{ mb: 2 }}
                   inputProps={{ step: 0.1, min: 1, max: 3 }}
-                  helperText="e.g., 1.5 means 1.5x of hourly rate"
+                  helperText={errors.overtimeRate ||"e.g., 1.5 means 1.5x of hourly rate"}
                 />
                 <TextField
                   select
                   fullWidth
+                  required={settings.overtimeEnabled ? true : false}
+                  error={!!errors.overtimeCalculation}
+                  helperText={errors.overtimeCalculation}
                   label="Calculation Method"
                   value={settings.overtimeCalculation}
                   onChange={(e) => handleChange("overtimeCalculation", e.target.value)}
@@ -74,6 +79,7 @@ const OvertimeBonus = ({ settings, handleChange }) => {
               </Typography>
             </Box>
 
+          <Box>
             <FormControlLabel
               control={
                 <Switch
@@ -83,18 +89,19 @@ const OvertimeBonus = ({ settings, handleChange }) => {
               }
               label="Enable Annual Bonus"
             />
-
             <Chip
               // sx={{ ml: 2 }}
               label={settings.bonusEnabled ? "Enabled" : "Disabled"}
               color={settings.bonusEnabled ? "success" : "default"}
               size="small"
             />
-
             {settings.bonusEnabled && (
               <TextField
                 select
                 fullWidth
+                required={settings.bonusEnabled ? true : false}
+                error={!!errors.bonusMonth}
+                helperText={errors.bonusMonth}
                 label="Bonus Month"
                 value={settings.bonusMonth}
                 onChange={(e) => handleChange("bonusMonth", e.target.value)}
@@ -105,7 +112,8 @@ const OvertimeBonus = ({ settings, handleChange }) => {
                 ))}
               </TextField>
             )}
-
+            </Box>
+          <Box>
             <FormControlLabel
               control={
                 <Switch
@@ -116,11 +124,11 @@ const OvertimeBonus = ({ settings, handleChange }) => {
               label="Enable Performance Bonus"
             />
             <Chip
-              // sx={{ ml: 2 }}
               label={settings.performanceBonusEnabled ? "Enabled" : "Disabled"}
               color={settings.performanceBonusEnabled ? "success" : "default"}
               size="small"
             />
+            </Box>
           </CardContent>
         </Card>
       </Grid>

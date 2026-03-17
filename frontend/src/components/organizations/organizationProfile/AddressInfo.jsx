@@ -167,7 +167,7 @@ const AddressInfo = ({ form, editMode, handleChange }) => {
 
           <Grid item xs={12}>
             <Typography sx={{ fontWeight: 600, mb: 1 }}>
-              Add Office Locations
+              Office Locations
             </Typography>
 
             <Select

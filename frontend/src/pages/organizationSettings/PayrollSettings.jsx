@@ -32,9 +32,8 @@ const steps = [
 
 const PayrollSettings = () => {
   const [activeStep, setActiveStep] = useState(0);
+  const [errors, setErrors] = useState({});
   const [settings, setSettings] = useState({
-    // Version Tracking
-    version: 1,
     effectiveFrom: new Date().toISOString().split('T')[0],
     effectiveTo: null,
     isActive: true,
@@ -92,12 +91,153 @@ const PayrollSettings = () => {
     maxAdvanceAmount: 50000,
   });
 
+  const validateStep = (step) => {
+    let newErrors = {};
+
+    switch (step) {
+
+      // STEP 0: Payroll Cycle
+      case 0:
+        if (!settings.payrollCycle) {
+          newErrors.payrollCycle = "Payroll cycle is required";
+        }
+        if (!settings.payrollStartDay || settings.payrollStartDay < 1 || settings.payrollStartDay > 31) {
+          newErrors.payrollStartDay = "Start day must be between 1-31";
+        }
+        if (!settings.payrollEndDay || settings.payrollEndDay < 1 || settings.payrollEndDay > 31) {
+          newErrors.payrollEndDay = "End day must be between 1-31";
+        }
+        if (!settings.paymentDate || settings.paymentDate < 1 || settings.paymentDate > 31) {
+          newErrors.paymentDate = "Payment date must be between 1-31";
+        }
+        if (!settings.workingDaysPerMonth || settings.workingDaysPerMonth < 20 || settings.workingDaysPerMonth > 31) {
+          newErrors.workingDaysPerMonth = "Payment date must be between 20-31";
+        }
+        if(!settings.weekendDays || settings.weekendDays.length === 0) {
+          newErrors.weekendDays = "Weekend days are required";
+        }
+        if(!settings.effectiveFrom) {
+          newErrors.effectiveFrom = "Effective date is required";
+        }
+        break;
+
+      // STEP 1: Salary Structure
+      case 1:
+        if(!settings.basicPercent) {
+          newErrors.basicPercent = "Basic is required";
+        }
+        if (settings.basicPercent <= 0) {
+          newErrors.basicPercent = "Basic % must be > 0";
+        }
+        if (!settings.hraPercent) {
+          newErrors.hraPercent = "HRA is required";
+        } else if (settings.hraPercent < 0) {
+          newErrors.hraPercent = "HRA % cannot be negative";
+        }
+        if (!settings.allowancePercent) {
+          newErrors.allowancePercent = "Allowance is required";
+        }
+        if (settings.allowancePercent < 0) {
+          newErrors.allowancePercent = "Allowance % cannot be negative";
+        }
+
+        const total =
+          Number(settings.basicPercent) +
+          Number(settings.hraPercent) +
+          Number(settings.allowancePercent);
+
+        if (total !== 100) {
+          newErrors.totalPercent = "Total must be 100%";
+        }
+        break;
+
+      // STEP 2: Overtime & Bonus
+      case 2:
+        if (settings.overtimeEnabled) {
+          if (!settings.overtimeRate || settings.overtimeRate <= 0) {
+            newErrors.overtimeRate = "Overtime rate must be > 0";
+          }
+          if (!settings.overtimeCalculation) {
+            newErrors.overtimeCalculation = "Select calculation type";
+          }
+        }
+
+        if (settings.bonusEnabled && !settings.bonusMonth) {
+          newErrors.bonusMonth = "Bonus month is required";
+        }
+        break;
+
+      // STEP 3: Statutory Deductions
+      case 3:
+        if (settings.pfEnabled) {
+          if (!settings.pfPercent) {
+            newErrors.pfPercent = "PF % required";
+          }
+          if (!settings.pfEmployerContribution) {
+            newErrors.pfEmployerContribution = "Employer PF required";
+          }
+          if (!settings.pfCeiling) {
+            newErrors.pfCeiling = "PF Ceiling required";
+          }
+        }
+
+        if (settings.esiEnabled) {
+          if (!settings.esiPercent) {
+            newErrors.esiPercent = "ESI % required";
+          }
+          if (!settings.esiEmployerPercent) {
+            newErrors.esiEmployerPercent = "Employer ESI required";
+          }
+          if (!settings.esiCeiling) {
+            newErrors.esiCeiling = "ESI Ceiling amount required";
+          }
+        }
+
+        if (settings.gratuityEnabled && (!settings.gratuityYears || settings.gratuityYears <= 0)) {
+          newErrors.gratuityYears = "Years must be > 0";
+        }
+        if(settings.leaveEncashmentEnabled && (!settings.maxEncashmentDays || settings.maxEncashmentDays <= 0)) {
+          newErrors.maxEncashmentDays = "Max days must be > 0";
+        }
+
+        if (settings.professionalTaxEnabled && !settings.professionalTaxAmount) {
+          newErrors.professionalTaxAmount = "Tax amount required";
+        }
+        break;
+
+      // STEP 4: Loan & Advance
+      case 4:
+        if (settings.loanEnabled && (!settings.maxLoanAmount || settings.maxLoanAmount <= 0)) {
+          newErrors.maxLoanAmount = "Loan amount must be > 0";
+        }
+
+        if (settings.advanceEnabled && (!settings.maxAdvanceAmount || settings.maxAdvanceAmount <= 0)) {
+          newErrors.maxAdvanceAmount = "Advance amount must be > 0";
+        }
+        break;
+
+      default:
+        break;
+    }
+
+    return newErrors;
+  };
+
   const handleChange = (field, value) => {
     setSettings(prev => ({ ...prev, [field]: value }));
+    setErrors(prev => ({ ...prev, [field]: "" }));
   };
 
   const handleNext = () => {
-    setActiveStep((prevActiveStep) => prevActiveStep + 1);
+    const stepErrors = validateStep(activeStep);
+
+    if (Object.keys(stepErrors).length > 0) {
+      setErrors(stepErrors);
+      return;
+    }
+
+    setErrors({});
+    setActiveStep((prev) => prev + 1);
   };
 
   const handleBack = () => {
@@ -114,13 +254,13 @@ const PayrollSettings = () => {
       case 0:
         return (
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-            <PayrollCycleConfig settings={settings} handleChange={handleChange} />
+            <PayrollCycleConfig settings={settings} handleChange={handleChange} errors={errors} />
           </Box>
         );
       case 1:
-        return <SalaryStructure settings={settings} handleChange={handleChange} />;
+        return <SalaryStructure settings={settings} handleChange={handleChange} errors={errors} />;
       case 2:
-        return <OvertimeBonus settings={settings} handleChange={handleChange} />;
+        return <OvertimeBonus settings={settings} handleChange={handleChange} errors={errors} />;
       case 3:
         return (
           <Box>
@@ -130,11 +270,11 @@ const PayrollSettings = () => {
                 Statutory Deductions & Compliance
               </Typography>
             </Box>
-            <StatutoryDeductions settings={settings} handleChange={handleChange} />
+            <StatutoryDeductions settings={settings} handleChange={handleChange} errors={errors} />
           </Box>
         );
       case 4:
-        return <LoanAdvance settings={settings} handleChange={handleChange} />;
+        return <LoanAdvance settings={settings} handleChange={handleChange} errors={errors}/>;
       default:
         return "Unknown step";
     }

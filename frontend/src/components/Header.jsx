@@ -228,9 +228,8 @@ export default function Header({ user, onMenuClick }) {
               paper: {
                 elevation: 8,
                 sx: {
-                  mt: 1.5,
+                  mt: 1,
                   minWidth: 200,
-                  borderRadius: 2,
                   bgcolor: 'background.paper',
                   border: '1px solid',
                   borderColor: 'divider',

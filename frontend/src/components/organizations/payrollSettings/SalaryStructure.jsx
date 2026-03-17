@@ -3,7 +3,7 @@ import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
 
-const SalaryStructure = ({ settings, handleChange }) => {
+const SalaryStructure = ({ settings, handleChange, errors }) => {
   const total = parseFloat(settings.basicPercent) + parseFloat(settings.hraPercent) + parseFloat(settings.allowancePercent);
   const isValid = total === 100;
 
@@ -33,6 +33,9 @@ const SalaryStructure = ({ settings, handleChange }) => {
               label="Basic Salary"
               fullWidth
               type="number"
+              required={true}
+              error={!!errors.basicPercent}
+              helperText={errors.basicPercent}
               value={settings.basicPercent}
               onChange={(e) => handleChange("basicPercent", parseFloat(e.target.value))}
               InputProps={{
@@ -47,6 +50,9 @@ const SalaryStructure = ({ settings, handleChange }) => {
               label="House Rent Allowance (HRA)"
               fullWidth
               type="number"
+              required={true}
+              error={!!errors.hraPercent}
+              helperText={errors.hraPercent}
               value={settings.hraPercent}
               onChange={(e) => handleChange("hraPercent", parseFloat(e.target.value))}
               InputProps={{
@@ -61,6 +67,9 @@ const SalaryStructure = ({ settings, handleChange }) => {
               label="Special/Other Allowances"
               fullWidth
               type="number"
+              required={true}
+              error={!!errors.allowancePercent}
+              helperText={errors.allowancePercent}
               value={settings.allowancePercent}
               onChange={(e) => handleChange("allowancePercent", parseFloat(e.target.value))}
               InputProps={{
@@ -69,19 +78,6 @@ const SalaryStructure = ({ settings, handleChange }) => {
               inputProps={{ step: 0.1, min: 0, max: 100 }}
             />
           </Grid>
-
-          {/* <Grid item xs={12}>
-            <Paper sx={{ p: 2, bgcolor: 'primary.50', border: '1px solid', borderColor: 'primary.200' }}>
-              <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                Total: {total.toFixed(1)}%
-                {isValid ? (
-                  <Chip label="Valid" color="success" size="small" sx={{ ml: 2 }} icon={<CheckCircleIcon />} />
-                ) : (
-                  <Chip label="Invalid" color="error" size="small" sx={{ ml: 2 }} icon={<CancelIcon />} />
-                )}
-              </Typography>
-            </Paper>
-          </Grid> */}
         </Grid>
       </CardContent>
     </Card>

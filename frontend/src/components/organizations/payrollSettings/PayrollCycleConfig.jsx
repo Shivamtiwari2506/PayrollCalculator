@@ -1,7 +1,7 @@
-import { Grid, Card, CardContent, Typography, TextField, MenuItem, Box, FormControl, InputLabel, Select, OutlinedInput, Chip } from "@mui/material";
+import { Grid, Card, CardContent, Typography, TextField, MenuItem, Box, FormControl, InputLabel, Select, OutlinedInput, Chip, FormHelperText } from "@mui/material";
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 
-const PayrollCycleConfig = ({ settings, handleChange }) => {
+const PayrollCycleConfig = ({ settings, handleChange , errors}) => {
   const weekDays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
   return (
@@ -24,9 +24,12 @@ const PayrollCycleConfig = ({ settings, handleChange }) => {
             <TextField
               select
               fullWidth
+              required={true}
               label="Payroll Cycle"
               value={settings.payrollCycle}
               onChange={(e) => handleChange("payrollCycle", e.target.value)}
+              error={!!errors.payrollCycle}
+              helperText={errors.payrollCycle}
             >
               <MenuItem value="monthly">Monthly</MenuItem>
               <MenuItem value="biweekly">Bi-Weekly</MenuItem>
@@ -38,10 +41,13 @@ const PayrollCycleConfig = ({ settings, handleChange }) => {
             <TextField
               type="number"
               fullWidth
+              required={true}
               label="Payroll Start Day"
               value={settings.payrollStartDay}
               onChange={(e) => handleChange("payrollStartDay", parseInt(e.target.value))}
               inputProps={{ min: 1, max: 31 }}
+              error={!!errors.payrollStartDay}
+              helperText={errors.payrollStartDay}
             />
           </Grid>
 
@@ -49,10 +55,13 @@ const PayrollCycleConfig = ({ settings, handleChange }) => {
             <TextField
               type="number"
               fullWidth
+              required={true}
               label="Payroll End Day"
               value={settings.payrollEndDay}
               onChange={(e) => handleChange("payrollEndDay", parseInt(e.target.value))}
               inputProps={{ min: 1, max: 31 }}
+              error={!!errors.payrollEndDay}
+              helperText={errors.payrollEndDay}
             />
           </Grid>
 
@@ -60,11 +69,13 @@ const PayrollCycleConfig = ({ settings, handleChange }) => {
             <TextField
               type="number"
               fullWidth
+              required={true}
               label="Payment Date"
               value={settings.paymentDate}
               onChange={(e) => handleChange("paymentDate", parseInt(e.target.value))}
               inputProps={{ min: 1, max: 31 }}
-              helperText="Day of month for salary credit"
+              error={!!errors.paymentDate}
+              helperText={errors.paymentDate || "Day of month for salary credit"}
             />
           </Grid>
 
@@ -72,15 +83,22 @@ const PayrollCycleConfig = ({ settings, handleChange }) => {
             <TextField
               type="number"
               fullWidth
+              required={true}
               label="Working Days per Month"
               value={settings.workingDaysPerMonth}
               onChange={(e) => handleChange("workingDaysPerMonth", parseInt(e.target.value))}
               inputProps={{ min: 20, max: 31 }}
+              error={!!errors.workingDaysPerMonth}
+              helperText={errors.workingDaysPerMonth}
             />
           </Grid>
 
           <Grid item xs={12} md={6}>
-            <FormControl fullWidth>
+            <FormControl 
+              required={true} 
+              fullWidth
+              error={!!errors.weekendDays}
+            >
               <InputLabel>Weekend Days</InputLabel>
               <Select
                 multiple
@@ -99,6 +117,9 @@ const PayrollCycleConfig = ({ settings, handleChange }) => {
                   </MenuItem>
                 ))}
               </Select>
+              <FormHelperText>
+                {errors.weekendDays}
+              </FormHelperText>
             </FormControl>
           </Grid>
 
@@ -107,10 +128,12 @@ const PayrollCycleConfig = ({ settings, handleChange }) => {
               fullWidth
               label="Effective From"
               type="date"
+              required={true}
               value={settings.effectiveFrom}
               onChange={(e) => handleChange("effectiveFrom", e.target.value)}
               InputLabelProps={{ shrink: true }}
-              helperText="Start date for this configuration"
+              error={!!errors.effectiveFrom}
+              helperText={errors.effectiveFrom || "Start date for this configuration"}
             />
           </Grid>
         </Grid>

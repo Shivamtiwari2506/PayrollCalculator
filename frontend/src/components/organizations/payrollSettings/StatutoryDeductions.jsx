@@ -1,6 +1,6 @@
 import { Grid, Card, CardContent, Typography, TextField, Switch, FormControlLabel, Box, InputAdornment, Chip, MenuItem } from "@mui/material";
 
-const StatutoryDeductions = ({ settings, handleChange }) => {
+const StatutoryDeductions = ({ settings, handleChange, errors }) => {
   return (
     <Grid container spacing={3}>
       {/* Provident Fund (PF) */}
@@ -35,6 +35,9 @@ const StatutoryDeductions = ({ settings, handleChange }) => {
                     <TextField
                       label="Employee Contribution"
                       type="number"
+                      required={settings.pfEnabled ? true : false}
+                      error={!!errors.pfPercent}
+                      helperText={errors.pfPercent}
                       fullWidth
                       value={settings.pfPercent}
                       onChange={(e) => handleChange("pfPercent", parseFloat(e.target.value))}
@@ -49,6 +52,9 @@ const StatutoryDeductions = ({ settings, handleChange }) => {
                       label="Employer Contribution"
                       type="number"
                       fullWidth
+                      required={settings.pfEnabled ? true : false}
+                      error={!!errors.pfEmployerContribution}
+                      helperText={errors.pfEmployerContribution}
                       value={settings.pfEmployerContribution}
                       onChange={(e) => handleChange("pfEmployerContribution", parseFloat(e.target.value))}
                       InputProps={{
@@ -62,9 +68,11 @@ const StatutoryDeductions = ({ settings, handleChange }) => {
                       select
                       label="PF Calculation Base"
                       fullWidth
+                      required={settings.pfEnabled ? true : false}
+                      error={!!errors.pfCeiling}
                       value={settings.pfCeiling}
                       onChange={(e) => handleChange("pfCeiling", e.target.value)}
-                      helperText="Choose how PF should be calculated"
+                      helperText={errors.pfCeiling || "Choose how PF should be calculated"}
                       InputProps={{
                         startAdornment: <InputAdornment position="start">₹</InputAdornment>,
                       }}
@@ -112,6 +120,9 @@ const StatutoryDeductions = ({ settings, handleChange }) => {
                     <TextField
                       label="Employee Contribution"
                       type="number"
+                      required={settings.esiEnabled ? true : false}
+                      error={!!errors.esiPercent}
+                      helperText={errors.esiPercent}
                       fullWidth
                       value={settings.esiPercent}
                       onChange={(e) => handleChange("esiPercent", parseFloat(e.target.value))}
@@ -125,6 +136,9 @@ const StatutoryDeductions = ({ settings, handleChange }) => {
                     <TextField
                       label="Employer Contribution"
                       type="number"
+                      required={settings.esiEnabled ? true : false}
+                      error={!!errors.esiEmployerPercent}
+                      helperText={errors.esiEmployerPercent}
                       fullWidth
                       value={settings.esiEmployerPercent}
                       onChange={(e) => handleChange("esiEmployerPercent", parseFloat(e.target.value))}
@@ -138,13 +152,15 @@ const StatutoryDeductions = ({ settings, handleChange }) => {
                     <TextField
                       label="ESI Ceiling Amount"
                       type="number"
+                      required={settings.esiEnabled ? true : false}
+                      error={!!errors.esiCeiling}
                       fullWidth
                       value={settings.esiCeiling}
                       onChange={(e) => handleChange("esiCeiling", parseInt(e.target.value))}
                       InputProps={{
                         startAdornment: <InputAdornment position="start">₹</InputAdornment>,
                       }}
-                      helperText="Maximum gross salary eligible for ESI (Currently ₹21,000 as per ESIC rules)"
+                      helperText={errors.esiCeiling || "Maximum gross salary eligible for ESI (Currently ₹21,000 as per ESIC rules)"}
                       inputProps={{min: 0}}
                     />
                   </Grid>
@@ -185,13 +201,15 @@ const StatutoryDeductions = ({ settings, handleChange }) => {
                 label="Monthly PT Amount"
                 type="number"
                 fullWidth
+                required={settings.professionalTaxEnabled ? true : false}
+                error={!!errors.professionalTaxAmount}
                 sx={{ mt: 2 }}
                 value={settings.professionalTaxAmount}
                 onChange={(e) => handleChange("professionalTaxAmount", parseInt(e.target.value))}
                 InputProps={{
                   startAdornment: <InputAdornment position="start">₹</InputAdornment>,
                 }}
-                helperText="Professional Tax amount varies by state and salary slab (e.g., up to ₹200/month in many states)"
+                helperText={errors.professionalTaxAmount ||"Professional Tax amount varies by state and salary slab (e.g., up to ₹200/month in many states)"}
               />
             )}
           </CardContent>
@@ -259,11 +277,13 @@ const StatutoryDeductions = ({ settings, handleChange }) => {
               <TextField
                 label="Minimum Service Years"
                 type="number"
+                required={settings.gratuityEnabled ? true : false}
+                error={!!errors.gratuityYears}
                 fullWidth
                 sx={{ mt: 2 }}
                 value={settings.gratuityYears}
                 onChange={(e) => handleChange("gratuityYears", parseInt(e.target.value))}
-                helperText="Minimum years of service for gratuity eligibility"
+                helperText={errors.gratuityYears || "Minimum years of service for gratuity eligibility"}
                 inputProps={{ min: 1, max: 10 }}
               />
             )}
@@ -301,10 +321,12 @@ const StatutoryDeductions = ({ settings, handleChange }) => {
                 label="Maximum Encashment Days"
                 type="number"
                 fullWidth
+                required={settings.leaveEncashmentEnabled ? true : false}
+                error={!!errors.maxEncashmentDays}
                 sx={{ mt: 2 }}
                 value={settings.maxEncashmentDays}
                 onChange={(e) => handleChange("maxEncashmentDays", parseInt(e.target.value))}
-                helperText="Maximum leave days that can be encashed per year"
+                helperText={errors.maxEncashmentDays || "Maximum leave days that can be encashed per year"}
                 inputProps={{ min: 1, max: 365 }}
               />
             )}
