@@ -76,8 +76,6 @@ export default function Header({ user, onMenuClick }) {
             onClick={onMenuClick}
             sx={{ 
               mr: { xs: 1, sm: 2 },
-              bgcolor: 'background.paper',
-              color: 'text.primary',
             }}
           >
             <MenuIcon />
@@ -110,16 +108,9 @@ export default function Header({ user, onMenuClick }) {
         <Box sx={{ display: "flex", alignItems: "center", gap: { xs: 1, sm: 2 } }}>
           {/* Notification */}
           <IconButton
-            sx={{
-              bgcolor: "background.paper",
-              color: 'text.primary',
-              "&:hover": { bgcolor: "background.paper" },
-              width: { xs: 40, sm: 44 },
-              height: { xs: 40, sm: 44 },
-            }}
           >
-            <Badge 
-              badgeContent={3} 
+            <Badge
+              badgeContent={3}
               color="error"
               sx={{
                 '& .MuiBadge-badge': {
