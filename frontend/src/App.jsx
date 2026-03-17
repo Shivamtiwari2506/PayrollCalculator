@@ -30,7 +30,7 @@ function AppContent() {
 
   useEffect(() => {
     const { isValid, shouldRedirect } = checkTokenValidity();
-    console.log('isValid: ', isValid, "shouldRedirect", shouldRedirect);
+    console.log('isValid token: ', isValid, "shouldRedirect to login: ", shouldRedirect);
     const currentPath = window.location.pathname;
     
     // If on root path, redirect based on token validity
