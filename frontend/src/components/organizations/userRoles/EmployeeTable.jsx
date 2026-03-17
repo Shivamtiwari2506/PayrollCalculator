@@ -13,6 +13,7 @@ import {
   Switch,
   Tooltip,
   IconButton,
+  TableContainer,
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -34,6 +35,7 @@ const EmployeeTable = ({
 }) => {
   return (
     <Paper elevation={3} sx={{ borderRadius: 0.5 }}>
+      <TableContainer sx={{ overflowX: "auto" }}>
       <Table>
         <TableHead>
           <TableRow>
@@ -109,6 +111,7 @@ const EmployeeTable = ({
             ))}
         </TableBody>
       </Table>
+      </TableContainer>
 
       <TablePagination
         component="div"
