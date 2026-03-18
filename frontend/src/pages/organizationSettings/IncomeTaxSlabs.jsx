@@ -35,7 +35,6 @@ const IncomeTaxSlabs = () => {
   const [financialYears, setFinancialYears] = useState([]);
   const [selectedFY, setSelectedFY] = useState("");
   const [selectedRegime, setSelectedRegime] = useState("new");
-  console.log(selectedRegime, selectedFY)
   const [openModal, setOpenModal] = useState(false);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -48,7 +47,6 @@ const IncomeTaxSlabs = () => {
     cessPercentage: "",
     taxSlabs: []
   });
-  console.log("formData",regimeData)
 
   const [newSlab, setNewSlab] = useState({
     minIncome: "",
@@ -58,7 +56,6 @@ const IncomeTaxSlabs = () => {
 
   // Stored tax regimes data
   const [taxRegimes, setTaxRegimes] = useState(null);
-  console.log("taxRegimes",taxRegimes)
 
   const handleTabChange = (event, newValue) => {
     setSelectedRegime(newValue);
@@ -178,7 +175,6 @@ const IncomeTaxSlabs = () => {
   };
 
   const handleCreateTaxSlab = async (newRegime) => {
-    console.log(newRegime)
     setLoading(true);
     try {
       let response;

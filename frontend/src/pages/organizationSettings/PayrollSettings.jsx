@@ -8,6 +8,7 @@ import {
   StepLabel,
   Typography,
   Paper,
+  CircularProgress,
 } from "@mui/material";
 import SaveIcon from '@mui/icons-material/Save';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
@@ -21,6 +22,8 @@ import SalaryStructure from "../../components/organizations/payrollSettings/Sala
 import OvertimeBonus from "../../components/organizations/payrollSettings/OvertimeBonus";
 import StatutoryDeductions from "../../components/organizations/payrollSettings/StatutoryDeductions";
 import LoanAdvance from "../../components/organizations/payrollSettings/LoanAdvance";
+import api from "../../services/api";
+import { toast } from "react-toastify";
 
 const steps = [
   "Version & Cycle",
@@ -31,6 +34,7 @@ const steps = [
 ];
 
 const PayrollSettings = () => {
+  const [loading, setLoading] = useState(false);
   const [activeStep, setActiveStep] = useState(0);
   const [errors, setErrors] = useState({});
   const [settings, setSettings] = useState({
@@ -40,9 +44,11 @@ const PayrollSettings = () => {
     
     // Payroll Cycle
     payrollCycle: "monthly",
-    payrollStartDay: 1,
-    payrollEndDay: 31,
-    paymentDate: 5,
+    cycleConfig: {
+      payrollStartDay: 1,
+      payrollEndDay: 31,
+      paymentDate: 5
+    },
     workingDaysPerMonth: 26,
     weekendDays: ["Saturday", "Sunday"],
     
@@ -101,29 +107,44 @@ const PayrollSettings = () => {
         if (!settings.payrollCycle) {
           newErrors.payrollCycle = "Payroll cycle is required";
         }
-        if (!settings.payrollStartDay || settings.payrollStartDay < 1 || settings.payrollStartDay > 31) {
-          newErrors.payrollStartDay = "Start day must be between 1-31";
-        }
-        if (!settings.payrollEndDay || settings.payrollEndDay < 1 || settings.payrollEndDay > 31) {
-          newErrors.payrollEndDay = "End day must be between 1-31";
-        }
-        if (!settings.paymentDate || settings.paymentDate < 1 || settings.paymentDate > 31) {
-          newErrors.paymentDate = "Payment date must be between 1-31";
+        if (settings.payrollCycle === "monthly") {
+          if (!settings.cycleConfig?.payrollStartDay || settings.cycleConfig?.payrollStartDay < 1 || settings.cycleConfig?.payrollStartDay > 31) {
+            newErrors["cycleConfig.payrollStartDay"] = "Start day must be between 1-31";
+          }
+          if (!settings.cycleConfig?.payrollEndDay || settings.cycleConfig?.payrollEndDay < 1 || settings.cycleConfig?.payrollEndDay > 31) {
+            newErrors["cycleConfig.payrollEndDay"] = "End day must be between 1-31";
+          }
+          if (!settings.cycleConfig?.paymentDate || settings.cycleConfig?.paymentDate < 1 || settings.cycleConfig?.paymentDate > 31) {
+            newErrors["cycleConfig.paymentDate"] = "Payment date must be between 1-31";
+          }
+        } else if (settings.payrollCycle === "weekly" || settings.payrollCycle === "biweekly") {
+          if (!settings.cycleConfig?.payrollStartDay) {
+            newErrors["cycleConfig.payrollStartDay"] = "Start day is required";
+          }
+          if(settings.cycleConfig?.payrollStartDay!==null && settings.cycleConfig?.payrollEndDay!==null && settings.cycleConfig?.payrollStartDay === settings.cycleConfig?.payrollEndDay) {
+            newErrors["cycleConfig.payrollEndDay"] = "Start day and end day cannot be the same";
+          }
+          if (settings.payrollCycle !== "biweekly" && !settings.cycleConfig?.payrollEndDay) {
+            newErrors["cycleConfig.payrollEndDay"] = "End day is required";
+          }
+          if (!settings.cycleConfig?.paymentDate) {
+            newErrors["cycleConfig.paymentDate"] = "Payment date is required";
+          }
         }
         if (!settings.workingDaysPerMonth || settings.workingDaysPerMonth < 20 || settings.workingDaysPerMonth > 31) {
           newErrors.workingDaysPerMonth = "Payment date must be between 20-31";
         }
-        if(!settings.weekendDays || settings.weekendDays.length === 0) {
+        if (!settings.weekendDays || settings.weekendDays.length === 0) {
           newErrors.weekendDays = "Weekend days are required";
         }
-        if(!settings.effectiveFrom) {
+        if (!settings.effectiveFrom) {
           newErrors.effectiveFrom = "Effective date is required";
         }
         break;
 
       // STEP 1: Salary Structure
       case 1:
-        if(!settings.basicPercent) {
+        if (!settings.basicPercent) {
           newErrors.basicPercent = "Basic is required";
         }
         if (settings.basicPercent <= 0) {
@@ -196,7 +217,7 @@ const PayrollSettings = () => {
         if (settings.gratuityEnabled && (!settings.gratuityYears || settings.gratuityYears <= 0)) {
           newErrors.gratuityYears = "Years must be > 0";
         }
-        if(settings.leaveEncashmentEnabled && (!settings.maxEncashmentDays || settings.maxEncashmentDays <= 0)) {
+        if (settings.leaveEncashmentEnabled && (!settings.maxEncashmentDays || settings.maxEncashmentDays <= 0)) {
           newErrors.maxEncashmentDays = "Max days must be > 0";
         }
 
@@ -224,7 +245,50 @@ const PayrollSettings = () => {
   };
 
   const handleChange = (field, value) => {
-    setSettings(prev => ({ ...prev, [field]: value }));
+    if (field.startsWith("cycleConfig.")) {
+      const key = field.split(".")[1];
+      setSettings(prev => ({
+        ...prev,
+        cycleConfig: {
+          ...prev.cycleConfig,
+          [key]: value
+        }
+      }))
+    }
+    else {
+      if (field === "payrollCycle") {
+        if (value === "biweekly") {
+          setSettings(prev => ({
+            ...prev,
+            cycleConfig: {
+              payrollStartDay: "Monday",
+              paymentDate: "Friday"
+            }
+          }))
+        } else if (value === "monthly") {
+          setSettings(prev => ({
+            ...prev,
+            cycleConfig: {
+              ...prev.cycleConfig,
+              payrollStartDay: 1,
+              payrollEndDay: 31,
+              paymentDate: 5
+            }
+          }))
+        } else if (value === "weekly") {
+          setSettings(prev => ({
+            ...prev,
+            cycleConfig: {
+              ...prev.cycleConfig,
+              payrollStartDay: "Monday",
+              payrollEndDay: "Sunday",
+              paymentDate: "Friday"
+            }
+          }))
+        }
+      }
+      setSettings(prev => ({ ...prev, [field]: value }));
+    };
     setErrors(prev => ({ ...prev, [field]: "" }));
   };
 
@@ -244,9 +308,18 @@ const PayrollSettings = () => {
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
   };
 
-  const handleSave = () => {
-    console.log("Saving settings:", settings);
-    // API call here
+  const handleSave = async () => {
+    setLoading(true);
+    try {
+      const response = await api.post('/payroll/settings', settings);
+      if(response?.data && response?.data?.success === true) {
+        toast.success("Payroll settings saved successfully");
+      }
+    } catch (error) {
+      handleApiError(error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const getStepContent = (step) => {
@@ -254,7 +327,7 @@ const PayrollSettings = () => {
       case 0:
         return (
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-            <PayrollCycleConfig settings={settings} handleChange={handleChange} errors={errors} />
+            <PayrollCycleConfig settings={settings} handleChange={handleChange} errors={errors}/>
           </Box>
         );
       case 1:
@@ -344,8 +417,9 @@ const PayrollSettings = () => {
           {activeStep === steps.length - 1 ? (
             <Button
               variant="contained"
+              disabled={loading}
               size="large"
-              startIcon={<SaveIcon />}
+              startIcon={loading ? <CircularProgress size={20} /> : <SaveIcon />}
               onClick={handleSave}
             >
               Save Payroll Settings

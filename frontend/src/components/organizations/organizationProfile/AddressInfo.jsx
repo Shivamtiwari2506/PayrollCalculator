@@ -15,8 +15,6 @@ import axios from "axios";
 
 const AddressInfo = ({ form, editMode, handleChange }) => {
 
-  console.log("form: ", form);
-
   const [countries, setCountries] = useState([]);
   const [states, setStates] = useState([]);
   const [cities, setCities] = useState([]);

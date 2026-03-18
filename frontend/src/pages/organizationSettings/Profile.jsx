@@ -104,8 +104,6 @@ const Profile = () => {
         }
       });
 
-      console.log("Sending Data:", formData);
-
       const response = await api.put("/org/profile", formData, {
         headers: {
           "Content-Type": "multipart/form-data",

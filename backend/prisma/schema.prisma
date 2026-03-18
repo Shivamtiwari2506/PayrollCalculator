@@ -123,9 +123,7 @@ model PayrollSettings {
 
   // Payroll Cycle Configuration
   payrollCycle    PayrollCycle @default(monthly)
-  payrollStartDay Int      @default(1)
-  payrollEndDay   Int      @default(31)
-  paymentDate     Int      @default(5)
+  cycleConfig     Json
   workingDaysPerMonth Int  @default(26)
   weekendDays     String[] @default(["Saturday", "Sunday"])
 

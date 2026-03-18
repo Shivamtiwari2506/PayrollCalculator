@@ -31,7 +31,6 @@ const UserRoles = () => {
   const [employees, setEmployees] = useState([]);
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState(null);
-  console.log(editing);
   const [loading, setLoading] = useState(false);
   const [formLoading, setFormLoading] = useState(false);
   const [designations, setDesignations] = useState([]);
