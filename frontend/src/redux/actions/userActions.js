@@ -1,4 +1,5 @@
 import api from '../../services/api';
+import { handleApiError } from '../../utils/commonFunctions/errorHandler';
 
 export const getCurrentUser = (id) => async (dispatch) => {
     try {
