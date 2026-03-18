@@ -24,6 +24,7 @@ import StatutoryDeductions from "../../components/organizations/payrollSettings/
 import LoanAdvance from "../../components/organizations/payrollSettings/LoanAdvance";
 import api from "../../services/api";
 import { toast } from "react-toastify";
+import { handleApiError } from "../../utils/commonFunctions/errorHandler";
 
 const steps = [
   "Version & Cycle",
