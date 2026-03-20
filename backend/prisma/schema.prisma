@@ -67,7 +67,7 @@ model OrgProfile {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
-  payrollSettings PayrollSettings?
+  payrollSettings PayrollSettings[]
 
   @@index([orgId])
 }
@@ -109,10 +109,17 @@ enum OvertimeCalculation {
   daily
 }
 
+enum PayrollStatus {
+  DRAFT
+  SCHEDULED
+  ACTIVE
+  EXPIRED
+}
+
 model PayrollSettings {
   id              String   @id @default(uuid())
 
-  orgProfileId    String  @unique
+  orgProfileId    String
   orgProfile      OrgProfile @relation(fields: [orgProfileId], references: [id], onDelete: Cascade)
 
   // Version Tracking
@@ -174,6 +181,9 @@ model PayrollSettings {
   maxLoanAmount    Int     @default(100000)
   advanceEnabled   Boolean @default(true)
   maxAdvanceAmount Int     @default(50000)
+
+  status           PayrollStatus @default(DRAFT)
+  isLocked         Boolean @default(false)
 
   createdBy       String?
   updatedBy       String?

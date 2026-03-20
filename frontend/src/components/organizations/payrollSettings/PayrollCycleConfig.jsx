@@ -3,6 +3,8 @@ import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import { useState } from "react";
 import { useEffect } from "react";
 
+const today = new Date().toISOString().split('T')[0];
+
 const PayrollCycleConfig = ({ settings, handleChange , errors}) => {
   const weekDays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
     const [cycleWarning, setCycleWarning] = useState("");
@@ -227,6 +229,9 @@ const PayrollCycleConfig = ({ settings, handleChange , errors}) => {
               InputLabelProps={{ shrink: true }}
               error={!!errors.effectiveFrom}
               helperText={errors.effectiveFrom || "Start date for this configuration"}
+              inputProps={{
+                min: today
+              }}
             />
           </Grid>
 
