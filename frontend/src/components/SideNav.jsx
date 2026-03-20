@@ -377,7 +377,8 @@ export default function SideNav({
                 >
                   <ListItemButton
                     selected={location.pathname === item.path}
-                    onClick={() => navigate(item.path)}
+                    onClick={() => {
+                      mobileOpen ? onDrawerToggle() : null; navigate(item.path)}}
                     sx={{
                       pl: drawerOpen ? 4 : 2.5,
                       justifyContent: drawerOpen ? 'initial' : 'center',
