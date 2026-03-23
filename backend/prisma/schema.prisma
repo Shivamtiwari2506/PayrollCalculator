@@ -126,7 +126,6 @@ model PayrollSettings {
   version         Int      @default(1)
   effectiveFrom   DateTime
   effectiveTo     DateTime?
-  isActive        Boolean  @default(true)
 
   // Payroll Cycle Configuration
   payrollCycle    PayrollCycle @default(monthly)
