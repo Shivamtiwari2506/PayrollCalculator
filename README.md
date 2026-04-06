@@ -1,4 +1,4 @@
-# Full Stack App
+# Payroll Calculator
 
 ## Setup
 
