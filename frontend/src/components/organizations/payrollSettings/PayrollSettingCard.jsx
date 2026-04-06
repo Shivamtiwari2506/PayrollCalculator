@@ -139,7 +139,7 @@ const PayrollSettingCard = ({ config, handleEdit, handleDelete }) => {
           <Typography variant="caption" color="text.secondary" sx={{ display: "block" }}>
             Effecttive From: {effectiveFrom}
           </Typography>
-          {!config?.isLocked &&<Chip
+          {config?.isLocked &&<Chip
             label={"Locked"}
             size="small"
             color="error"
