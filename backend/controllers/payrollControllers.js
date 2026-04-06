@@ -3,7 +3,31 @@ const prisma = new PrismaClient();
 
 export const getPayroll = async (req, res) => {
     try {
-        
+        const { orgId, role } = req;
+        console.log(role);
+
+        if (!orgId) {
+            return res.status(400).json({ success: false, msg: "Unauthorized" });
+        }
+        if(role !== "Admin" && role !== "Org_Admin") {
+            return res.status(400).json({ success: false, msg: "Unauthorized role" });
+        }
+
+        const orgProfile = await prisma.orgProfile.findUnique({
+            where: { orgId }
+        });
+
+        if (!orgProfile) {
+            return res.status(404).json({ success: false, msg: "Organization profile not found" });
+        }
+
+        const settings = await prisma.payrollSettings.findMany({
+            where: { orgProfileId: orgProfile.id },
+            orderBy: { version: "desc" }
+        });
+
+        return res.status(200).json({ success: true, data: settings });
+
     } catch (error) {
         console.log("getPayroll Error:", error);
         return res.status(500).json({success: false, msg: error.message});
@@ -38,7 +62,7 @@ export const createPayroll = async (req, res) => {
         const effectiveFrom = new Date(settings.effectiveFrom);
         effectiveFrom.setHours(0, 0, 0, 0);
 
-        // ✅ Rule 1: No backdated payroll
+        //No backdated payroll
         if (effectiveFrom <= today) {
             return res.status(400).json({
                 success: false,
@@ -46,7 +70,7 @@ export const createPayroll = async (req, res) => {
             });
         }
 
-        // ✅ Percentage validation
+        // Percentage validation
         const totalPercent =
             settings.basicPercent +
             settings.hraPercent +
@@ -59,19 +83,34 @@ export const createPayroll = async (req, res) => {
             });
         }
 
+        const startOfMonth = new Date(effectiveFrom.getFullYear(), effectiveFrom.getMonth(), 1);
+        const endOfMonth = new Date(effectiveFrom.getFullYear(), effectiveFrom.getMonth() + 1, 0);
+        endOfMonth.setHours(23, 59, 59, 999);
+
         const result = await prisma.$transaction(async (tx) => {
 
             const existingFuture = await tx.payrollSettings.findFirst({
                 where: {
                     orgProfileId: orgProfile.id,
-                    effectiveFrom
+                    effectiveFrom: {
+                        gte: startOfMonth,
+                        lte: endOfMonth
+                    },
                 }
             });
 
+            console.log("existingFuture", existingFuture, effectiveFrom);
+
             if (existingFuture) {
+                console.log("existingFuture,,,,,,,", existingFuture.effectiveFrom === effectiveFrom);
+                if(existingFuture.effectiveFrom.toDateString() === effectiveFrom.toDateString()) {
+                    throw new Error("Payroll already exists for this date");
+                }
                 if (existingFuture.isLocked) {
                     throw new Error("Cannot update locked payroll");
                 }
+
+
 
                 return await tx.payrollSettings.update({
                     where: { id: existingFuture.id },
@@ -109,7 +148,7 @@ export const createPayroll = async (req, res) => {
 
         return res.status(201).json({
             success: true,
-            msg: "Payroll scheduled successfully",
+            message: "Payroll scheduled successfully",
             data: result
         });
 
@@ -117,7 +156,7 @@ export const createPayroll = async (req, res) => {
         console.log("createPayroll Error:", error);
         return res.status(500).json({
             success: false,
-            msg: error.message
+            message: error.message
         });
     }
 };

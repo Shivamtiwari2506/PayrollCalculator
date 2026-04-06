@@ -2,18 +2,8 @@ import { useState } from "react";
 import {
   Box,
   Button,
-  Alert,
-  Stepper,
-  Step,
-  StepLabel,
   Typography,
-  Paper,
-  CircularProgress,
 } from "@mui/material";
-import SaveIcon from '@mui/icons-material/Save';
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
-import NavigateNextIcon from '@mui/icons-material/NavigateNext';
-import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
 import SecurityIcon from '@mui/icons-material/Security';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 
@@ -22,9 +12,13 @@ import SalaryStructure from "../../components/organizations/payrollSettings/Sala
 import OvertimeBonus from "../../components/organizations/payrollSettings/OvertimeBonus";
 import StatutoryDeductions from "../../components/organizations/payrollSettings/StatutoryDeductions";
 import LoanAdvance from "../../components/organizations/payrollSettings/LoanAdvance";
+import SavedPayrollSettings from "../../components/organizations/payrollSettings/SavedPayrollSettings";
 import api from "../../services/api";
 import { toast } from "react-toastify";
 import { handleApiError } from "../../utils/commonFunctions/errorHandler";
+import { useEffect } from "react";
+import PayrollModal from "../../components/organizations/payrollSettings/PayrollModal";
+import Loader from "../../utils/Loader";
 
 const steps = [
   "Version & Cycle",
@@ -34,69 +28,99 @@ const steps = [
   "Loan & Advance"
 ];
 
+const resetSettings = {
+  effectiveFrom: null,
+  effectiveTo: null,
+
+  // Payroll Cycle
+  payrollCycle: "monthly",
+  cycleConfig: {
+    payrollStartDay: 1,
+    payrollEndDay: 31,
+    paymentDate: 5
+  },
+  workingDaysPerMonth: 26,
+  weekendDays: ["Saturday", "Sunday"],
+
+  // Salary Structure
+  basicPercent: 50.0,
+  hraPercent: 40.0,
+  allowancePercent: 10.0,
+
+  // Overtime
+  overtimeEnabled: true,
+  overtimeRate: 1.5,
+  overtimeCalculation: "hourly",
+
+  // Statutory Deductions
+  pfEnabled: true,
+  pfPercent: 12.0,
+  pfEmployerContribution: 12.0,
+  pfCeiling: 15000,
+
+  esiEnabled: true,
+  esiPercent: 0.75,
+  esiEmployerPercent: 3.25,
+  esiCeiling: 21000,
+
+  gratuityEnabled: true,
+  gratuityYears: 5,
+
+  professionalTaxEnabled: true,
+  professionalTaxAmount: 200,
+
+  tdsEnabled: true,
+
+  // Bonus & Incentives
+  bonusEnabled: true,
+  bonusMonth: "March",
+  performanceBonusEnabled: true,
+
+  // Leave Encashment
+  leaveEncashmentEnabled: true,
+  maxEncashmentDays: 30,
+
+  // Loan & Advance
+  loanEnabled: true,
+  maxLoanAmount: 100000,
+  advanceEnabled: true,
+  maxAdvanceAmount: 50000,
+}
+
+const formatDate = (date) => {
+  return date ? date.split("T")[0] : "";
+};
+
 const PayrollSettings = () => {
   const [loading, setLoading] = useState(false);
+  const [showPayrollModal, setShowPayrollModal] = useState(false);
   const [activeStep, setActiveStep] = useState(0);
+  const [savedConfigs, setSavedConfigs] = useState([]);
+  const [configsLoading, setConfigsLoading] = useState(false);
+  const [configsError, setConfigsError] = useState(null);
+  const [isEditMode, setIsEditMode] = useState(false);
+
+  const fetchSavedConfigs = async () => {
+    setConfigsLoading(true);
+    setConfigsError(null);
+    try {
+      const response = await api.get('/payroll/settings');
+      if (response?.data && response?.data?.success === true) {
+        setSavedConfigs(response.data.data ?? []);
+      }
+    } catch (error) {
+      setConfigsError("Failed to load saved configurations.");
+    } finally {
+      setConfigsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchSavedConfigs();
+  }, []);
+
   const [errors, setErrors] = useState({});
-  const [settings, setSettings] = useState({
-    effectiveFrom: new Date().toISOString().split('T')[0],
-    effectiveTo: null,
-    isActive: true,
-    
-    // Payroll Cycle
-    payrollCycle: "monthly",
-    cycleConfig: {
-      payrollStartDay: 1,
-      payrollEndDay: 31,
-      paymentDate: 5
-    },
-    workingDaysPerMonth: 26,
-    weekendDays: ["Saturday", "Sunday"],
-    
-    // Salary Structure
-    basicPercent: 50.0,
-    hraPercent: 40.0,
-    allowancePercent: 10.0,
-    
-    // Overtime
-    overtimeEnabled: true,
-    overtimeRate: 1.5,
-    overtimeCalculation: "hourly",
-    
-    // Statutory Deductions
-    pfEnabled: true,
-    pfPercent: 12.0,
-    pfEmployerContribution: 12.0,
-    pfCeiling: 15000,
-    
-    esiEnabled: true,
-    esiPercent: 0.75,
-    esiEmployerPercent: 3.25,
-    esiCeiling: 21000,
-    
-    gratuityEnabled: true,
-    gratuityYears: 5,
-    
-    professionalTaxEnabled: true,
-    professionalTaxAmount: 200,
-    
-    tdsEnabled: true,
-    
-    // Bonus & Incentives
-    bonusEnabled: true,
-    bonusMonth: "March",
-    performanceBonusEnabled: true,
-    
-    // Leave Encashment
-    leaveEncashmentEnabled: true,
-    maxEncashmentDays: 30,
-    
-    // Loan & Advance
-    loanEnabled: true,
-    maxLoanAmount: 100000,
-    advanceEnabled: true,
-    maxAdvanceAmount: 50000,
-  });
+  const [settings, setSettings] = useState(resetSettings);
 
   const validateStep = (step) => {
     let newErrors = {};
@@ -315,11 +339,15 @@ const PayrollSettings = () => {
       const response = await api.post('/payroll/settings', settings);
       if(response?.data && response?.data?.success === true) {
         toast.success("Payroll settings saved successfully");
+        fetchSavedConfigs();
       }
     } catch (error) {
       handleApiError(error);
     } finally {
       setLoading(false);
+      handleClose();
+      setActiveStep(0);
+      setSettings(resetSettings);
     }
   };
 
@@ -354,9 +382,32 @@ const PayrollSettings = () => {
     }
   };
 
+  const handleClose = () => {
+    setShowPayrollModal(false);
+    setSettings(resetSettings);
+  }
+
+  const handleEdit = (config) => {
+    setSettings({
+      ...config,
+      effectiveFrom: formatDate(config.effectiveFrom),
+    effectiveTo: formatDate(config.effectiveTo)
+    });
+    setShowPayrollModal(true);
+    setIsEditMode(true);
+  }
+
+  const handleDelete = async (configId) => {
+    return;
+  }
+
+  if(configsLoading === true) {
+    return <Loader/>
+  }
+
   return (
     <Box>
-      {/* Header */}
+      {/* HEADER CARD */}
       <Box sx={{ mb: 2 }}>
         <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
           <ReceiptLongIcon sx={{ mr: 1.5, color: "warning.main", fontSize: 32 }} />
@@ -369,74 +420,36 @@ const PayrollSettings = () => {
         </Typography>
       </Box>
 
-      {/* Alert */}
-      <Alert severity="info" sx={{ mb: 3 }} icon={<InfoOutlinedIcon />}>
-        Changes to payroll settings will apply from the next payroll cycle. Current cycle will use existing settings.
-      </Alert>
-
-      {/* Stepper */}
-      <Paper
-        elevation={2}
+      {/* SAVED CONFIG CARD */}
+      <Box
         sx={{
-          p: { xs: 1.5, sm: 3 },
-          mb: 3,
+          p: 2,
           borderRadius: 1,
-          overflowX: "auto"
+          bgcolor: "white",
+          boxShadow: "0 4px 12px rgba(0,0,0,0.05)"
         }}
       >
-        <Stepper
-          activeStep={activeStep}
-          alternativeLabel
-          sx={{ minWidth: "500px" }}
-        >
-          {steps.map((label) => (
-            <Step key={label}>
-              <StepLabel>{label}</StepLabel>
-            </Step>
-          ))}
-        </Stepper>
-      </Paper>
-
-      {/* Step Content */}
-      <Box sx={{ mb: 4 }}>
-        {getStepContent(activeStep)}
+        <SavedPayrollSettings
+          setShowPayrollModal={setShowPayrollModal}
+          configs={savedConfigs}
+          handleEdit={handleEdit}
+          handleDelete={handleDelete}
+        />
       </Box>
 
-      {/* Navigation Buttons */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 2 }}>
-        <Button
-          variant="outlined"
-          onClick={handleBack}
-          disabled={activeStep === 0}
-          startIcon={<NavigateBeforeIcon />}
-          size="large"
-        >
-          Back
-        </Button>
-
-        <Box sx={{ display: 'flex', gap: 2 }}>
-          {activeStep === steps.length - 1 ? (
-            <Button
-              variant="contained"
-              disabled={loading}
-              size="large"
-              startIcon={loading ? <CircularProgress size={20} /> : <SaveIcon />}
-              onClick={handleSave}
-            >
-              Save Payroll Settings
-            </Button>
-          ) : (
-            <Button
-              variant="contained"
-              onClick={handleNext}
-              endIcon={<NavigateNextIcon />}
-              size="large"
-            >
-              Next
-            </Button>
-          )}
-        </Box>
-      </Box>
+      {/* MODAL */}
+      <PayrollModal
+        loading={loading}
+        showPayrollModal={showPayrollModal}
+        handleClose={handleClose}
+        isEditMode={isEditMode}
+        steps={steps}
+        activeStep={activeStep}
+        handleSave={handleSave}
+        handleNext={handleNext}
+        handleBack={handleBack}
+        getStepContent={getStepContent}
+      />
     </Box>
   );
 };
