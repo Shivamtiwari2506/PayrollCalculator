@@ -8,7 +8,7 @@ import { getCurrentUser } from "../redux/actions/userActions";
 import Loader from "../utils/Loader";
 import { getOrgData } from "../redux/actions/orgActions";
 
-const DRAWER_WIDTH = 240;
+const DRAWER_WIDTH = 260;
 const MINI_DRAWER_WIDTH = 72;
 
 export default function AppLayout() {

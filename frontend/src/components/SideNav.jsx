@@ -27,7 +27,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 
-const drawerWidth = 240;
+const drawerWidth = 260;
 const collapsedWidth = 72;
 
 const menuItems = [
@@ -155,7 +155,9 @@ export default function SideNav({
             minHeight: 48,
             justifyContent: drawerOpen ? 'initial' : 'center',
             color: location.pathname === item.path ? 'primary.main' : '',
-            px: 2.5,
+            px: 1.5,
+            mx: 2,
+            borderRadius: 1,
           }}
         >
           <ListItemIcon
@@ -344,6 +346,9 @@ export default function SideNav({
                 px: 2.5,
                 justifyContent: drawerOpen ? 'initial' : 'center',
                 color: isOrgRoute ? 'primary.main' : '',
+                mx: 1.5, 
+                my: 0.5,
+                borderRadius: 1
               }}
             >
               <ListItemIcon
@@ -359,7 +364,7 @@ export default function SideNav({
 
               <ListItemText
                 primary="Organization Settings"
-                sx={{ opacity: drawerOpen ? 1 : 0 }}
+                sx={{ opacity: drawerOpen ? 1 : 0}}
               />
 
               {drawerOpen &&
@@ -380,9 +385,12 @@ export default function SideNav({
                     onClick={() => {
                       mobileOpen ? onDrawerToggle() : null; navigate(item.path)}}
                     sx={{
-                      pl: drawerOpen ? 4 : 2.5,
+                      px: drawerOpen ? 4 : 2.5,
                       justifyContent: drawerOpen ? 'initial' : 'center',
                       color: location.pathname === item.path ? 'primary.main' : '',
+                      mx: 1.5,
+                      my: 0.5,
+                      borderRadius: 1,
                     }}
                   >
                     <ListItemIcon
