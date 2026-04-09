@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { Box, Toolbar, useTheme, useMediaQuery } from "@mui/material";
 import { Outlet } from "react-router-dom";
 import Header from "../components/Header";
@@ -32,10 +32,6 @@ export default function AppLayout() {
     dispatch(getCurrentUser());
     dispatch(getOrgData());
   }, []);
-
-  if(userLoading || orgLoading) return (
-      <Loader fullScreen={true} />
-    );
 
   return (
     <Box sx={{ display: "flex" }}>
@@ -77,7 +73,9 @@ export default function AppLayout() {
         }}
       >
         <Toolbar />
-        <Outlet />
+        <Suspense fallback={<Loader delay={200} />}>
+          <Outlet />
+        </Suspense>
       </Box>
     </Box>
   );

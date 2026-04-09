@@ -151,7 +151,7 @@ const Profile = () => {
     getProfileData();
   }, []);
 
-  if(loading) {
+  if(loading === true) {
     return <Loader />
   }
 

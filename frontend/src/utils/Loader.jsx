@@ -1,7 +1,19 @@
 import { Box, CircularProgress, Typography } from '@mui/material';
+import { useEffect, useState } from 'react';
 import { HashLoader } from "react-spinners";
 
-export default function Loader({ message = 'Loading...', fullScreen = false }) {
+export default function Loader({ message = 'Loading...', fullScreen = false, delay = 0, }) {
+    const [show, setShow] = useState(delay === 0);
+
+  useEffect(() => {
+    if (delay > 0) {
+      const timer = setTimeout(() => setShow(true), delay);
+      return () => clearTimeout(timer);
+    }
+  }, [delay]);
+
+  // ❌ don't render anything until delay is passed
+  if (!show) return null;
   const content = (
     <Box
       sx={{

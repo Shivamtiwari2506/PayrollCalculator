@@ -1,5 +1,7 @@
 import { Box, Typography } from '@mui/material';
+import { Suspense } from 'react';
 import { Outlet } from 'react-router-dom';
+import Loader from '../utils/Loader';
 
 export default function AuthLayout() {
   return (
@@ -55,7 +57,9 @@ export default function AuthLayout() {
       {/* Right Side - Auth Forms (Outlet) */}
       <Box className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-gray-50">
         <Box className="w-full max-w-md">
-          <Outlet />
+          <Suspense fallback={<Loader />}>
+            <Outlet />
+          </Suspense>
         </Box>
       </Box>
     </Box>
