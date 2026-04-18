@@ -28,10 +28,17 @@ export default function AppLayout() {
       setDrawerOpen(!drawerOpen);
     }
   };
+
   useEffect(() => {
     dispatch(getCurrentUser());
     dispatch(getOrgData());
   }, []);
+
+  const isLoading = userLoading || orgLoading;
+
+  if (isLoading) {
+    return <Loader delay={200} />;
+  }
 
   return (
     <Box sx={{ display: "flex" }}>
