@@ -1,19 +1,48 @@
-import { Box, CircularProgress, Typography } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { HashLoader } from "react-spinners";
 
-export default function Loader({ message = 'Loading...', fullScreen = false, delay = 0, }) {
-    const [show, setShow] = useState(delay === 0);
+export default function Loader({
+  message = 'Loading...',
+  fullScreen = false,
+  delay = 300,
+  minDuration = 500,
+}) {
+  const [visible, setVisible] = useState(false);
+  const [startTime, setStartTime] = useState(null);
 
   useEffect(() => {
-    if (delay > 0) {
-      const timer = setTimeout(() => setShow(true), delay);
-      return () => clearTimeout(timer);
-    }
+    let delayTimer = setTimeout(() => {
+      setVisible(true);
+      setStartTime(Date.now());
+    }, delay);
+
+    return () => clearTimeout(delayTimer);
   }, [delay]);
 
-  // ❌ don't render anything until delay is passed
-  if (!show) return null;
+  // Handle minimum display time
+  useEffect(() => {
+    return () => {
+      if (startTime) {
+        const elapsed = Date.now() - startTime;
+        if (elapsed < minDuration) {
+          setTimeout(() => {}, minDuration - elapsed);
+        }
+      }
+    };
+  }, [startTime, minDuration]);
+
+  if (!visible) {
+    return (
+      <Box
+        sx={{
+          width: '100%',
+          minHeight: fullScreen ? '100vh' : '60vh',
+        }}
+      />
+    );
+  }
+
   const content = (
     <Box
       sx={{
@@ -24,7 +53,7 @@ export default function Loader({ message = 'Loading...', fullScreen = false, del
         gap: 2,
       }}
     >
-      <HashLoader color='#6366f1' />
+      <HashLoader color="#6366f1" />
 
       {message && (
         <Typography variant="body1" color="text.secondary">
@@ -34,31 +63,16 @@ export default function Loader({ message = 'Loading...', fullScreen = false, del
     </Box>
   );
 
-  if (fullScreen) {
-    return (
-      <Box
-        sx={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          minHeight: '100vh',
-          width: '100%',
-        }}
-      >
-        {content}
-      </Box>
-    );
-  }
-
   return (
     <Box
       sx={{
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
+        minHeight: fullScreen ? '100vh' : '60vh',
         width: '100%',
-        flex: 1,
-        minHeight: '60vh',
+        opacity: visible ? 1 : 0,
+        transition: 'opacity 0.3s ease',
       }}
     >
       {content}

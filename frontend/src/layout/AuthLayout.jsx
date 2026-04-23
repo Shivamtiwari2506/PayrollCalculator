@@ -57,7 +57,7 @@ export default function AuthLayout() {
       {/* Right Side - Auth Forms (Outlet) */}
       <Box className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-gray-50">
         <Box className="w-full max-w-md">
-          <Suspense fallback={<Loader />}>
+          <Suspense>
             <Outlet />
           </Suspense>
         </Box>

@@ -37,7 +37,7 @@ export default function AppLayout() {
   const isLoading = userLoading || orgLoading;
 
   if (isLoading) {
-    return <Loader delay={200} />;
+    return <Loader fullScreen={true}/>;
   }
 
   return (
@@ -80,7 +80,7 @@ export default function AppLayout() {
         }}
       >
         <Toolbar />
-        <Suspense fallback={<Loader delay={200} />}>
+        <Suspense>
           <Outlet />
         </Suspense>
       </Box>
