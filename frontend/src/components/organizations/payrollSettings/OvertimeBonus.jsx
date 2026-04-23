@@ -2,7 +2,7 @@ import { Grid, Card, CardContent, Typography, TextField, Switch, MenuItem, FormC
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 
-const OvertimeBonus = ({ settings, handleChange, errors }) => {
+const OvertimeBonus = ({ settings, handleChange, errors, viewSavedConfig }) => {
   const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
   return (
@@ -20,6 +20,7 @@ const OvertimeBonus = ({ settings, handleChange, errors }) => {
 
             <FormControlLabel
               sx={{font: "bold"}}
+              disabled={viewSavedConfig}
               control={
                 <Switch
                   checked={settings.overtimeEnabled}
@@ -40,6 +41,7 @@ const OvertimeBonus = ({ settings, handleChange, errors }) => {
                 <TextField
                   label="Overtime Rate Multiplier"
                   type="number"
+                  disabled={viewSavedConfig}
                   required={settings.overtimeEnabled ? true : false}
                   error={!!errors.overtimeRate}
                   fullWidth
@@ -52,6 +54,7 @@ const OvertimeBonus = ({ settings, handleChange, errors }) => {
                 <TextField
                   select
                   fullWidth
+                  disabled={viewSavedConfig}
                   required={settings.overtimeEnabled ? true : false}
                   error={!!errors.overtimeCalculation}
                   helperText={errors.overtimeCalculation}
@@ -81,6 +84,7 @@ const OvertimeBonus = ({ settings, handleChange, errors }) => {
 
           <Box>
             <FormControlLabel
+              disabled={viewSavedConfig}
               control={
                 <Switch
                   checked={settings.bonusEnabled}
@@ -99,6 +103,7 @@ const OvertimeBonus = ({ settings, handleChange, errors }) => {
               <TextField
                 select
                 fullWidth
+                disabled={viewSavedConfig}
                 required={settings.bonusEnabled ? true : false}
                 error={!!errors.bonusMonth}
                 helperText={errors.bonusMonth}
@@ -115,6 +120,7 @@ const OvertimeBonus = ({ settings, handleChange, errors }) => {
             </Box>
           <Box>
             <FormControlLabel
+              disabled={viewSavedConfig}
               control={
                 <Switch
                   checked={settings.performanceBonusEnabled}

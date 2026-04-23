@@ -193,6 +193,14 @@ const PayrollSettingCard = ({ config, handleEdit, handleDelete }) => {
         <MenuItem
           onClick={() => {
             handleMenuClose();
+            handleEdit(config, "View");
+          }}
+        >
+          View
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
+            handleMenuClose();
             handleEdit(config);
           }}
         >

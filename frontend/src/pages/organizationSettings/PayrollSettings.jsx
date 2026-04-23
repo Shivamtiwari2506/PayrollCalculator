@@ -99,6 +99,7 @@ const PayrollSettings = () => {
   const [configsLoading, setConfigsLoading] = useState(false);
   const [configsError, setConfigsError] = useState(null);
   const [isEditMode, setIsEditMode] = useState(false);
+  const [viewSavedConfig, setViewSavedConfig] = useState(false);
 
   const fetchSavedConfigs = async () => {
     setConfigsLoading(true);
@@ -356,13 +357,13 @@ const PayrollSettings = () => {
       case 0:
         return (
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-            <PayrollCycleConfig settings={settings} handleChange={handleChange} errors={errors}/>
+            <PayrollCycleConfig settings={settings} handleChange={handleChange} errors={errors} viewSavedConfig={viewSavedConfig}/>
           </Box>
         );
       case 1:
-        return <SalaryStructure settings={settings} handleChange={handleChange} errors={errors} />;
+        return <SalaryStructure settings={settings} handleChange={handleChange} errors={errors} viewSavedConfig={viewSavedConfig} />;
       case 2:
-        return <OvertimeBonus settings={settings} handleChange={handleChange} errors={errors} />;
+        return <OvertimeBonus settings={settings} handleChange={handleChange} errors={errors} viewSavedConfig={viewSavedConfig} />;
       case 3:
         return (
           <Box>
@@ -372,29 +373,33 @@ const PayrollSettings = () => {
                 Statutory Deductions & Compliance
               </Typography>
             </Box>
-            <StatutoryDeductions settings={settings} handleChange={handleChange} errors={errors} />
+            <StatutoryDeductions settings={settings} handleChange={handleChange} errors={errors} viewSavedConfig={viewSavedConfig} />
           </Box>
         );
       case 4:
-        return <LoanAdvance settings={settings} handleChange={handleChange} errors={errors}/>;
+        return <LoanAdvance settings={settings} handleChange={handleChange} errors={errors} viewSavedConfig={viewSavedConfig}/>;
       default:
         return "Unknown step";
     }
   };
 
   const handleClose = () => {
+    setViewSavedConfig(false);
     setShowPayrollModal(false);
     setSettings(resetSettings);
+    setActiveStep(0);
   }
 
-  const handleEdit = (config) => {
+  const handleEdit = (config, type) => {
     setSettings({
       ...config,
       effectiveFrom: formatDate(config.effectiveFrom),
     effectiveTo: formatDate(config.effectiveTo)
     });
     setShowPayrollModal(true);
-    setIsEditMode(true);
+    if(type === 'View') {
+      setViewSavedConfig(true);
+    } else setIsEditMode(true);
   }
 
   const handleDelete = async (configId) => {
@@ -449,6 +454,8 @@ const PayrollSettings = () => {
         handleNext={handleNext}
         handleBack={handleBack}
         getStepContent={getStepContent}
+        viewSavedConfig={viewSavedConfig}
+        createdAt={settings?.createdAt ||null}
       />
     </Box>
   );

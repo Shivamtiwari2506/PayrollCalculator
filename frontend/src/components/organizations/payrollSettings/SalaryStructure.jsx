@@ -3,7 +3,7 @@ import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
 
-const SalaryStructure = ({ settings, handleChange, errors }) => {
+const SalaryStructure = ({ settings, handleChange, errors, viewSavedConfig }) => {
   const total = parseFloat(settings.basicPercent) + parseFloat(settings.hraPercent) + parseFloat(settings.allowancePercent);
   const isValid = total === 100;
 
@@ -32,6 +32,7 @@ const SalaryStructure = ({ settings, handleChange, errors }) => {
             <TextField
               label="Basic Salary"
               fullWidth
+              disabled={viewSavedConfig}
               type="number"
               required={true}
               error={!!errors.basicPercent}
@@ -49,6 +50,7 @@ const SalaryStructure = ({ settings, handleChange, errors }) => {
             <TextField
               label="House Rent Allowance (HRA)"
               fullWidth
+              disabled={viewSavedConfig}
               type="number"
               required={true}
               error={!!errors.hraPercent}
@@ -66,6 +68,7 @@ const SalaryStructure = ({ settings, handleChange, errors }) => {
             <TextField
               label="Special/Other Allowances"
               fullWidth
+              disabled={viewSavedConfig}
               type="number"
               required={true}
               error={!!errors.allowancePercent}

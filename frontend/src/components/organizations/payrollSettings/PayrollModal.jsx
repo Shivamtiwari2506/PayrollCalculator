@@ -18,6 +18,7 @@ import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
 import SaveIcon from '@mui/icons-material/Save';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
+import dayjs from 'dayjs';
 
 const PayrollModal = ({
     loading,
@@ -30,6 +31,8 @@ const PayrollModal = ({
     handleNext,
     handleBack,
     getStepContent,
+    viewSavedConfig,
+    createdAt
 }) => {
     return (
         <Dialog
@@ -41,7 +44,7 @@ const PayrollModal = ({
         >
             <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1, pb: 1 }}>
                 <ReceiptLongIcon sx={{ color: 'warning.main' }} />
-                {isEditMode ? 'Update Payroll Settings' : 'Create Payroll Settings'}
+                {viewSavedConfig ? `Payroll Settings Created on ${dayjs(createdAt).format('MMM DD, YYYY')}` : isEditMode ? 'Update Payroll Settings' : 'Create Payroll Settings'}
             </DialogTitle>
 
             <Divider />
@@ -76,7 +79,7 @@ const PayrollModal = ({
             <DialogActions sx={{ px: 3, py: 2, justifyContent: 'space-between' }}>
                 {/* Left */}
                 <Button variant="outlined" color="error" onClick={handleClose} size="large">
-                    Cancel
+                    {viewSavedConfig ? "Close": "Cancel"}
                 </Button>
 
                 {/* Right */}
@@ -91,7 +94,7 @@ const PayrollModal = ({
                         Back
                     </Button>
 
-                    {activeStep === steps.length - 1 ? (
+                    {activeStep === steps.length - 1 && !viewSavedConfig ? (
                         <Button
                             variant="contained"
                             disabled={loading}
@@ -106,6 +109,7 @@ const PayrollModal = ({
                             variant="contained"
                             onClick={handleNext}
                             endIcon={<NavigateNextIcon />}
+                            disabled={activeStep === steps.length - 1}
                             size="large"
                         >
                             Next

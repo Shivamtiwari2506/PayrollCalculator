@@ -1,7 +1,7 @@
 import { Grid, Card, CardContent, Typography, TextField, Switch, FormControlLabel, Box, InputAdornment, Chip, MenuItem } from "@mui/material";
 import CurrencyInput from "../../ui/CurrencyInput";
 
-const StatutoryDeductions = ({ settings, handleChange, errors }) => {
+const StatutoryDeductions = ({ settings, handleChange, errors, viewSavedConfig }) => {
   return (
     <Grid container spacing={3}>
       {/* Provident Fund (PF) */}
@@ -20,6 +20,7 @@ const StatutoryDeductions = ({ settings, handleChange, errors }) => {
             </Box>
 
             <FormControlLabel
+              disabled={viewSavedConfig}
               control={
                 <Switch
                   checked={settings.pfEnabled}
@@ -36,6 +37,7 @@ const StatutoryDeductions = ({ settings, handleChange, errors }) => {
                     <TextField
                       label="Employee Contribution"
                       type="number"
+                      disabled={viewSavedConfig}
                       required={settings.pfEnabled ? true : false}
                       error={!!errors.pfPercent}
                       helperText={errors.pfPercent}
@@ -52,6 +54,7 @@ const StatutoryDeductions = ({ settings, handleChange, errors }) => {
                     <TextField
                       label="Employer Contribution"
                       type="number"
+                      disabled={viewSavedConfig}
                       fullWidth
                       required={settings.pfEnabled ? true : false}
                       error={!!errors.pfEmployerContribution}
@@ -69,6 +72,7 @@ const StatutoryDeductions = ({ settings, handleChange, errors }) => {
                       select
                       label="PF Calculation Base"
                       fullWidth
+                      disabled={viewSavedConfig}
                       required={settings.pfEnabled ? true : false}
                       error={!!errors.pfCeiling}
                       value={settings.pfCeiling}
@@ -105,6 +109,7 @@ const StatutoryDeductions = ({ settings, handleChange, errors }) => {
             </Box>
 
             <FormControlLabel
+              disabled={viewSavedConfig}
               control={
                 <Switch
                   checked={settings.esiEnabled}
@@ -121,6 +126,7 @@ const StatutoryDeductions = ({ settings, handleChange, errors }) => {
                     <TextField
                       label="Employee Contribution"
                       type="number"
+                      disabled={viewSavedConfig}
                       required={settings.esiEnabled ? true : false}
                       error={!!errors.esiPercent}
                       helperText={errors.esiPercent}
@@ -137,6 +143,7 @@ const StatutoryDeductions = ({ settings, handleChange, errors }) => {
                     <TextField
                       label="Employer Contribution"
                       type="number"
+                      disabled={viewSavedConfig}
                       required={settings.esiEnabled ? true : false}
                       error={!!errors.esiEmployerPercent}
                       helperText={errors.esiEmployerPercent}
@@ -151,6 +158,7 @@ const StatutoryDeductions = ({ settings, handleChange, errors }) => {
                   </Grid>
                   <Grid item xs={12}>
                     <CurrencyInput
+                      disabled={viewSavedConfig}
                       label="ESI Ceiling Amount"
                       value={settings.esiCeiling}
                       onChange={(val) =>
@@ -185,6 +193,7 @@ const StatutoryDeductions = ({ settings, handleChange, errors }) => {
             </Box>
 
             <FormControlLabel
+              disabled={viewSavedConfig}
               control={
                 <Switch
                   checked={settings.professionalTaxEnabled}
@@ -196,6 +205,7 @@ const StatutoryDeductions = ({ settings, handleChange, errors }) => {
 
             {settings.professionalTaxEnabled && (
               <CurrencyInput
+                disabled={viewSavedConfig}
                 label="Monthly PT Amount"
                 value={settings.professionalTaxAmount}
                 onChange={(val) =>
@@ -227,6 +237,7 @@ const StatutoryDeductions = ({ settings, handleChange, errors }) => {
             </Box>
 
             <FormControlLabel
+              disabled={viewSavedConfig}
               control={
                 <Switch
                   checked={settings.tdsEnabled}
@@ -259,6 +270,7 @@ const StatutoryDeductions = ({ settings, handleChange, errors }) => {
             </Box>
 
             <FormControlLabel
+              disabled={viewSavedConfig}
               control={
                 <Switch
                   checked={settings.gratuityEnabled}
@@ -270,6 +282,7 @@ const StatutoryDeductions = ({ settings, handleChange, errors }) => {
 
             {settings.gratuityEnabled && (
               <TextField
+                disabled={viewSavedConfig}
                 label="Minimum Service Years"
                 type="number"
                 required={settings.gratuityEnabled ? true : false}
@@ -302,6 +315,7 @@ const StatutoryDeductions = ({ settings, handleChange, errors }) => {
             </Box>
 
             <FormControlLabel
+              disabled={viewSavedConfig}
               control={
                 <Switch
                   checked={settings.leaveEncashmentEnabled}
@@ -315,6 +329,7 @@ const StatutoryDeductions = ({ settings, handleChange, errors }) => {
               <TextField
                 label="Maximum Encashment Days"
                 type="number"
+                disabled={viewSavedConfig}
                 fullWidth
                 required={settings.leaveEncashmentEnabled ? true : false}
                 error={!!errors.maxEncashmentDays}

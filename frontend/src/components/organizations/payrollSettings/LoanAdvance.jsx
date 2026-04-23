@@ -1,7 +1,7 @@
 import { Grid, Card, CardContent, Typography, TextField, Switch, FormControlLabel, InputAdornment, Chip, Box } from "@mui/material";
 import CurrencyInput from "../../ui/CurrencyInput";
 
-const LoanAdvance = ({ settings, handleChange, errors }) => {
+const LoanAdvance = ({ settings, handleChange, errors, viewSavedConfig }) => {
   return (
     <Grid container spacing={3}>
       {/* Loan Configuration */}
@@ -20,6 +20,7 @@ const LoanAdvance = ({ settings, handleChange, errors }) => {
             </Box>
 
             <FormControlLabel
+              disabled={viewSavedConfig}
               control={
                 <Switch
                   checked={settings.loanEnabled}
@@ -31,6 +32,7 @@ const LoanAdvance = ({ settings, handleChange, errors }) => {
 
             {settings.loanEnabled && (
               <CurrencyInput
+                disabled={viewSavedConfig}
                 label="Maximum Loan Amount"
                 value={settings.maxLoanAmount}
                 onChange={(val) =>
@@ -62,6 +64,7 @@ const LoanAdvance = ({ settings, handleChange, errors }) => {
             </Box>
 
             <FormControlLabel
+              disabled={viewSavedConfig}
               control={
                 <Switch
                   checked={settings.advanceEnabled}
@@ -73,6 +76,7 @@ const LoanAdvance = ({ settings, handleChange, errors }) => {
 
             {settings.advanceEnabled && (
               <CurrencyInput
+                disabled={viewSavedConfig}
                 label="Maximum Advance Amount"
                 value={settings.maxAdvanceAmount}
                 onChange={(val) =>

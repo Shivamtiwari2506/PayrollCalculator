@@ -5,7 +5,7 @@ import { useEffect } from "react";
 
 const today = new Date().toISOString().split('T')[0];
 
-const PayrollCycleConfig = ({ settings, handleChange , errors}) => {
+const PayrollCycleConfig = ({ settings, handleChange , errors, viewSavedConfig}) => {
   const weekDays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
     const [cycleWarning, setCycleWarning] = useState("");
 
@@ -68,6 +68,7 @@ const PayrollCycleConfig = ({ settings, handleChange , errors}) => {
               select
               fullWidth
               required={true}
+              disabled={viewSavedConfig}
               label="Payroll Cycle"
               value={settings.payrollCycle}
               onChange={(e) => handleChange("payrollCycle", e.target.value)}
@@ -85,6 +86,7 @@ const PayrollCycleConfig = ({ settings, handleChange , errors}) => {
               type="number"
               fullWidth
               required={true}
+              disabled={viewSavedConfig}
               label="Payroll Start Day"
               value={settings.cycleConfig.payrollStartDay}
               onChange={(e) => handleChange("cycleConfig.payrollStartDay", parseInt(e.target.value))}
@@ -96,6 +98,7 @@ const PayrollCycleConfig = ({ settings, handleChange , errors}) => {
                 select
                 fullWidth
                 required={true}
+                disabled={viewSavedConfig}
                 label="Week Start Day"
                 value={settings.cycleConfig.payrollStartDay || ""}
                 onChange={(e) => handleChange("cycleConfig.payrollStartDay", e.target.value)}
@@ -116,6 +119,7 @@ const PayrollCycleConfig = ({ settings, handleChange , errors}) => {
                 <TextField
                   type="number"
                   fullWidth
+                  disabled={viewSavedConfig}
                   required
                   label="Payroll End Day"
                   value={settings.cycleConfig.payrollEndDay ?? ""}
@@ -128,6 +132,7 @@ const PayrollCycleConfig = ({ settings, handleChange , errors}) => {
                 <TextField
                   select
                   fullWidth
+                  disabled={viewSavedConfig}
                   required
                   label="Week End Day"
                   value={settings.cycleConfig.payrollEndDay ?? ""}
@@ -149,6 +154,7 @@ const PayrollCycleConfig = ({ settings, handleChange , errors}) => {
             {settings.payrollCycle === "monthly" ? <TextField
               type="number"
               fullWidth
+              disabled={viewSavedConfig}
               required={true}
               label="Payment Date"
               value={settings.cycleConfig.paymentDate}
@@ -159,6 +165,7 @@ const PayrollCycleConfig = ({ settings, handleChange , errors}) => {
             /> : <TextField
               select
               fullWidth
+              disabled={viewSavedConfig}
               required={true}
               label="Payment Day"
               value={settings.cycleConfig.paymentDate}
@@ -178,6 +185,7 @@ const PayrollCycleConfig = ({ settings, handleChange , errors}) => {
             <TextField
               type="number"
               fullWidth
+              disabled={viewSavedConfig}
               required={true}
               label="Working Days per Month"
               value={settings.workingDaysPerMonth}
@@ -190,7 +198,8 @@ const PayrollCycleConfig = ({ settings, handleChange , errors}) => {
 
           <Grid item xs={12} md={6}>
             <FormControl 
-              required={true} 
+              required={true}
+              disabled={viewSavedConfig} 
               fullWidth
               error={!!errors.weekendDays}
             >
@@ -222,6 +231,7 @@ const PayrollCycleConfig = ({ settings, handleChange , errors}) => {
             <TextField
               fullWidth
               label="Effective From"
+              disabled={viewSavedConfig}
               type="date"
               required={true}
               value={settings.effectiveFrom}
