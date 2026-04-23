@@ -2,7 +2,7 @@ import { Alert, Box, Button, Chip, CircularProgress, Dialog, DialogActions, Dial
 import AddIcon from "@mui/icons-material/Add";
 import PaidIcon from "@mui/icons-material/Paid";
 import SaveIcon from "@mui/icons-material/Save";
-import DeleteIcon from "@mui/icons-material/Delete";
+import CurrencyInput from '../../ui/CurrencyInput';
 
 const AddTaxSlabModal = ({ openModal, handleCloseModal, selectedFY, selectedRegime, regimeData, newSlab, handleSlabChange, handleAddSlab, error, handleSaveRegime, handleResetForm, handleRegimeDataChange, loading, updating }) => {
   return (
@@ -26,16 +26,14 @@ const AddTaxSlabModal = ({ openModal, handleCloseModal, selectedFY, selectedRegi
           <Typography variant="h6" sx={{ mb: 2 }}>Regime Settings</Typography>
           <Grid container spacing={2} sx={{ mb: 3 }}>
             <Grid item xs={6}>
-              <TextField
+              <CurrencyInput
                 label="Standard Deduction"
-                type="number"
-                fullWidth
-                required
                 value={regimeData.standardDeduction}
-                onChange={(e) => handleRegimeDataChange("standardDeduction", e.target.value)}
-                InputProps={{
-                  startAdornment: <InputAdornment position="start">₹</InputAdornment>
-                }}
+                onChange={(val) =>
+                  handleRegimeDataChange("standardDeduction", val)
+                }
+                required={true}
+                disabled={loading}
               />
             </Grid>
             <Grid item xs={6}>
@@ -61,31 +59,30 @@ const AddTaxSlabModal = ({ openModal, handleCloseModal, selectedFY, selectedRegi
           {/* Add Slab Form */}
           <Grid container spacing={2} sx={{ mb: 2 }}>
             <Grid item xs={4}>
-              <TextField
+              <CurrencyInput
                 label="Min Income"
-                type="number"
-                fullWidth
+                value={newSlab.minIncome}
+                onChange={(val) =>
+                  handleSlabChange("minIncome", val)
+                }
+                required={true}
                 error={!!error?.minIncome}
                 helperText={error?.minIncome}
-                value={newSlab.minIncome}
-                onChange={(e) => handleSlabChange("minIncome", e.target.value)}
-                InputProps={{
-                  startAdornment: <InputAdornment position="start">₹</InputAdornment>
-                }}
+                disabled={loading}
               />
             </Grid>
             <Grid item xs={4}>
-              <TextField
+              <CurrencyInput
                 label="Max Income (Optional)"
-                type="number"
-                fullWidth
+                placeholder="leave empty for no limit"
+                value={newSlab.maxIncome}
+                onChange={(val) =>
+                  handleSlabChange("maxIncome", val)
+                }
+                required={true}
+                disabled={loading}
                 error={!!error?.maxIncome}
                 helperText={error?.maxIncome}
-                value={newSlab.maxIncome}
-                onChange={(e) => handleSlabChange("maxIncome", e.target.value)}
-                InputProps={{
-                  startAdornment: <InputAdornment position="start">₹</InputAdornment>
-                }}
               />
             </Grid>
             <Grid item xs={3}>
@@ -114,7 +111,7 @@ const AddTaxSlabModal = ({ openModal, handleCloseModal, selectedFY, selectedRegi
           </Grid>
 
           {/* Current Slabs */}
-          {regimeData.taxSlabs.length > 0 && (
+          {regimeData?.slabs?.length > 0 && (
             <TableContainer sx={{ mb: 2 }}>
               <Table size="small">
                 <TableHead>
@@ -124,8 +121,8 @@ const AddTaxSlabModal = ({ openModal, handleCloseModal, selectedFY, selectedRegi
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {regimeData.taxSlabs.map((slab) => (
-                    <TableRow key={slab.id}>
+                  {regimeData?.slabs?.map((slab, index) => (
+                    <TableRow key={index}>
                       <TableCell>
                         ₹{slab.minIncome.toLocaleString()} - {slab.maxIncome ? `₹${slab.maxIncome.toLocaleString()}` : "Above"}
                       </TableCell>

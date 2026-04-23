@@ -1,4 +1,5 @@
 import { Grid, Card, CardContent, Typography, TextField, Switch, FormControlLabel, InputAdornment, Chip, Box } from "@mui/material";
+import CurrencyInput from "../../ui/CurrencyInput";
 
 const LoanAdvance = ({ settings, handleChange, errors }) => {
   return (
@@ -29,19 +30,16 @@ const LoanAdvance = ({ settings, handleChange, errors }) => {
             />
 
             {settings.loanEnabled && (
-              <TextField
+              <CurrencyInput
                 label="Maximum Loan Amount"
-                type="number"
+                value={settings.maxLoanAmount}
+                onChange={(val) =>
+                  handleChange("maxLoanAmount", val)
+                }
                 required={settings.loanEnabled ? true : false}
                 error={!!errors.maxLoanAmount}
                 helperText={errors.maxLoanAmount}
-                fullWidth
                 sx={{ mt: 2 }}
-                value={settings.maxLoanAmount}
-                onChange={(e) => handleChange("maxLoanAmount", parseInt(e.target.value))}
-                InputProps={{
-                  startAdornment: <InputAdornment position="start">₹</InputAdornment>,
-                }}
               />
             )}
           </CardContent>
@@ -74,19 +72,17 @@ const LoanAdvance = ({ settings, handleChange, errors }) => {
             />
 
             {settings.advanceEnabled && (
-              <TextField
+              <CurrencyInput
                 label="Maximum Advance Amount"
-                type="number"
+                value={settings.maxAdvanceAmount}
+                onChange={(val) =>
+                  handleChange("maxAdvanceAmount", val)
+                }
                 fullWidth
                 required={settings.advanceEnabled ? true : false}
                 error={!!errors.maxAdvanceAmount}
                 helperText={errors.maxAdvanceAmount}
                 sx={{ mt: 2 }}
-                value={settings.maxAdvanceAmount}
-                onChange={(e) => handleChange("maxAdvanceAmount", parseInt(e.target.value))}
-                InputProps={{
-                  startAdornment: <InputAdornment position="start">₹</InputAdornment>,
-                }}
               />
             )}
           </CardContent>

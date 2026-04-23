@@ -5,6 +5,8 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import api from '../services/api';
 import { toast } from 'react-toastify';
 import { handleApiError } from '../utils/commonFunctions/errorHandler';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
 
 export default function OrganizationLogin() {
   const [formData, setFormData] = useState({
@@ -14,6 +16,7 @@ export default function OrganizationLogin() {
     organizationDomain: ''
   });
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (field) => (e) => {
@@ -101,9 +104,18 @@ export default function OrganizationLogin() {
         <TextField
           fullWidth
           label="Admin Password"
-          type="password"
+          type={showPassword ? 'text' : 'password'}
           value={formData.adminPassword}
           onChange={handleChange('adminPassword')}
+          InputProps={
+            {
+              endAdornment: (
+                <IconButton onClick={() => setShowPassword(!showPassword)}>
+                  {showPassword ? <Visibility /> : <VisibilityOff />}
+                </IconButton>
+              ),
+            }
+          }
           margin="normal"
           required
         />

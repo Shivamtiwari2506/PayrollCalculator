@@ -5,10 +5,13 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import api from '../services/api';
 import { toast } from 'react-toastify';
 import { handleApiError } from '../utils/commonFunctions/errorHandler';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
 
 export default function UserLogin() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -65,9 +68,18 @@ export default function UserLogin() {
         <TextField
           fullWidth
           label="Password"
-          type="password"
+          type={showPassword ? 'text' : 'password'}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          InputProps={
+            {
+              endAdornment: (
+                <IconButton onClick={() => setShowPassword(!showPassword)}>
+                  {showPassword ? <Visibility /> : <VisibilityOff />}
+                </IconButton>
+              ),
+            }
+          }
           margin="normal"
           required
         />

@@ -18,7 +18,12 @@ export const ROLES = {
 };
 
 export const formatIndianRuppee = (amount) => {
-  if(!amount) return '-';
-  return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0,
-    maximumFractionDigits: 0 }).format(amount);
-}
+  if (amount === null || amount === undefined || amount === "") return "";
+
+  return new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0
+  }).format(Number(amount));
+};

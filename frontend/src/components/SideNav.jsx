@@ -269,6 +269,9 @@ export default function SideNav({
                 px: 2.5,
                 justifyContent: drawerOpen ? 'initial' : 'center',
                 color: isSettingsRoute ? 'primary.main' : '',
+                mx: 1.5, 
+                my: 0.5,
+                borderRadius: 1
               }}
             >
               <ListItemIcon
@@ -309,6 +312,9 @@ export default function SideNav({
                       pl: drawerOpen ? 4 : 2.5,
                       justifyContent: drawerOpen ? 'initial' : 'center',
                       color: location.pathname === item.path ? 'primary.main' : '',
+                      mx: 1.5,
+                      my: 0.5,
+                      borderRadius: 1,
                     }}
                   >
                     <ListItemIcon

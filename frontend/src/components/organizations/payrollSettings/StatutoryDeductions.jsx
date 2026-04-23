@@ -1,4 +1,5 @@
 import { Grid, Card, CardContent, Typography, TextField, Switch, FormControlLabel, Box, InputAdornment, Chip, MenuItem } from "@mui/material";
+import CurrencyInput from "../../ui/CurrencyInput";
 
 const StatutoryDeductions = ({ settings, handleChange, errors }) => {
   return (
@@ -149,17 +150,14 @@ const StatutoryDeductions = ({ settings, handleChange, errors }) => {
                     />
                   </Grid>
                   <Grid item xs={12}>
-                    <TextField
+                    <CurrencyInput
                       label="ESI Ceiling Amount"
-                      type="number"
-                      required={settings.esiEnabled ? true : false}
-                      error={!!errors.esiCeiling}
-                      fullWidth
                       value={settings.esiCeiling}
-                      onChange={(e) => handleChange("esiCeiling", parseInt(e.target.value))}
-                      InputProps={{
-                        startAdornment: <InputAdornment position="start">₹</InputAdornment>,
-                      }}
+                      onChange={(val) =>
+                        handleChange("esiCeiling", val)
+                      }
+                      required={settings.esiEnabled ? true : false}
+                      error={!!errors.esiCeiling}      
                       helperText={errors.esiCeiling || "Maximum gross salary eligible for ESI (Currently ₹21,000 as per ESIC rules)"}
                       inputProps={{min: 0}}
                     />
@@ -197,18 +195,15 @@ const StatutoryDeductions = ({ settings, handleChange, errors }) => {
             />
 
             {settings.professionalTaxEnabled && (
-              <TextField
+              <CurrencyInput
                 label="Monthly PT Amount"
-                type="number"
-                fullWidth
+                value={settings.professionalTaxAmount}
+                onChange={(val) =>
+                  handleChange("professionalTaxAmount", val)
+                }
                 required={settings.professionalTaxEnabled ? true : false}
                 error={!!errors.professionalTaxAmount}
                 sx={{ mt: 2 }}
-                value={settings.professionalTaxAmount}
-                onChange={(e) => handleChange("professionalTaxAmount", parseInt(e.target.value))}
-                InputProps={{
-                  startAdornment: <InputAdornment position="start">₹</InputAdornment>,
-                }}
                 helperText={errors.professionalTaxAmount ||"Professional Tax amount varies by state and salary slab (e.g., up to ₹200/month in many states)"}
               />
             )}

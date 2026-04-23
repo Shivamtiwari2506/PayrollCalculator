@@ -5,6 +5,7 @@ import { HashLoader } from "react-spinners";
 export default function Loader({
   message = 'Loading...',
   fullScreen = false,
+  height = '60vh',
   delay = 300,
   minDuration = 500,
 }) {
@@ -37,7 +38,7 @@ export default function Loader({
       <Box
         sx={{
           width: '100%',
-          minHeight: fullScreen ? '100vh' : '60vh',
+          minHeight: fullScreen ? '100vh' : height,
         }}
       />
     );
@@ -69,7 +70,7 @@ export default function Loader({
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        minHeight: fullScreen ? '100vh' : '60vh',
+        minHeight: fullScreen ? '100vh' : height,
         width: '100%',
         opacity: visible ? 1 : 0,
         transition: 'opacity 0.3s ease',

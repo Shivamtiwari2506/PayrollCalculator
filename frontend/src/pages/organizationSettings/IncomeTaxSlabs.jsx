@@ -45,7 +45,7 @@ const IncomeTaxSlabs = () => {
   const [regimeData, setRegimeData] = useState({
     standardDeduction: "",
     cessPercentage: "",
-    taxSlabs: []
+    slabs: []
   });
 
   const [newSlab, setNewSlab] = useState({
@@ -68,7 +68,7 @@ const IncomeTaxSlabs = () => {
       setRegimeData({
         standardDeduction: "",
         cessPercentage: "",
-        taxSlabs: []
+        slabs: []
       });
       setNewSlab({ minIncome: "", maxIncome: "", rate: "" });
     }
@@ -81,7 +81,7 @@ const IncomeTaxSlabs = () => {
     setRegimeData({
       standardDeduction: "",
       cessPercentage: "",
-      taxSlabs: []
+      slabs: []
     });
     setNewSlab({ minIncome: "", maxIncome: "", rate: "" });
     setError(null);
@@ -135,7 +135,7 @@ const IncomeTaxSlabs = () => {
 
     setRegimeData(prev => ({
       ...prev,
-      taxSlabs: [...prev.taxSlabs, slab]
+      slabs: [...prev.slabs, slab]
     }));
 
     setNewSlab({ minIncome: "", maxIncome: "", rate: "" });
@@ -146,7 +146,7 @@ const IncomeTaxSlabs = () => {
     setRegimeData({
         standardDeduction: "",
         cessPercentage: "",
-        taxSlabs: []
+        slabs: []
       });
       setNewSlab({ minIncome: "", maxIncome: "", rate: "" });
   };
@@ -158,7 +158,7 @@ const IncomeTaxSlabs = () => {
       return;
     }
 
-    if (regimeData.taxSlabs.length === 0) {
+    if (regimeData.slabs.length === 0) {
       setError({ general: "Please add at least one tax slab" });
       return;
     }
@@ -168,7 +168,7 @@ const IncomeTaxSlabs = () => {
       regime: selectedRegime,
       standardDeduction: parseInt(regimeData.standardDeduction),
       cessPercentage: parseFloat(regimeData.cessPercentage),
-      slabs: regimeData.taxSlabs
+      slabs: regimeData.slabs
     };
 
     handleCreateTaxSlab(newRegime);
@@ -246,10 +246,6 @@ const IncomeTaxSlabs = () => {
     getCurrentRegime();
   }, [selectedFY, selectedRegime]);
 
-  if(regimeLoading) {
-    return <Loader />;
-  }
-
   return (
     <Box>
       {/* Header */}
@@ -295,79 +291,83 @@ const IncomeTaxSlabs = () => {
             <Tab label="Old Tax Regime" value="old" />
           </Tabs>
         </Box>
-
-        {/* Table Content */}
-        {taxRegimes!==null ? (
+        {regimeLoading ? (
           <Card>
-            <CardContent>
-              <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-                <Typography variant="h6">
-                  {selectedRegime === "new" ? "New" : "Old"} Tax Regime - {selectedFY}
-                </Typography>
-                <Button
-                  variant="outlined"
-                  startIcon={<EditIcon />}
-                  onClick={() => handleOpenModal("edit")}
-                  size="small"
-                >
-                  Edit Regime
-                </Button>
-              </Box>
-
-              {/* Regime Info */}
-              <Grid container spacing={2} sx={{ mb: 3 }}>
-                <Grid item xs={6}>
-                  <Typography variant="body2" color="text.secondary">Standard Deduction</Typography>
-                  <Typography variant="h6">{formatIndianRuppee(taxRegimes.standardDeduction)}</Typography>
-                </Grid>
-                <Grid item xs={6}>
-                  <Typography variant="body2" color="text.secondary">Cess</Typography>
-                  <Typography variant="h6">{taxRegimes.cessPercentage}%</Typography>
-                </Grid>
-              </Grid>
-
-              {/* Tax Slabs Table */}
-              <TableContainer>
-                <Table>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Income Range</TableCell>
-                      <TableCell>Tax Rate</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {taxRegimes?.slabs?.map((slab) => (
-                      <TableRow key={slab.id}>
-                        <TableCell>
-                          {formatIndianRuppee(slab.minIncome)} - {slab.maxIncome ? `${formatIndianRuppee(slab.maxIncome)}` : "Above"}
-                        </TableCell>
-                        <TableCell>
-                          <Chip label={`${slab.rate}%`} color="success" />
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </CardContent>
+          <Loader height={'40vh'} message="Loading tax Regime..." />
           </Card>
         ) : (
-          <Card>
-            <CardContent>
-              <Box sx={{ textAlign: "center", py: 4 }}>
-                <Typography variant="h6" color="text.secondary" sx={{ mb: 2 }}>
-                  No {selectedRegime === "new" ? "New" : "Old"} Tax Regime configured for {selectedFY}
-                </Typography>
-                <Button
-                  variant="contained"
-                  startIcon={<AddIcon />}
-                  onClick={handleOpenModal}
-                >
-                  Add Tax Regime
-                </Button>
-              </Box>
-            </CardContent>
-          </Card>
+          taxRegimes !== null ? (
+            <Card>
+              <CardContent>
+                <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
+                  <Typography variant="h6">
+                    {selectedRegime === "new" ? "New" : "Old"} Tax Regime - {selectedFY}
+                  </Typography>
+                  <Button
+                    variant="outlined"
+                    startIcon={<EditIcon />}
+                    onClick={() => handleOpenModal("edit")}
+                    size="small"
+                  >
+                    Edit Regime
+                  </Button>
+                </Box>
+
+                {/* Regime Info */}
+                <Grid container spacing={2} sx={{ mb: 3 }}>
+                  <Grid item xs={6}>
+                    <Typography variant="body2" color="text.secondary">Standard Deduction</Typography>
+                    <Typography variant="h6">{formatIndianRuppee(taxRegimes?.standardDeduction)}</Typography>
+                  </Grid>
+                  <Grid item xs={6}>
+                    <Typography variant="body2" color="text.secondary">Cess</Typography>
+                    <Typography variant="h6">{taxRegimes?.cessPercentage}%</Typography>
+                  </Grid>
+                </Grid>
+
+                {/* Tax Slabs Table */}
+                <TableContainer>
+                  <Table>
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>Income Range</TableCell>
+                        <TableCell>Tax Rate</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {taxRegimes?.slabs?.map((slab) => (
+                        <TableRow key={slab.id}>
+                          <TableCell>
+                            {formatIndianRuppee(slab.minIncome)} - {slab.maxIncome ? `${formatIndianRuppee(slab.maxIncome)}` : "Above"}
+                          </TableCell>
+                          <TableCell>
+                            <Chip label={`${slab.rate}%`} color="success" />
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </CardContent>
+            </Card>
+          ) : (
+            <Card>
+              <CardContent sx={{ minHeight: "40vh", display: "flex", justifyContent: "center", alignItems: "center", py: 4 }}>
+                <Box sx={{ textAlign: "center" }}>
+                  <Typography variant="h6" color="text.secondary" sx={{ mb: 2 }}>
+                    No {selectedRegime === "new" ? "New" : "Old"} Tax Regime configured for {selectedFY}
+                  </Typography>
+                  <Button
+                    variant="contained"
+                    startIcon={<AddIcon />}
+                    onClick={handleOpenModal}
+                  >
+                    Add Tax Regime
+                  </Button>
+                </Box>
+              </CardContent>
+            </Card>
+          )
         )}
       </Box>
 

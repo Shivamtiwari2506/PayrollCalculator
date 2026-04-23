@@ -24,6 +24,7 @@ import WorkIcon from '@mui/icons-material/Work';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import StatusToggle from '../../StatusToggle';
 import PaymentIcon from '@mui/icons-material/Payment';
+import CurrencyInput from '../../ui/CurrencyInput';
 
 const EmployeeFormDialog = ({
   open,
@@ -257,22 +258,15 @@ const EmployeeFormDialog = ({
           </Grid>
 
           <Grid item xs={12} md={6}>
-            <TextField
-              fullWidth
+            <CurrencyInput
               label="CTC"
-              type="number"
               value={form.ctc}
-              onChange={(e) => handleFieldChange('ctc', e.target.value)}
+              onChange={(val) =>
+                handleFieldChange("ctc", val)
+              }
               error={!!errors.ctc}
               helperText={errors.ctc || 'Select user role and permissions'}
-              required
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <PaymentIcon color="action" />
-                  </InputAdornment>
-                ),
-              }}
+              required={true}
             />
           </Grid>
 
