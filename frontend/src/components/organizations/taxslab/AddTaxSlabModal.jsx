@@ -3,6 +3,7 @@ import AddIcon from "@mui/icons-material/Add";
 import PaidIcon from "@mui/icons-material/Paid";
 import SaveIcon from "@mui/icons-material/Save";
 import CurrencyInput from '../../ui/CurrencyInput';
+import { formatIndianRuppee } from '../../../utils/commonFunctions/helpers';
 
 const AddTaxSlabModal = ({ openModal, handleCloseModal, selectedFY, selectedRegime, regimeData, newSlab, handleSlabChange, handleAddSlab, error, handleSaveRegime, handleResetForm, handleRegimeDataChange, loading, updating }) => {
   return (
@@ -124,7 +125,7 @@ const AddTaxSlabModal = ({ openModal, handleCloseModal, selectedFY, selectedRegi
                   {regimeData?.slabs?.map((slab, index) => (
                     <TableRow key={index}>
                       <TableCell>
-                        ₹{slab.minIncome.toLocaleString()} - {slab.maxIncome ? `₹${slab.maxIncome.toLocaleString()}` : "Above"}
+                        {formatIndianRuppee(slab.minIncome)} - {slab.maxIncome ? formatIndianRuppee(slab.maxIncome) : "Above"}
                       </TableCell>
                       <TableCell>
                         <Chip label={`${slab.rate}%`} color="success" size="small" />
