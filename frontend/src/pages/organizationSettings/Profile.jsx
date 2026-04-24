@@ -112,8 +112,8 @@ const Profile = () => {
       
       if(response?.data && response?.data.success === true) {
         toast.success("Profile updated successfully");
-        await dispatch(getOrgData());
-        await dispatch(getCurrentUser());
+        dispatch(getOrgData());
+        dispatch(getCurrentUser());
         getProfileData();
       }
 
