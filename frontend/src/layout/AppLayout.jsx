@@ -13,10 +13,11 @@ const MINI_DRAWER_WIDTH = 72;
 
 export default function AppLayout() {
   const dispatch = useDispatch();
-  const {user, loading: userLoading} = useSelector((state) => state.userState) || {};
-  const {org, loading: orgLoading } = useSelector((state) => state.orgState);
+  const { user, loading: userLoading } = useSelector((state) => state.userState) || {};
+  const { org, loading: orgLoading } = useSelector((state) => state.orgState);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(true);
+  const [appReady, setAppReady] = useState(false);
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
@@ -30,14 +31,19 @@ export default function AppLayout() {
   };
 
   useEffect(() => {
-    dispatch(getCurrentUser());
-    dispatch(getOrgData());
+    const init = async () => {
+      await Promise.all([
+        dispatch(getCurrentUser()),
+        dispatch(getOrgData())
+      ]);
+      setAppReady(true);
+    };
+
+    init();
   }, []);
 
-  const isLoading = userLoading || orgLoading;
-
-  if (isLoading) {
-    return <Loader fullScreen={true}/>;
+  if (!appReady) {
+    return <Loader fullScreen={true} />;
   }
 
   return (
