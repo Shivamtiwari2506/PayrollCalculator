@@ -13,7 +13,7 @@ cron.schedule("*/10 * * * *", async () => {
   console.log("Running Payroll Cron Job...");
 
   try {
-    // ✅ Get all org profiles with timezone
+    //  Get all org profiles with timezone
     const orgProfiles = await prisma.orgProfile.findMany({
       select: {
         id: true,
@@ -25,12 +25,12 @@ cron.schedule("*/10 * * * *", async () => {
 
       const now = dayjs().tz(org.timezone);
 
-      // ✅ Run only at midnight (0:00 - 0:10 window)
+      //  Run only at midnight (0:00 - 0:10 window)
       if (now.hour() !== 0 || now.minute() > 10) continue;
 
       const today = now.startOf("day").toDate();
 
-      // ✅ Get scheduled payrolls for this org
+      //  Get scheduled payrolls for this org
       const payrolls = await prisma.payrollSettings.findMany({
         where: {
           orgProfileId: org.id,
@@ -73,7 +73,7 @@ cron.schedule("*/10 * * * *", async () => {
       console.log(`Activated payroll for org ${org.id} (${org.timezone})`);
     }
 
-    console.log("Payroll Cron Completed ✅");
+    console.log("Payroll Cron Completed ");
 
   } catch (error) {
     console.log("Cron Error ❌", error);
