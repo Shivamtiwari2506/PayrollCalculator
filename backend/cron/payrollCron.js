@@ -26,7 +26,10 @@ cron.schedule("*/10 * * * *", async () => {
       const now = dayjs().tz(org.timezone);
 
       //  Run only at midnight (0:00 - 0:10 window)
-      if (now.hour() !== 0 || now.minute() > 10) continue;
+      if (now.hour() !== 0 || now.minute() > 10) {
+        console.log(`Skipping payroll for org ${org.id} (${org.timezone}) - Not midnight`);
+        continue;
+      }
 
       const today = now.startOf("day").toDate();
 
@@ -40,7 +43,10 @@ cron.schedule("*/10 * * * *", async () => {
         orderBy: { effectiveFrom: "asc" }
       });
 
-      if (!payrolls.length) continue;
+      if (!payrolls.length) { 
+        console.log(`Skipping payroll for org ${org.id} (${org.timezone}) - No scheduled payrolls`); 
+        continue;
+      } 
 
       await prisma.$transaction(async (tx) => {
 
