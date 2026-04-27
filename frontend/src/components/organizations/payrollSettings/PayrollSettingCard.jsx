@@ -128,7 +128,7 @@ const PayrollSettingCard = ({ config, handleEdit, handleDelete }) => {
                 />
               </Tooltip>
 
-              {config.isLocked === false && <IconButton size="small" sx={{ p:0, m: 0, ml: 1}} onClick={handleMenuOpen}>
+              {<IconButton size="small" sx={{ p:0, m: 0, ml: 1}} onClick={handleMenuOpen}>
                 <MoreVertIcon fontSize="small" />
               </IconButton>}
             </Box>
@@ -177,7 +177,7 @@ const PayrollSettingCard = ({ config, handleEdit, handleDelete }) => {
           <InfoRow label="Overtime" value={config.overtimeEnabled ? `${config.overtimeRate}x` : "Disabled"} />
         </CardContent>
       </Card>
-      {<Menu
+      <Menu
         anchorEl={anchorEl}
         open={open}
         onClose={handleMenuClose}
@@ -216,7 +216,7 @@ const PayrollSettingCard = ({ config, handleEdit, handleDelete }) => {
         >
           Delete
         </MenuItem>}
-      </Menu>}
+      </Menu>
     </>
   );
 };
