@@ -128,7 +128,7 @@ const PayrollSettingCard = ({ config, handleEdit, handleDelete }) => {
                 />
               </Tooltip>
 
-              {config.status === "SCHEDULED" && config.isLocked === false && <IconButton size="small" sx={{ p:0, m: 0, ml: 1}} onClick={handleMenuOpen}>
+              {config.isLocked === false && <IconButton size="small" sx={{ p:0, m: 0, ml: 1}} onClick={handleMenuOpen}>
                 <MoreVertIcon fontSize="small" />
               </IconButton>}
             </Box>
@@ -177,7 +177,7 @@ const PayrollSettingCard = ({ config, handleEdit, handleDelete }) => {
           <InfoRow label="Overtime" value={config.overtimeEnabled ? `${config.overtimeRate}x` : "Disabled"} />
         </CardContent>
       </Card>
-      {config.status === "SCHEDULED" && config.isLocked === false && <Menu
+      {<Menu
         anchorEl={anchorEl}
         open={open}
         onClose={handleMenuClose}
@@ -198,16 +198,16 @@ const PayrollSettingCard = ({ config, handleEdit, handleDelete }) => {
         >
           View
         </MenuItem>
-        <MenuItem
+        {config.status === "SCHEDULED" && config.isLocked === false && <MenuItem
           onClick={() => {
             handleMenuClose();
             handleEdit(config);
           }}
         >
           Edit
-        </MenuItem>
+        </MenuItem>}
 
-        <MenuItem
+        {config.status === "SCHEDULED" && config.isLocked === false && <MenuItem
           onClick={() => {
             handleMenuClose();
             handleDelete(config.id);
@@ -215,7 +215,7 @@ const PayrollSettingCard = ({ config, handleEdit, handleDelete }) => {
           sx={{ color: "error.main" }}
         >
           Delete
-        </MenuItem>
+        </MenuItem>}
       </Menu>}
     </>
   );

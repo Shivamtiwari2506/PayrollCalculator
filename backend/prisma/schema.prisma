@@ -21,8 +21,9 @@ model Org {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  users     User[]
-  profile   OrgProfile?  @relation("OrgToProfile")
+  users       User[]
+  profile     OrgProfile?  @relation("OrgToProfile")
+  payrollRuns PayrollRun[]
 }
 
 model OrgProfile {
@@ -92,6 +93,8 @@ model User {
 
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+
+  payrollEntries  PayrollRunEntry[]
 
   @@unique([email, orgId])
   @@index([orgId])
@@ -190,6 +193,8 @@ model PayrollSettings {
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
+  payrollRuns      PayrollRun[]
+
   @@index([orgProfileId])
   @@unique([orgProfileId, version])
 }
@@ -227,4 +232,99 @@ model IncomeTaxSlab {
 
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+}
+
+enum PayrollRunStatus {
+  DRAFT
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+model PayrollRun {
+  id                String           @id @default(uuid())
+
+  orgId             String
+  org               Org              @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  payrollSettingsId String
+  payrollSettings   PayrollSettings  @relation(fields: [payrollSettingsId], references: [id])
+
+  // Which month this run covers e.g. "2026-04"
+  month             String
+
+  status            PayrollRunStatus @default(DRAFT)
+
+  // Aggregated totals (filled once COMPLETED)
+  totalEmployees    Int              @default(0)
+  totalGross        Float            @default(0)
+  totalDeductions   Float            @default(0)
+  totalNet          Float            @default(0)
+
+  // Who triggered the run
+  runBy             String?
+
+  // Error message if status = FAILED
+  errorMessage      String?          @db.Text
+
+  entries           PayrollRunEntry[]
+
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+
+  @@unique([orgId, month])
+  @@index([orgId])
+  @@index([status])
+}
+
+model PayrollRunEntry {
+  id              String      @id @default(uuid())
+
+  payrollRunId    String
+  payrollRun      PayrollRun  @relation(fields: [payrollRunId], references: [id], onDelete: Cascade)
+
+  userId          String
+  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Snapshot of employee details at time of run
+  employeeName    String
+  designation     String
+  ctc             Float
+
+  // Gross earnings breakdown
+  grossSalary     Float
+  basic           Float
+  hra             Float
+  allowance       Float
+
+  // Employer-side contributions (cost to company, not deducted from employee)
+  pfEmployer      Float       @default(0)
+  esiEmployer     Float       @default(0)
+
+  // Employee-side deductions
+  pfEmployee      Float       @default(0)
+  esiEmployee     Float       @default(0)
+  professionalTax Float       @default(0)
+  tds             Float       @default(0)
+  loanDeduction   Float       @default(0)
+  advanceDeduction Float      @default(0)
+  otherDeductions Float       @default(0)
+
+  totalDeductions Float       @default(0)
+
+  // Additions
+  overtimeAmount  Float       @default(0)
+  bonusAmount     Float       @default(0)
+
+  netPay          Float
+
+  // Full calculation detail snapshot for payslip generation
+  breakdown       Json?
+
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  @@unique([payrollRunId, userId])
+  @@index([payrollRunId])
+  @@index([userId])
 }

@@ -43,6 +43,12 @@ const menuItems = [
     path: "/users",
     roles: ["Admin"],
   },
+  {
+    text: "Payslip",
+    icon: <DescriptionIcon />,
+    path: "/org-settings/payslip",
+    roles: ["User"],
+  },
 ];
 
 const settingsItems = [

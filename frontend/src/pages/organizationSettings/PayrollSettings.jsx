@@ -6,6 +6,7 @@ import {
 } from "@mui/material";
 import SecurityIcon from '@mui/icons-material/Security';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 
 import PayrollCycleConfig from "../../components/organizations/payrollSettings/PayrollCycleConfig";
 import SalaryStructure from "../../components/organizations/payrollSettings/SalaryStructure";
@@ -13,6 +14,8 @@ import OvertimeBonus from "../../components/organizations/payrollSettings/Overti
 import StatutoryDeductions from "../../components/organizations/payrollSettings/StatutoryDeductions";
 import LoanAdvance from "../../components/organizations/payrollSettings/LoanAdvance";
 import SavedPayrollSettings from "../../components/organizations/payrollSettings/SavedPayrollSettings";
+import RunPayrollModal from "../../components/organizations/payrollSettings/RunPayrollModal";
+import PayrollRunsTable from "../../components/organizations/payrollSettings/PayrollRunsTable";
 import api from "../../services/api";
 import { toast } from "react-toastify";
 import { handleApiError } from "../../utils/commonFunctions/errorHandler";
@@ -94,12 +97,18 @@ const formatDate = (date) => {
 const PayrollSettings = () => {
   const [loading, setLoading] = useState(false);
   const [showPayrollModal, setShowPayrollModal] = useState(false);
+  const [showRunModal, setShowRunModal] = useState(false);
   const [activeStep, setActiveStep] = useState(0);
   const [savedConfigs, setSavedConfigs] = useState([]);
   const [configsLoading, setConfigsLoading] = useState(false);
   const [configsError, setConfigsError] = useState(null);
   const [isEditMode, setIsEditMode] = useState(false);
   const [viewSavedConfig, setViewSavedConfig] = useState(false);
+
+  // Payroll runs state
+  const [payrollRuns, setPayrollRuns] = useState([]);
+  const [runsLoading, setRunsLoading] = useState(false);
+  const [runsError, setRunsError] = useState(null);
 
   const fetchSavedConfigs = async () => {
     setConfigsLoading(true);
@@ -116,8 +125,22 @@ const PayrollSettings = () => {
     }
   };
 
+  const fetchPayrollRuns = async () => {
+    setRunsLoading(true);
+    setRunsError(null);
+    try {
+      const res = await api.get('/payroll/run');
+      if (res?.data?.success) setPayrollRuns(res.data.data ?? []);
+    } catch {
+      setRunsError("Failed to load payroll run history.");
+    } finally {
+      setRunsLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchSavedConfigs();
+    fetchPayrollRuns();
   }, []);
 
   const [errors, setErrors] = useState({});
@@ -414,11 +437,22 @@ const PayrollSettings = () => {
     <Box>
       {/* HEADER CARD */}
       <Box sx={{ mb: 2 }}>
-        <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-          <ReceiptLongIcon sx={{ mr: 1.5, color: "warning.main", fontSize: 32 }} />
-          <Typography variant="h4" sx={{ fontWeight: 700 }}>
-            Payroll Configuration
-          </Typography>
+        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 1 }}>
+          <Box sx={{ display: "flex", alignItems: "center" }}>
+            <ReceiptLongIcon sx={{ mr: 1.5, color: "warning.main", fontSize: 32 }} />
+            <Typography variant="h4" sx={{ fontWeight: 700 }}>
+              Payroll Configuration
+            </Typography>
+          </Box>
+          <Button
+            variant="contained"
+            color="success"
+            startIcon={<PlayArrowIcon />}
+            onClick={() => setShowRunModal(true)}
+            sx={{ textTransform: "none", fontWeight: 600, borderRadius: 2, px: 3 }}
+          >
+            Run Payroll
+          </Button>
         </Box>
         <Typography variant="body2" color="text.secondary">
           Configure payroll cycles, salary structure, statutory compliances, and deductions
@@ -440,7 +474,21 @@ const PayrollSettings = () => {
           handleEdit={handleEdit}
           handleDelete={handleDelete}
         />
+
+        {/* PAYROLL RUN HISTORY */}
+        <PayrollRunsTable
+          runs={payrollRuns}
+          loading={runsLoading}
+          error={runsError}
+        />
       </Box>
+
+      {/* RUN PAYROLL MODAL */}
+      <RunPayrollModal
+        open={showRunModal}
+        onClose={() => setShowRunModal(false)}
+        onSuccess={fetchPayrollRuns}
+      />
 
       {/* MODAL */}
       <PayrollModal

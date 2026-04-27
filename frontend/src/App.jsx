@@ -19,6 +19,7 @@ const UserRoles = lazy(() => import('./pages/organizationSettings/UserRoles'));
 const Payslip = lazy(() => import('./pages/organizationSettings/Payslip'));
 const Notifications = lazy(() => import('./pages/organizationSettings/Notifications'));
 const IncomeTaxSlabs = lazy(() => import('./pages/organizationSettings/IncomeTaxSlabs'));
+const PayrollRunDetail = lazy(() => import('./pages/organizationSettings/PayrollRunDetail'));
 
 import { ROLES } from "./utils/commonFunctions/helpers";
 import { checkTokenValidity } from './utils/commonFunctions/checkTokenValidity';
@@ -87,10 +88,15 @@ function AppContent() {
           <Route element={<ProtectedRoute allowedRoles={[ROLES.ORG_ADMIN]} />}>
             <Route path="/org-settings/profile" element={<Profile />} />
             <Route path="/org-settings/payroll" element={<PayrollSettings />} />
+            <Route path="/org-settings/payroll/run/:id" element={<PayrollRunDetail />} />
             <Route path="/org-settings/leave" element={<LeaveAttendence />} />
             <Route path="/org-settings/employees" element={<UserRoles />} />
-            <Route path="/org-settings/payslip" element={<Payslip />} />
             <Route path="/org-settings/notifications" element={<Notifications />} />
+          </Route>
+
+          {/* Payslip → Org_Admin + User */}
+          <Route element={<ProtectedRoute allowedRoles={[ROLES.ORG_ADMIN, ROLES.USER]} />}>
+            <Route path="/org-settings/payslip" element={<Payslip />} />
           </Route>
         </Route>
 
