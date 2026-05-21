@@ -250,7 +250,7 @@ const PayslipPDF = ({ payslip, org }) => {
             <View style={styles.infoRow}>
               <Text style={styles.infoLabel}>Date of Joining</Text>
               <Text style={styles.infoColon}>:</Text>
-              <Text style={styles.infoValue}>{payslip.user?.dateOfJoining ?? "—"}</Text>
+              <Text style={styles.infoValue}>{payslip?.dateOfJoining ?? "—"}</Text>
             </View>
             <View style={styles.infoRow}>
               <Text style={styles.infoLabel}>Pay Period</Text>

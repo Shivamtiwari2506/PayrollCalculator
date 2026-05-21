@@ -12,14 +12,15 @@ export const createTaxSlab = async (req, res) => {
             });
         }
 
-        const { financialYear, regime, slabs, standardDeduction, cessPercentage } = req.body;
+        const { financialYear, regime, slabs, standardDeduction, cessPercentage, rebateLimit } = req.body;
 
         if (
             !financialYear ||
             !regime ||
             !Array.isArray(slabs) ||
             standardDeduction === undefined ||
-            cessPercentage === undefined
+            cessPercentage === undefined ||
+            rebateLimit === undefined
         ) {
             return res.status(400).json({
                 success: false,
@@ -49,6 +50,7 @@ export const createTaxSlab = async (req, res) => {
                 regime,
                 standardDeduction,
                 cessPercentage,
+                rebateLimit,
                 slabs: {
                     create: slabs
                 }
@@ -85,14 +87,15 @@ export const updateTaxSlab = async (req, res) => {
             });
         }
 
-        const { financialYear, regime, slabs, standardDeduction, cessPercentage } = req.body;
+        const { financialYear, regime, slabs, standardDeduction, cessPercentage, rebateLimit } = req.body;
 
         if (
             !financialYear ||
             !regime ||
             !Array.isArray(slabs) ||
             standardDeduction === undefined ||
-            cessPercentage === undefined
+            cessPercentage === undefined ||
+            rebateLimit === undefined
         ) {
             return res.status(400).json({
                 success: false,
@@ -126,6 +129,7 @@ export const updateTaxSlab = async (req, res) => {
             data: {
                 standardDeduction,
                 cessPercentage,
+                rebateLimit,
                 slabs: {
                     deleteMany: {},
                     create: slabs

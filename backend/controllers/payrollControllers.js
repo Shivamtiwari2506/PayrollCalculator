@@ -217,6 +217,10 @@ export const runPayroll = async (req, res) => {
         if (existing) {
             return res.status(400).json({ success: false, msg: `Payroll for ${month} has already been run (status: ${existing.status})` });
         }
+        const isPayrollRunDate = activeSettings?.cycleConfig?.payrollEndDay === new Date().getDate();
+        if (!isPayrollRunDate) {
+            return res.status(400).json({ success: false, msg: `Payroll can only be run on ${activeSettings?.cycleConfig?.payrollEndDay} of the month` });
+        }
 
         // Fetch all active employees for this org
         const employees = await prisma.user.findMany({

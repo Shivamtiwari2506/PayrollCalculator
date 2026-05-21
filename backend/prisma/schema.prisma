@@ -211,6 +211,7 @@ model IncomeTaxSetting {
 
   standardDeduction Float
   cessPercentage    Float
+  rebateLimit       Float
 
   slabs             IncomeTaxSlab[]
 
@@ -290,6 +291,7 @@ model PayrollRunEntry {
   employeeName    String
   designation     String
   ctc             Float
+  dateOfJoining   String?
 
   // Gross earnings breakdown
   grossSalary     Float

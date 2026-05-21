@@ -40,7 +40,8 @@ const resetSettings = {
   cycleConfig: {
     payrollStartDay: 1,
     payrollEndDay: 31,
-    paymentDate: 5
+    paymentDate: 5,
+    attendanceCutoffDay: 25,
   },
   workingDaysPerMonth: 26,
   weekendDays: ["Saturday", "Sunday"],
@@ -166,18 +167,34 @@ const PayrollSettings = () => {
           if (!settings.cycleConfig?.paymentDate || settings.cycleConfig?.paymentDate < 1 || settings.cycleConfig?.paymentDate > 31) {
             newErrors["cycleConfig.paymentDate"] = "Payment date must be between 1-31";
           }
-        } else if (settings.payrollCycle === "weekly" || settings.payrollCycle === "biweekly") {
+          if( !settings.cycleConfig?.attendanceCutoffDay || settings.cycleConfig?.attendanceCutoffDay < 1 || settings.cycleConfig?.attendanceCutoffDay > 31) {
+            newErrors["cycleConfig.attendanceCutoffDay"] = "Attendance cutoff day must be between 1-31";
+          }
+        } else if (settings.payrollCycle === "biweekly") {
           if (!settings.cycleConfig?.payrollStartDay) {
             newErrors["cycleConfig.payrollStartDay"] = "Start day is required";
           }
-          if(settings.cycleConfig?.payrollStartDay!==null && settings.cycleConfig?.payrollEndDay!==null && settings.cycleConfig?.payrollStartDay === settings.cycleConfig?.payrollEndDay) {
-            newErrors["cycleConfig.payrollEndDay"] = "Start day and end day cannot be the same";
+          if (!settings.cycleConfig?.paymentDate) {
+            newErrors["cycleConfig.paymentDate"] = "Payment day is required";
           }
-          if (settings.payrollCycle !== "biweekly" && !settings.cycleConfig?.payrollEndDay) {
+          if (!settings.cycleConfig?.attendanceCutoffOffset || settings.cycleConfig?.attendanceCutoffOffset < 1) {
+            newErrors["cycleConfig.attendanceCutoffOffset"] = "Attendance cutoff offset must be at least 1";
+          }
+        } else if (settings.payrollCycle === "weekly") {
+          if (!settings.cycleConfig?.payrollStartDay) {
+            newErrors["cycleConfig.payrollStartDay"] = "Start day is required";
+          }
+          if (!settings.cycleConfig?.payrollEndDay) {
             newErrors["cycleConfig.payrollEndDay"] = "End day is required";
           }
+          if (settings.cycleConfig?.payrollStartDay && settings.cycleConfig?.payrollEndDay && settings.cycleConfig?.payrollStartDay === settings.cycleConfig?.payrollEndDay) {
+            newErrors["cycleConfig.payrollEndDay"] = "Start day and end day cannot be the same";
+          }
           if (!settings.cycleConfig?.paymentDate) {
-            newErrors["cycleConfig.paymentDate"] = "Payment date is required";
+            newErrors["cycleConfig.paymentDate"] = "Payment day is required";
+          }
+          if (!settings.cycleConfig?.attendanceCutoffDay) {
+            newErrors["cycleConfig.attendanceCutoffDay"] = "Attendance cutoff day is required";
           }
         }
         if (!settings.workingDaysPerMonth || settings.workingDaysPerMonth < 20 || settings.workingDaysPerMonth > 31) {
@@ -311,7 +328,8 @@ const PayrollSettings = () => {
             ...prev,
             cycleConfig: {
               payrollStartDay: "Monday",
-              paymentDate: "Friday"
+              paymentDate: "Friday",
+              attendanceCutoffOffset: 2
             }
           }))
         } else if (value === "monthly") {
@@ -321,7 +339,8 @@ const PayrollSettings = () => {
               ...prev.cycleConfig,
               payrollStartDay: 1,
               payrollEndDay: 31,
-              paymentDate: 5
+              paymentDate: 5,
+              attendanceCutoffDay: 25
             }
           }))
         } else if (value === "weekly") {
@@ -331,7 +350,8 @@ const PayrollSettings = () => {
               ...prev.cycleConfig,
               payrollStartDay: "Monday",
               payrollEndDay: "Sunday",
-              paymentDate: "Friday"
+              paymentDate: "Friday",
+              attendanceCutoffDay: "Friday"
             }
           }))
         }
@@ -411,6 +431,7 @@ const PayrollSettings = () => {
     setShowPayrollModal(false);
     setSettings(resetSettings);
     setActiveStep(0);
+    setIsEditMode(false);
   }
 
   const handleEdit = (config, type) => {

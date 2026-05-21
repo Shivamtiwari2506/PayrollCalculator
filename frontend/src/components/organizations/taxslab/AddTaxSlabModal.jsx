@@ -50,6 +50,18 @@ const AddTaxSlabModal = ({ openModal, handleCloseModal, selectedFY, selectedRegi
                 }}
               />
             </Grid>
+            <Grid item xs={6}>
+              <CurrencyInput
+                label="Rebate Limit"
+                value={regimeData.rebateLimit}
+                helperText="minimum Taxable Income for rebate"
+                onChange={(val) =>
+                  handleRegimeDataChange("rebateLimit", val)
+                }
+                required={true}
+                disabled={loading}
+              />
+            </Grid>
           </Grid>
 
           <Divider sx={{ my: 3 }} />

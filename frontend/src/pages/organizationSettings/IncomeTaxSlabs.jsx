@@ -45,6 +45,7 @@ const IncomeTaxSlabs = () => {
   const [regimeData, setRegimeData] = useState({
     standardDeduction: "",
     cessPercentage: "",
+    rebateLimit: "",
     slabs: []
   });
 
@@ -68,6 +69,7 @@ const IncomeTaxSlabs = () => {
       setRegimeData({
         standardDeduction: "",
         cessPercentage: "",
+        rebateLimit: "",
         slabs: []
       });
       setNewSlab({ minIncome: "", maxIncome: "", rate: "" });
@@ -81,6 +83,7 @@ const IncomeTaxSlabs = () => {
     setRegimeData({
       standardDeduction: "",
       cessPercentage: "",
+      rebateLimit: "",
       slabs: []
     });
     setNewSlab({ minIncome: "", maxIncome: "", rate: "" });
@@ -146,6 +149,7 @@ const IncomeTaxSlabs = () => {
     setRegimeData({
         standardDeduction: "",
         cessPercentage: "",
+        rebateLimit: "",
         slabs: []
       });
       setNewSlab({ minIncome: "", maxIncome: "", rate: "" });
@@ -322,6 +326,10 @@ const IncomeTaxSlabs = () => {
                   <Grid item xs={6}>
                     <Typography variant="body2" color="text.secondary">Cess</Typography>
                     <Typography variant="h6">{taxRegimes?.cessPercentage}%</Typography>
+                  </Grid>
+                  <Grid item xs={6}>
+                    <Typography variant="body2" color="text.secondary">Rebate Limit</Typography>
+                    <Typography variant="h6">{formatIndianRuppee(taxRegimes?.rebateLimit)}</Typography>
                   </Grid>
                 </Grid>
 
