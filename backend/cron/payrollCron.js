@@ -27,6 +27,7 @@ cron.schedule("*/10 * * * *", async () => {
 
       // Run only between 00:00 and 00:10
       if (now.hour() !== 0 || now.minute() > 10) {
+        console.log(`Skipping payroll for org ${org.id} (${org.timezone}) - Not midnight`);
         continue;
       }
 
