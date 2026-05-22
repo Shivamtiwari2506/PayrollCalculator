@@ -4,10 +4,17 @@ import {
   Box, Typography, Chip, Table, TableBody, TableCell,
   TableContainer, TableHead, TableRow, IconButton,
   Tooltip, CircularProgress, Alert, Divider,
+  Grid,
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ReceiptLongIcon from "@mui/icons-material/ReceiptLong";
 import api from "../../services/api";
+import Loader from "../../utils/Loader";
+import StatCard from "../../components/StatCard";
+import PeopleIcon from '@mui/icons-material/People';
+import ReceiptIcon from '@mui/icons-material/Receipt';
+import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
+import AddCircleIcon from '@mui/icons-material/AddCircle';
 
 const statusColor = { COMPLETED: "success", PROCESSING: "warning", FAILED: "error", DRAFT: "default" };
 
@@ -44,9 +51,7 @@ const PayrollRunDetail = () => {
 
   if (loading) {
     return (
-      <Box sx={{ display: "flex", justifyContent: "center", mt: 8 }}>
-        <CircularProgress />
-      </Box>
+      <Loader message="Loading payroll run details..." />
     );
   }
 
@@ -83,12 +88,45 @@ const PayrollRunDetail = () => {
       </Box>
 
       {/* Summary stats */}
-      <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap", mb: 3 }}>
-        <StatBox label="Employees" value={run.totalEmployees} />
-        <StatBox label="Total Gross" value={fmt(run.totalGross)} />
-        <StatBox label="Total Deductions" value={fmt(run.totalDeductions)} color="error.main" />
-        <StatBox label="Net Payout" value={fmt(run.totalNet)} color="success.main" />
-      </Box>
+      <Grid container spacing={2} alignItems="center" sx={{ mb: 3 }}>
+
+        <Grid item xs={12} sm={6} md={3}>
+          <StatCard
+            title="Total Employees"
+            value={run.totalEmployees}
+            icon={<PeopleIcon />}
+            color="primary.main"
+          />
+        </Grid>
+
+        <Grid item xs={12} sm={6} md={3}>
+          <StatCard
+            title="Total Gross"
+            value={fmt(run.totalGross)}
+            icon={<ReceiptIcon />}
+            color="secondary.main"
+          />
+        </Grid>
+
+        <Grid item xs={12} sm={6} md={3}>
+          <StatCard
+            title="Total Deductions"
+            value={fmt(run.totalDeductions)}
+            icon={<RemoveCircleIcon />}
+            color="error.main"
+          />
+        </Grid>
+
+        <Grid item xs={12} sm={6} md={3}>
+          <StatCard
+            title="Net Payout"
+            value={fmt(run.totalNet)}
+            icon={<AddCircleIcon />}
+            color="success.main"
+          />
+        </Grid>
+
+      </Grid>
 
       <Divider sx={{ mb: 3 }} />
 

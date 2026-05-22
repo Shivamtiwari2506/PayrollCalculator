@@ -1,10 +1,11 @@
-import { Grid, Card, Box, Typography, Avatar } from "@mui/material";
+import { Grid, Card, Box, Typography, Avatar, Tooltip } from "@mui/material";
 import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
 import PaymentsIcon from "@mui/icons-material/Payments";
 import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
 import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
+import { formatIndianRuppee } from "../../utils/commonFunctions/helpers";
 
 const stats = [
   {
@@ -20,7 +21,7 @@ const stats = [
   },
   {
     title: "Total Payroll",
-    value: "₹18.4L",
+    value: 1840000,
     change: "+5.2%",
     changeLabel: "vs last month",
     up: true,
@@ -42,7 +43,7 @@ const stats = [
   },
   {
     title: "Avg. Salary",
-    value: "₹74,200",
+    value: 742000,
     change: "+2.1%",
     changeLabel: "vs last month",
     up: true,
@@ -72,16 +73,35 @@ export default function DashboardStatCards() {
                 transform: "translateY(-4px)",
                 boxShadow: "0 12px 32px rgba(0,0,0,0.1)",
               },
+              "&::before": {
+                content: '""',
+                position: "absolute",
+                left: 0,
+                top: 0,
+                bottom: 0,
+                width: 6,
+                backgroundColor: stat.iconColor,
+              },
             }}
           >
 
-            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-              <Box>
-                <Typography variant="body2" color="text.secondary" sx={{ mb: 1, fontWeight: 500 }}>
+            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 2 }}>
+              <Box sx={{ minWidth: 0, flex: 1 }}>
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 1, fontWeight: 500, textWrap: "wrap" }}>
                   {stat.title}
                 </Typography>
-                <Typography variant="h4" sx={{ fontWeight: 700, color: "text.primary", mb: 1.5 }}>
-                  {stat.value}
+                <Typography variant="h4" sx={{
+                  fontWeight: 700, color: "text.primary", mb: 1.5, textOverflow: "ellipsis", whiteSpace: "nowrap", overflow: "hidden",
+                }}>
+                  {
+                    typeof stat.value === "number" ?
+                      <Tooltip title={formatIndianRuppee(stat.value)} placement="top">
+                        {formatIndianRuppee(stat.value)}
+                      </Tooltip> :
+                      <Tooltip title={stat.value} placement="top">
+                        {stat.value}
+                      </Tooltip>
+                  }
                 </Typography>
                 <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
                   {stat.up ? (

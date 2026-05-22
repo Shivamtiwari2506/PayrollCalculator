@@ -6,6 +6,7 @@ import {
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 import ReceiptIcon from "@mui/icons-material/Receipt";
 import { useNavigate } from "react-router-dom";
+import Loader from "../../../utils/Loader";
 
 const statusColor = {
   COMPLETED: "success",
@@ -35,9 +36,7 @@ const PayrollRunsTable = ({ runs, loading, error }) => {
       </Box>
 
       {loading && (
-        <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}>
-          <CircularProgress size={28} />
-        </Box>
+        <Loader message="Loading payroll runs..." />
       )}
 
       {!loading && error && (
