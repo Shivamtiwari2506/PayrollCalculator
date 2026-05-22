@@ -13,7 +13,6 @@ cron.schedule("*/10 * * * *", async () => {
   console.log("Running Payroll Cron Job...");
 
   try {
-    //  Get all org profiles with timezone
     const orgProfiles = await prisma.orgProfile.findMany({
       select: {
         id: true,
@@ -23,36 +22,33 @@ cron.schedule("*/10 * * * *", async () => {
 
     for (const org of orgProfiles) {
 
-      const now = dayjs().tz(org.timezone);
+      const timezone = org.timezone || "UTC";
+      const now = dayjs().tz(timezone);
 
-      //  Run only at midnight (0:00 - 0:10 window)
+      // Run only between 00:00 and 00:10
       if (now.hour() !== 0 || now.minute() > 10) {
-        console.log(`Skipping payroll for org ${org.id} (${org.timezone}) - Not midnight`);
         continue;
       }
 
       const today = now.startOf("day").toDate();
 
-      //  Get scheduled payrolls for this org
       const payrolls = await prisma.payrollSettings.findMany({
         where: {
           orgProfileId: org.id,
           status: "SCHEDULED",
           effectiveFrom: { lte: today }
         },
-        orderBy: { effectiveFrom: "asc" }
+        orderBy: {
+          effectiveFrom: "asc"
+        }
       });
 
-      if (!payrolls.length) { 
-        console.log(`Skipping payroll for org ${org.id} (${org.timezone}) - No scheduled payrolls`); 
-        continue;
-      } 
+      if (!payrolls.length) continue;
+
+      const payrollToActivate = payrolls[0];
 
       await prisma.$transaction(async (tx) => {
 
-        const latestPayroll = payrolls[payrolls.length - 1];
-
-        // Expire current active
         await tx.payrollSettings.updateMany({
           where: {
             orgProfileId: org.id,
@@ -61,13 +57,16 @@ cron.schedule("*/10 * * * *", async () => {
           data: {
             status: "EXPIRED",
             isLocked: true,
-            effectiveTo: latestPayroll.effectiveFrom
+            effectiveTo: dayjs(payrollToActivate.effectiveFrom)
+              .subtract(1, "day")
+              .toDate()
           }
         });
 
-        // Activate latest
         await tx.payrollSettings.update({
-          where: { id: latestPayroll.id },
+          where: {
+            id: payrollToActivate.id
+          },
           data: {
             status: "ACTIVE",
             isLocked: true
@@ -76,12 +75,10 @@ cron.schedule("*/10 * * * *", async () => {
 
       });
 
-      console.log(`Activated payroll for org ${org.id} (${org.timezone})`);
+      console.log(`Activated payroll for org ${org.id}`);
     }
 
-    console.log("Payroll Cron Completed ");
-
   } catch (error) {
-    console.log("Cron Error ❌", error);
+    console.error("Cron Error ❌", error);
   }
 });
