@@ -38,7 +38,6 @@ export const getPayroll = async (req, res) => {
 export const createPayroll = async (req, res) => {
     try {
         const { orgId, userId } = req;
-        console.log("orgId, userId", orgId, userId);
         const settings = req.body;
 
         if (!orgId || !userId) {
@@ -181,20 +180,26 @@ export const deletePayroll = async (req, res) => {
 };
 
 // ─── Payroll Run ────────────────────────────────────────────────────────────
-
-/**
- * POST /api/payroll/run
- * Trigger a payroll run for a given month (e.g. "2026-04").
- * Only one run allowed per org per month.
- */
+ 
+//  Trigger a payroll run for a given month (e.g. "2026-04").
+//  Only one run allowed per org per month.
 export const runPayroll = async (req, res) => {
+    const today = new Date();
+
+    const daysMap = {
+        sunday: 0,
+        monday: 1,
+        tuesday: 2,
+        wednesday: 3,
+        thursday: 4,
+        friday: 5,
+        saturday: 6
+    };
+
+    const todayDay = today.getDay();
     try {
         const { orgId, userId } = req;
-        const { month } = req.body; // expected format: "YYYY-MM"
-
-        if (!month || !/^\d{4}-\d{2}$/.test(month)) {
-            return res.status(400).json({ success: false, msg: "month is required in YYYY-MM format" });
-        }
+        const { month, startDate, endDate} = req.body;
 
         // Get org profile to find active payroll settings
         const orgProfile = await prisma.orgProfile.findUnique({ where: { orgId } });
@@ -210,17 +215,156 @@ export const runPayroll = async (req, res) => {
             return res.status(400).json({ success: false, msg: "No active payroll settings found. Please activate a payroll configuration first." });
         }
 
+        const payrollCycleType = activeSettings?.payrollCycle;
+
+        if (payrollCycleType === "monthly") {
+            if (!month || !/^\d{4}-\d{2}$/.test(month)) {
+                return res.status(400).json({
+                    success: false,
+                    msg: "month is required in YYYY-MM format"
+                });
+            }
+        } else {
+            if (!startDate || !endDate) {
+                return res.status(400).json({
+                    success: false,
+                    msg: "startDate and endDate are required"
+                });
+            }
+            if (new Date(startDate) > new Date(endDate)) {
+                return res.status(400).json({
+                    success: false,
+                    msg: "startDate cannot be after endDate"
+                });
+            }
+        }
+
         // Prevent duplicate runs for the same month
-        const existing = await prisma.payrollRun.findFirst({
-            where: { orgId, month }
-        });
+        let existing;
+
+        if (payrollCycleType === "monthly") {
+
+            existing = await prisma.payrollRun.findFirst({
+                where: {
+                    orgId,
+                    month
+                }
+            });
+
+        } else {
+
+            existing = await prisma.payrollRun.findFirst({
+                where: {
+                    orgId,
+                    startDate: new Date(startDate),
+                    endDate: new Date(endDate)
+                }
+            });
+        }
         if (existing) {
-            return res.status(400).json({ success: false, msg: `Payroll for ${month} has already been run (status: ${existing.status})` });
+            return res.status(400).json({
+                success: false, msg: payrollCycleType === "monthly"
+                    ? `Payroll for ${month} has already been run`
+                    : `Payroll for selected payroll period has already been run`
+            });
         }
-        const isPayrollRunDate = activeSettings?.cycleConfig?.payrollEndDay === new Date().getDate();
-        if (!isPayrollRunDate) {
-            return res.status(400).json({ success: false, msg: `Payroll can only be run on ${activeSettings?.cycleConfig?.payrollEndDay} of the month` });
+        const payrollEndDay = activeSettings.cycleConfig?.payrollEndDay;
+        switch (payrollCycleType?.toLowerCase()) {
+
+            case "monthly": {
+
+                const payrollEndDay =
+                    Number(activeSettings?.cycleConfig?.payrollEndDay);
+
+                if (payrollEndDay === 31) {
+
+                    const lastDayOfMonth = new Date(
+                        today.getFullYear(),
+                        today.getMonth() + 1,
+                        0
+                    ).getDate();
+
+                    if (today.getDate() !== lastDayOfMonth) {
+                        return res.status(400).json({
+                            success: false,
+                            msg: "Payroll can only be run on the payroll end day of the month as per the configuration"
+                        });
+                    }
+
+                } else {
+                    if (today.getDate() !== payrollEndDay) {
+                        return res.status(400).json({
+                            success: false,
+                            msg: `Payroll can only be run on ${payrollEndDay} of the month`
+                        });
+                    }
+                }
+
+                break;
+            }
+
+            case "weekly": {
+
+                const payrollRunDay =
+                    daysMap[
+                    activeSettings?.cycleConfig?.paymentDate?.toLowerCase()
+                    ];
+
+                if (todayDay !== payrollRunDay) {
+                    return res.status(400).json({
+                        success: false,
+                        msg: `Weekly payroll can only be run on ${activeSettings?.cycleConfig?.paymentDate}`
+                    });
+                }
+
+                break;
+            }
+
+            case "biweekly": {
+
+                const payrollRunDay =
+                    daysMap[
+                    activeSettings?.cycleConfig?.paymentDate?.toLowerCase()
+                    ];
+
+                if (todayDay !== payrollRunDay) {
+                    return res.status(400).json({
+                        success: false,
+                        msg: `Biweekly payroll can only be run on ${activeSettings?.cycleConfig?.paymentDate}`
+                    });
+                }
+
+                // Validate 14-day interval
+                const lastPayrollRun =
+                    activeSettings?.lastPayrollRunDate;
+
+                if (lastPayrollRun) {
+
+                    const diffInDays = Math.floor(
+                        (today - new Date(lastPayrollRun)) /
+                        (1000 * 60 * 60 * 24)
+                    );
+
+                    if (diffInDays < 14) {
+                        return res.status(400).json({
+                            success: false,
+                            msg: `Biweekly payroll can only run after 14 days. ${14 - diffInDays} day(s) remaining`
+                        });
+                    }
+                }
+
+                break;
+            }
+
+            // ================= DEFAULT =================
+            default: {
+                return res.status(400).json({
+                    success: false,
+                    msg: "Invalid payroll cycle type"
+                });
+            }
         }
+        
 
         // Fetch all active employees for this org
         const employees = await prisma.user.findMany({
@@ -233,8 +377,13 @@ export const runPayroll = async (req, res) => {
         // Fetch tax config if TDS is enabled (use current financial year)
         let taxConfig = null;
         if (activeSettings.tdsEnabled) {
-            const year = parseInt(month.split("-")[0]);
-            const monthNum = parseInt(month.split("-")[1]);
+            const referenceDate =
+                payrollCycleType === "monthly"
+                    ? new Date(`${month}-01`)
+                    : new Date(startDate);
+
+            const year = referenceDate.getFullYear();
+            const monthNum = referenceDate.getMonth() + 1;
             // Indian FY: April (4) to March (3)
             const fyStart = monthNum >= 4 ? year : year - 1;
             const financialYear = `${fyStart}-${String(fyStart + 1).slice(-4)}`;
@@ -259,7 +408,17 @@ export const runPayroll = async (req, res) => {
                 data: {
                     orgId,
                     payrollSettingsId: activeSettings.id,
-                    month,
+                    month: payrollCycleType === "monthly" ? month : null,
+
+startDate:
+  payrollCycleType !== "monthly"
+    ? new Date(startDate)
+    : null,
+
+endDate:
+  payrollCycleType !== "monthly"
+    ? new Date(endDate)
+    : null,
                     status: "PROCESSING",
                     runBy: userId,
                 }
@@ -304,10 +463,8 @@ export const runPayroll = async (req, res) => {
     }
 };
 
-/**
- * GET /api/payroll/run
- * List all payroll runs for the org (most recent first).
- */
+// List all payroll runs for the org (most recent first).
+
 export const getPayrollRuns = async (req, res) => {
     try {
         const { orgId } = req;
@@ -318,6 +475,8 @@ export const getPayrollRuns = async (req, res) => {
             select: {
                 id: true,
                 month: true,
+                startDate: true,
+                endDate: true,
                 status: true,
                 totalEmployees: true,
                 totalGross: true,
@@ -336,13 +495,15 @@ export const getPayrollRuns = async (req, res) => {
     }
 };
 
-/**
- * GET /api/payroll/payslip/months
- * Returns list of months for which the logged-in user has a payslip.
- */
+// Returns list of months for which the logged-in user has a payslip.
+
 export const getPayslipMonths = async (req, res) => {
     try {
         const { userId } = req;
+        // const orgProfile = await prisma.orgProfile.findUnique({ where: { orgId } });
+        // const activeSettings = await prisma.payrollSettings.findFirst({
+        //     where: { orgProfileId: orgProfile.id, status: "ACTIVE" }
+        // });
 
         const entries = await prisma.payrollRunEntry.findMany({
             where: {
@@ -350,17 +511,33 @@ export const getPayslipMonths = async (req, res) => {
                 payrollRun: { status: "COMPLETED" }
             },
             select: {
-                payrollRun: { select: { month: true, createdAt: true } }
+                payrollRun: { 
+                    select: { 
+                        month: true, 
+                        startDate: true,
+                        endDate: true, 
+                        createdAt: true 
+                    } }
             },
             orderBy: { createdAt: "desc" }
         });
 
-        const months = entries.map(e => ({
-            month: e.payrollRun.month,
+        const payrollPeriods = entries.map((e) => ({
+            id: e.payrollRun.id,
+            type: e.payrollRun.month
+                ? "monthly"
+                : "date-range",
+
+            month: e.payrollRun.month || null,
+
+            startDate: e.payrollRun.startDate || null,
+
+            endDate: e.payrollRun.endDate || null,
+
             processedOn: e.payrollRun.createdAt,
         }));
 
-        return res.status(200).json({ success: true, data: months });
+        return res.status(200).json({ success: true, data: payrollPeriods });
 
     } catch (error) {
         console.log("getPayslipMonths Error:", error);
@@ -368,43 +545,103 @@ export const getPayslipMonths = async (req, res) => {
     }
 };
 
-/**
- * GET /api/payroll/payslip/:month
- * Returns the logged-in user's payslip entry for the given month (YYYY-MM).
- */
+// Returns the logged-in user's payslip entry for the given month (YYYY-MM).
 export const getPayslipByMonth = async (req, res) => {
+
     try {
+
         const { userId, orgId } = req;
-        const { month } = req.params;
+
+        const {
+            month,
+            startDate,
+            endDate
+        } = req.query;
+
+        let whereClause = {
+            orgId,
+            status: "COMPLETED"
+        };
+
+        // Monthly
+        if (month) {
+
+            whereClause.month = month;
+
+        }
+
+        // Weekly/Biweekly
+        else if (startDate && endDate) {
+
+            whereClause.startDate = new Date(startDate);
+
+            whereClause.endDate = new Date(endDate);
+
+        }
+
+        else {
+
+            return res.status(400).json({
+                success: false,
+                msg: "Provide either month OR startDate and endDate"
+            });
+        }
 
         const run = await prisma.payrollRun.findFirst({
-            where: { orgId, month, status: "COMPLETED" }
+            where: whereClause
         });
 
         if (!run) {
-            return res.status(404).json({ success: false, msg: `No completed payroll found for ${month}` });
+
+            return res.status(404).json({
+                success: false,
+                msg: "No completed payroll found"
+            });
         }
 
         const entry = await prisma.payrollRunEntry.findFirst({
-            where: { payrollRunId: run.id, userId }
+            where: {
+                payrollRunId: run.id,
+                userId
+            }
         });
 
         if (!entry) {
-            return res.status(404).json({ success: false, msg: "Payslip not found for this month" });
+
+            return res.status(404).json({
+                success: false,
+                msg: "Payslip not found"
+            });
         }
 
         return res.status(200).json({
             success: true,
             data: {
+
+                type: run.month
+                    ? "monthly"
+                    : "date-range",
+
                 month: run.month,
+
+                startDate: run.startDate,
+
+                endDate: run.endDate,
+
                 processedOn: run.createdAt,
-                ...entry,
+
+                ...entry
             }
         });
 
     } catch (error) {
+
         console.log("getPayslipByMonth Error:", error);
-        return res.status(500).json({ success: false, msg: error.message });
+
+        return res.status(500).json({
+            success: false,
+            msg: error.message
+        });
     }
 };
 export const getPayrollRunById = async (req, res) => {

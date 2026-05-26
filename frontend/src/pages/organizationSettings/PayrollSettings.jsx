@@ -22,6 +22,7 @@ import { handleApiError } from "../../utils/commonFunctions/errorHandler";
 import { useEffect } from "react";
 import PayrollModal from "../../components/organizations/payrollSettings/PayrollModal";
 import Loader from "../../utils/Loader";
+import NoDataFound from "../../components/ui/NoDataFound";
 
 const steps = [
   "Version & Cycle",
@@ -101,6 +102,8 @@ const PayrollSettings = () => {
   const [showRunModal, setShowRunModal] = useState(false);
   const [activeStep, setActiveStep] = useState(0);
   const [savedConfigs, setSavedConfigs] = useState([]);
+  const [activeConfig, setActiveConfig] = useState(null);
+  console.log('activeConfig: ', activeConfig);
   const [configsLoading, setConfigsLoading] = useState(false);
   const [configsError, setConfigsError] = useState(null);
   const [isEditMode, setIsEditMode] = useState(false);
@@ -117,7 +120,10 @@ const PayrollSettings = () => {
     try {
       const response = await api.get('/payroll/settings');
       if (response?.data && response?.data?.success === true) {
-        setSavedConfigs(response.data.data ?? []);
+        let allConfigs = response.data.data;
+
+        setSavedConfigs(allConfigs ?? []);
+        setActiveConfig(allConfigs?.find((config) => config.status === "ACTIVE") ?? null);
       }
     } catch (error) {
       setConfigsError("Failed to load saved configurations.");
@@ -349,7 +355,6 @@ const PayrollSettings = () => {
             cycleConfig: {
               ...prev.cycleConfig,
               payrollStartDay: "Monday",
-              payrollEndDay: "Sunday",
               paymentDate: "Friday",
               attendanceCutoffDay: "Friday"
             }
@@ -505,11 +510,12 @@ const PayrollSettings = () => {
       </Box>
 
       {/* RUN PAYROLL MODAL */}
-      <RunPayrollModal
+      {showRunModal && <RunPayrollModal
         open={showRunModal}
         onClose={() => setShowRunModal(false)}
         onSuccess={fetchPayrollRuns}
-      />
+        cycleType={activeConfig?.payrollCycle}
+      />}
 
       {/* MODAL */}
       <PayrollModal

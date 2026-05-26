@@ -1,6 +1,7 @@
 import { Box, Typography, CircularProgress, Alert, Button } from "@mui/material";
 import HistoryIcon from "@mui/icons-material/History";
 import PayrollSettingCard from "./PayrollSettingCard";
+import NoDataFound from "../../ui/NoDataFound";
 
 const SavedPayrollSettings = ({ configs,setShowPayrollModal, handleEdit, handleDelete }) => {
   return (
@@ -32,7 +33,7 @@ const SavedPayrollSettings = ({ configs,setShowPayrollModal, handleEdit, handleD
           + Create Payroll
         </Button>
       </Box>
-        <Box
+        {configs?.length > 0 ? <Box
           sx={{
             display: "flex",
             gap: 2,
@@ -52,7 +53,9 @@ const SavedPayrollSettings = ({ configs,setShowPayrollModal, handleEdit, handleD
              handleDelete={handleDelete}
             />
           ))}
-        </Box>
+        </Box>: (
+          <NoDataFound message="No saved configurations found." className="h-20" />
+        )}
     </Box>
   );
 };

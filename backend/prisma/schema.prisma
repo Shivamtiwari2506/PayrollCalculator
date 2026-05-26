@@ -252,7 +252,9 @@ model PayrollRun {
   payrollSettings   PayrollSettings  @relation(fields: [payrollSettingsId], references: [id])
 
   // Which month this run covers e.g. "2026-04"
-  month             String
+  month             String?
+  startDate         DateTime?
+  endDate           DateTime?
 
   status            PayrollRunStatus @default(DRAFT)
 
@@ -274,6 +276,8 @@ model PayrollRun {
   updatedAt         DateTime         @updatedAt
 
   @@unique([orgId, month])
+  // Weekly/Biweekly uniqueness
+  @@unique([orgId, startDate, endDate])
   @@index([orgId])
   @@index([status])
 }

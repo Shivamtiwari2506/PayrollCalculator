@@ -199,7 +199,7 @@ const PayrollCycleConfig = ({ settings, handleChange, errors, viewSavedConfig })
                 </TextField>
               </Grid>
 
-              <Grid item xs={12} md={3}>
+              {/* <Grid item xs={12} md={3}>
                 <TextField
                   select fullWidth required
                   disabled={viewSavedConfig}
@@ -211,7 +211,7 @@ const PayrollCycleConfig = ({ settings, handleChange, errors, viewSavedConfig })
                 >
                   {weekDays.map((day) => <MenuItem key={day} value={day}>{day}</MenuItem>)}
                 </TextField>
-              </Grid>
+              </Grid> */}
 
               <Grid item xs={12} md={3}>
                 <TextField

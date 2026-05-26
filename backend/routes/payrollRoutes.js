@@ -20,6 +20,6 @@ router.get('/run/:id', getPayrollRunById);
 
 // Payslip routes (for logged-in employee)
 router.get('/payslip/months', getPayslipMonths);
-router.get('/payslip/:month', getPayslipByMonth);
+router.get('/payslip', getPayslipByMonth);
 
 export default router;

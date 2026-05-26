@@ -7,6 +7,7 @@ import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 import ReceiptIcon from "@mui/icons-material/Receipt";
 import { useNavigate } from "react-router-dom";
 import Loader from "../../../utils/Loader";
+import NoDataFound from "../../ui/NoDataFound";
 
 const statusColor = {
   COMPLETED: "success",
@@ -45,7 +46,7 @@ const PayrollRunsTable = ({ runs, loading, error }) => {
 
       {!loading && !error && runs.length === 0 && (
         <Box sx={{ textAlign: "center", py: 4, color: "text.secondary" }}>
-          <Typography variant="body2">No payroll runs yet. Click "Run Payroll" to process your first payroll.</Typography>
+          <NoDataFound message="No payroll runs yet" description="Click Run Payroll to process your first payroll." className="h-20" />
         </Box>
       )}
 

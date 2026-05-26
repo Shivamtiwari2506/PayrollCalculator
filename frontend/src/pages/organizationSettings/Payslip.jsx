@@ -14,15 +14,25 @@ import api from "../../services/api";
 import { formatIndianRuppee } from "../../utils/commonFunctions/helpers";
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import PayslipPDF from "../../components/organizations/payrollSettings/PayslipPDF";
+import Loader from "../../utils/Loader";
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 
 const fmt = formatIndianRuppee;
 
 const displayMonth = (m) => {
+
   if (!m) return "";
+
   const [year, month] = m.split("-");
-  return new Date(year, month - 1).toLocaleString("en-IN", { month: "long", year: "numeric" });
+
+  return new Date(
+    Number(year),
+    Number(month) - 1
+  ).toLocaleString("en-IN", {
+    month: "long",
+    year: "numeric"
+  });
 };
 
 // ─── Month Picker ────────────────────────────────────────────────────────────
@@ -37,10 +47,10 @@ const MonthPicker = ({ months, selected, onSelect, loading, error }) => (
     <ReceiptLongIcon sx={{ fontSize: 56, color: "warning.main", opacity: 0.8 }} />
     <Typography variant="h5" fontWeight={700}>Select Payslip Month</Typography>
     <Typography variant="body2" color="text.secondary">
-      Choose the month for which you want to view your payslip
+      Choose the date for which you want to view your payslip
     </Typography>
 
-    {loading && <CircularProgress size={28} />}
+    {loading && <Loader fullScreen={false} height={"30vh"}/>}
     {!loading && error && <Alert severity="error" sx={{ borderRadius: 2 }}>{error}</Alert>}
 
     {!loading && !error && months.length === 0 && (
@@ -53,13 +63,29 @@ const MonthPicker = ({ months, selected, onSelect, loading, error }) => (
       <FormControl sx={{ minWidth: 260 }}>
         <InputLabel>Month</InputLabel>
         <Select
-          value={selected}
+          value={selected?.id || ""}
           label="Month"
-          onChange={(e) => onSelect(e.target.value)}
+          onChange={(e) => {
+
+            const selectedItem = months.find(
+              (m) => m.id === e.target.value
+            );
+
+            onSelect(selectedItem);
+          }}
         >
-          {months.map((m) => (
-            <MenuItem key={m.month} value={m.month}>
-              {displayMonth(m.month)}
+          {months.map((m, index) => (
+
+            <MenuItem
+              key={m.id || index}
+              value={m.id}
+            >
+
+              {m.type === "monthly"
+                ? displayMonth(m.month)
+                : `${new Date(m.startDate).toLocaleDateString("en-IN")} - ${new Date(m.endDate).toLocaleDateString("en-IN")}`
+              }
+
             </MenuItem>
           ))}
         </Select>
@@ -234,7 +260,7 @@ const Payslip = () => {
   const [monthsLoading, setMonthsLoading] = useState(true);
   const [monthsError, setMonthsError] = useState("");
 
-  const [selectedMonth, setSelectedMonth] = useState("");
+  const [selectedPayroll, setSelectedPayroll] = useState(null);
   const [payslip, setPayslip] = useState(null);
   const [payslipLoading, setPayslipLoading] = useState(false);
   const [payslipError, setPayslipError] = useState("");
@@ -260,22 +286,57 @@ const Payslip = () => {
 
   // Fetch payslip when a month is selected
   useEffect(() => {
-    if (!selectedMonth) return;
+
+    if (!selectedPayroll) return;
+
     const load = async () => {
+
       setPayslipLoading(true);
       setPayslipError("");
       setPayslip(null);
+
       try {
-        const res = await api.get(`/payroll/payslip/${selectedMonth}`);
-        if (res?.data?.success) setPayslip(res.data.data);
+
+        let url = "/payroll/payslip?";
+
+        // Monthly
+        if (selectedPayroll.type === "monthly") {
+
+          url += `month=${selectedPayroll.month}`;
+
+        }
+
+        // Weekly/Biweekly
+        else {
+
+          url +=
+            `startDate=${selectedPayroll.startDate}` +
+            `&endDate=${selectedPayroll.endDate}`;
+        }
+
+        const res = await api.get(url);
+
+        if (res?.data?.success) {
+
+          setPayslip(res.data.data);
+        }
+
       } catch (err) {
-        setPayslipError(err?.response?.data?.msg || "Failed to load payslip.");
+
+        setPayslipError(
+          err?.response?.data?.msg ||
+          "Failed to load payslip."
+        );
+
       } finally {
+
         setPayslipLoading(false);
       }
     };
+
     load();
-  }, [selectedMonth]);
+
+  }, [selectedPayroll]);
 
   return (
     <Box>
@@ -286,46 +347,50 @@ const Payslip = () => {
           <Typography variant="h4" fontWeight={700}>Payslip</Typography>
         </Box>
         <Typography variant="body2" color="text.secondary">
-          View and download your monthly payslip
+          View and download your monthly, weekly, or biweekly payslips
         </Typography>
       </Box>
 
       <Box sx={{ p: 3, borderRadius: 1, bgcolor: "white", boxShadow: "0 4px 12px rgba(0,0,0,0.05)" }}>
 
         {/* No month selected yet — show picker */}
-        {!selectedMonth && (
+        {!selectedPayroll && (
           <MonthPicker
             months={months}
-            selected={selectedMonth}
-            onSelect={setSelectedMonth}
+            selected={selectedPayroll}
+            onSelect={setSelectedPayroll}
             loading={monthsLoading}
             error={monthsError}
           />
         )}
 
         {/* Month selected — loading payslip */}
-        {selectedMonth && payslipLoading && (
+        {selectedPayroll && payslipLoading && (
           <Box sx={{ display: "flex", justifyContent: "center", py: 6 }}>
-            <CircularProgress />
+            <Loader  />
           </Box>
         )}
 
         {/* Month selected — error */}
-        {selectedMonth && !payslipLoading && payslipError && (
+        {selectedPayroll && !payslipLoading && payslipError && (
           <Box sx={{ py: 4 }}>
             <Alert severity="error" sx={{ borderRadius: 2, mb: 2 }}>{payslipError}</Alert>
-            <Button variant="text" onClick={() => { setSelectedMonth(""); setPayslipError(""); }}>
+            <Button variant="text" onClick={() => { setSelectedPayroll(null); setPayslipError(""); }}>
               ← Back to month selection
             </Button>
           </Box>
         )}
 
         {/* Payslip loaded */}
-        {selectedMonth && !payslipLoading && payslip && (
+        {selectedPayroll && !payslipLoading && payslip && (
           <PayslipView
             data={payslip}
-            month={selectedMonth}
-            onChangeMonth={() => { setSelectedMonth(""); setPayslip(null); }}
+            month={
+              selectedPayroll?.type === "monthly"
+                ? selectedPayroll.month
+                : `${new Date(selectedPayroll.startDate).toLocaleDateString("en-IN")} - ${new Date(selectedPayroll.endDate).toLocaleDateString("en-IN")}`
+            }
+            onChangeMonth={() => { setSelectedPayroll(null); setPayslip(null); }}
             org={org}
             printRef={printRef}
           />
