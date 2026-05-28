@@ -15,6 +15,7 @@ import { formatIndianRuppee } from "../../utils/commonFunctions/helpers";
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import PayslipPDF from "../../components/organizations/payrollSettings/PayslipPDF";
 import Loader from "../../utils/Loader";
+import NoDataFound from "../../components/ui/NoDataFound";
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 
@@ -54,9 +55,8 @@ const MonthPicker = ({ months, selected, onSelect, loading, error }) => (
     {!loading && error && <Alert severity="error" sx={{ borderRadius: 2 }}>{error}</Alert>}
 
     {!loading && !error && months.length === 0 && (
-      <Alert severity="info" sx={{ borderRadius: 2 }}>
-        No payslips available yet. Your payslip will appear here once payroll is processed.
-      </Alert>
+      <NoDataFound className="h-60" message="No payslips available yet"
+        description="Your payslip will appear here once payroll is processed."/>
     )}
 
     {!loading && !error && months.length > 0 && (
