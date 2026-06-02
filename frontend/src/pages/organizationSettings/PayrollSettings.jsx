@@ -155,7 +155,7 @@ const PayrollSettings = () => {
 
   const validateStep = (step) => {
     let newErrors = {};
-
+    if(viewSavedConfig) return newErrors;
     switch (step) {
 
       // STEP 0: Payroll Cycle
