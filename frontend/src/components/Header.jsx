@@ -47,6 +47,7 @@ export default function Header({ user, onMenuClick }) {
   };
 
   const handleProfile = () => {
+    navigate('/myProfile');
     handleClose();
   };
 

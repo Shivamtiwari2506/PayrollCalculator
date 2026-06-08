@@ -27,6 +27,7 @@ import { checkTokenValidity } from './utils/commonFunctions/checkTokenValidity';
 import ProtectedRoute from "./services/ProtectedRoute";
 import AuthLayout from './layout/AuthLayout';
 import AppLayout from './layout/AppLayout';
+import MyProfile from './pages/myProfile/MyProfile';
 
 function AppContent() {
   const navigate = useNavigate();
@@ -97,6 +98,7 @@ function AppContent() {
           {/* Payslip → Org_Admin + User */}
           <Route element={<ProtectedRoute allowedRoles={[ROLES.ORG_ADMIN, ROLES.USER]} />}>
             <Route path="/org-settings/payslip" element={<Payslip />} />
+            <Route path="/myProfile" element={<MyProfile />} />
           </Route>
         </Route>
 
