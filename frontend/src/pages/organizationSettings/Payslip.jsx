@@ -120,7 +120,7 @@ const PayslipView = ({ data, month, onChangeMonth, org, printRef }) => {
   return (
     <Box ref={printRef}>
       {/* Title row */}
-      <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 1 }}>
+      <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 1}}>
         <Box>
           <Typography variant="h4" color="primary.main" fontWeight={700}>
             {displayMonth(month)} Payslip
@@ -129,19 +129,30 @@ const PayslipView = ({ data, month, onChangeMonth, org, printRef }) => {
             Processed on {new Date(data.processedOn).toLocaleDateString("en-IN", { dateStyle: "long" })}
           </Typography>
         </Box>
-        <Box sx={{ display: "flex", gap: 1 }}>
-          <Button variant="outlined" startIcon={<PrintIcon />} onClick={() => window.print()}
-            sx={{ textTransform: "none" }}>
-            Print
-          </Button>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: { xs: "column-reverse", sm: "row" },
+            gap: 2,
+            width: { xs: "100%", sm: "auto" },
+          }}
+        >
           <PDFDownloadLink
             document={<PayslipPDF payslip={{ ...data, month }} org={org} />}
             fileName={`Payslip_${data.employeeName?.replace(/\s+/g, "_")}_${month}.pdf`}
+            style={{ width: "inherit" }}
           >
             {({ loading }) => (
               <Button
+                fullWidth
                 variant="contained"
-                startIcon={loading ? <CircularProgress size={14} color="inherit" /> : <DownloadIcon />}
+                startIcon={
+                  loading ? (
+                    <CircularProgress size={14} color="inherit" />
+                  ) : (
+                    <DownloadIcon />
+                  )
+                }
                 disabled={loading}
                 sx={{ textTransform: "none" }}
               >
@@ -149,7 +160,13 @@ const PayslipView = ({ data, month, onChangeMonth, org, printRef }) => {
               </Button>
             )}
           </PDFDownloadLink>
-          <Button variant="text" onClick={onChangeMonth} sx={{ textTransform: "none" }}>
+
+          <Button
+            fullWidth
+            variant="outlined"
+            onClick={onChangeMonth}
+            sx={{ textTransform: "none" }}
+          >
             Change Month
           </Button>
         </Box>
@@ -179,22 +196,42 @@ const PayslipView = ({ data, month, onChangeMonth, org, printRef }) => {
 
         {/* Net pay hero */}
         <Grid item xs={12} md={8}>
-          <Paper sx={{ p: 4, borderRadius: 2, bgcolor: "primary.main", color: "white", height: "100%" }}>
-            <Typography variant="body2" sx={{ opacity: 0.8 }}>Net Pay</Typography>
-            <Typography variant="h3" fontWeight={700} sx={{ mt: 0.5 }}>
+          <Paper
+            sx={{
+              p: { xs: 2.5, sm: 4 },
+              borderRadius: 2,
+              bgcolor: "primary.main",
+              color: "white",
+              height: "100%",
+            }}
+          >
+            <Typography variant="body2" sx={{ opacity: 0.8 }}>
+              Net Pay
+            </Typography>
+            <Typography
+              variant="h3"
+              fontWeight={700}
+              sx={{ mt: 0.5, fontSize: { xs: "2rem", sm: "3rem" } }}
+            >
               {fmt(data.netPay)}
             </Typography>
-            <Grid container spacing={2} sx={{ mt: 2 }}>
-              <Grid item xs={4}>
-                <Typography variant="caption" sx={{ opacity: 0.75 }}>Gross Earnings</Typography>
+            <Grid container spacing={{ xs: 1.5, sm: 2 }} sx={{ mt: { xs: 1.5, sm: 2 } }}>
+              <Grid item xs={12} sm={4}>
+                <Typography variant="caption" sx={{ opacity: 0.75 }}>
+                  Gross Earnings
+                </Typography>
                 <Typography fontWeight={700}>{fmt(data.grossSalary)}</Typography>
               </Grid>
-              <Grid item xs={4}>
-                <Typography variant="caption" sx={{ opacity: 0.75 }}>Total Deductions</Typography>
+              <Grid item xs={12} sm={4}>
+                <Typography variant="caption" sx={{ opacity: 0.75 }}>
+                  Total Deductions
+                </Typography>
                 <Typography fontWeight={700}>{fmt(data.totalDeductions)}</Typography>
               </Grid>
-              <Grid item xs={4}>
-                <Typography variant="caption" sx={{ opacity: 0.75 }}>Employer PF</Typography>
+              <Grid item xs={12} sm={4}>
+                <Typography variant="caption" sx={{ opacity: 0.75 }}>
+                  Employer PF
+                </Typography>
                 <Typography fontWeight={700}>{fmt(data.pfEmployer)}</Typography>
               </Grid>
             </Grid>
