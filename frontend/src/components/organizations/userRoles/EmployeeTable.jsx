@@ -17,7 +17,7 @@ import {
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { formatIndianRuppee, getInitials } from '../../../utils/commonFunctions/helpers';
+import { formatIndianRuppee, getInitials, getRandomColor } from '../../../utils/commonFunctions/helpers';
 import dayjs from 'dayjs';
 
 const getRoleColor = (role) => {
@@ -54,14 +54,13 @@ const EmployeeTable = ({
               <TableRow key={emp.id} hover>
                 <TableCell>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                    <Avatar sx={{ bgcolor: 'primary.main', fontSize: 16 }}>
+                    <Avatar sx={{ bgcolor: getRandomColor(emp.name), fontSize: 16}}>
                       {getInitials(emp)}
                     </Avatar>
                     <Box>
                     <Typography>{emp.name}</Typography>
                     <Typography variant="body2" color="textSecondary">{emp.email}</Typography>
                     </Box>
-
                   </Box>
                 </TableCell>
 
