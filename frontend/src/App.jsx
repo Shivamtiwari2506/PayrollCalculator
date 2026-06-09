@@ -129,6 +129,16 @@ function App() {
         pauseOnHover
         theme="light"
         transition={Bounce}
+        className="!w-[75vw] sm:!w-[320px] !right-3 !left-auto !top-2"
+        toastClassName="!min-h-[44px] !text-xs sm:!min-h-[64px] sm:!p-4 sm:!text-sm !rounded-lg"
+        bodyClassName="!text-xs sm:!text-sm !p-0"
+        icon={() => (
+          <img
+            src="/NewLogo.png"
+            alt="icon"
+            className="w-4 h-4 sm:w-6 sm:h-6 rounded-full"
+          />
+        )}
       />
     </>
   );

@@ -24,6 +24,7 @@ const DeleteConfirmDialog = ({
   loading = false,
   confirmText = "Delete",
   cancelText = "Cancel",
+  showWarning = true,
 }) => {
   return (
     <Dialog
@@ -123,7 +124,7 @@ const DeleteConfirmDialog = ({
         )}
 
         {/* Warning message */}
-        <Box
+        {showWarning && (<Box
           sx={{
             mt: 3,
             p: 2,
@@ -138,7 +139,7 @@ const DeleteConfirmDialog = ({
           <Typography variant="body2" color="text.secondary">
             <strong>Warning:</strong> This action is permanent and cannot be reversed. All associated data will be permanently removed.
           </Typography>
-        </Box>
+        </Box>)}
       </DialogContent>
 
       <Divider />
@@ -171,7 +172,7 @@ const DeleteConfirmDialog = ({
             loading ? (
               <CircularProgress size={18} color="inherit" />
             ) : (
-              <DeleteOutlineIcon />
+              showWarning && <DeleteOutlineIcon />
             )
           }
           sx={{

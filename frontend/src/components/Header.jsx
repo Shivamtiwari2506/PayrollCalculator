@@ -22,6 +22,8 @@ import { useNavigate } from 'react-router-dom';
 import { useState, useRef, useEffect } from 'react';
 import { getInitials } from '../utils/commonFunctions/helpers';
 import { removeFromLocalStorage } from '../utils/commonFunctions/helpers';
+import { toast } from 'react-toastify';
+import DeleteConfirmDialog from './DeleteConfirmDialog';
 
 export default function Header({ user, onMenuClick }) {
   const navigate = useNavigate();
@@ -32,9 +34,11 @@ export default function Header({ user, onMenuClick }) {
   const avatarRef = useRef(null);
   const currentUser = JSON.parse(localStorage.getItem('user')) || user;
   const [menuOpen, setMenuOpen] = useState(false);
+  const [showLogoutDialog, setShowLogoutDialog] = useState(false);
 
   const handleLogout = () => {
     removeFromLocalStorage();
+    toast.success("Logged out successfully!");
     navigate('/login');
   };
 
@@ -53,10 +57,11 @@ export default function Header({ user, onMenuClick }) {
 
   const handleLogoutClick = () => {
     handleClose();
-    handleLogout();
+    setShowLogoutDialog(true);
   };
 
   return (
+  <>
     <AppBar
       position="fixed"
       elevation={0}
@@ -262,5 +267,15 @@ export default function Header({ user, onMenuClick }) {
         </Box>
       </Toolbar>
     </AppBar>
+      <DeleteConfirmDialog
+      open={showLogoutDialog}
+      onConfirm={handleLogout}
+      title="Logged out"
+      description="Are you sure you want to logout?"
+      confirmText="Logout"
+      onClose={() => setShowLogoutDialog(false)}
+      showWarning={false}
+    />
+  </>
   );
 }

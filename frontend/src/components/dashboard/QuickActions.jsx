@@ -5,6 +5,7 @@ import DescriptionIcon from "@mui/icons-material/Description";
 import CalculateIcon from "@mui/icons-material/Calculate";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
 import AssessmentIcon from "@mui/icons-material/Assessment";
+import { useNavigate } from "react-router-dom";
 
 const actions = [
   { label: "Run Payroll", icon: <PaymentsIcon />, color: "#6366f1", bg: "#eef2ff" },
@@ -16,6 +17,33 @@ const actions = [
 ];
 
 export default function QuickActions() {
+  const navigate = useNavigate();
+
+  const handleClick = (action) => {
+  switch (action.label) {
+    case "Run Payroll":
+      navigate("/org-settings/payroll");
+      break;
+    case "Add Employee":
+      navigate("/org-settings/employees");
+      break;
+    case "Generate Payslip":
+      navigate("/org-settings/payslip");
+      break;
+    case "Tax Calculator":
+      // Handle tax calculator action
+      window.open("https://www.incometaxindia.gov.in/income-tax-calculator", "_blank");
+      break;
+    case "Import Data":
+      // Handle import data action
+      break;
+    case "Reports":
+      // Handle reports action
+      break;
+    default:
+      console.log("Unknown action");
+  }
+};
   return (
     <Card
       elevation={0}
@@ -32,7 +60,7 @@ export default function QuickActions() {
 
       <Grid container spacing={1.5}>
         {actions.map((action) => (
-          <Grid item xs={4} key={action.label}>
+          <Grid item xs={4} lg={6} key={action.label}>
             <ButtonBase
               sx={{
                 width: "100%",
@@ -41,6 +69,7 @@ export default function QuickActions() {
                 transition: "all 0.2s ease",
                 "&:hover": { transform: "translateY(-2px)" },
               }}
+              onClick={() => handleClick(action)}
             >
               <Box
                 sx={{
