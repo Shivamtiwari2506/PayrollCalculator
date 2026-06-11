@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import "./cron/payrollCron.js";
+import "./cron/payrollRunCron.js";
 import authRoutes from './routes/authRoutes.js';
 import orgRoutes from './routes/orgRoutes.js'
 import empRoutes from './routes/employeeRoutes.js'
