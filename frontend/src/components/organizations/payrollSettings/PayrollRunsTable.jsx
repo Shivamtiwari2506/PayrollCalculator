@@ -8,6 +8,7 @@ import ReceiptIcon from "@mui/icons-material/Receipt";
 import { useNavigate } from "react-router-dom";
 import Loader from "../../../utils/Loader";
 import NoDataFound from "../../ui/NoDataFound";
+import { formatDate, formatDateTime } from "../../../utils/commonFunctions/helpers";
 
 const statusColor = {
   COMPLETED: "success",
@@ -68,7 +69,7 @@ const PayrollRunsTable = ({ runs, loading, error }) => {
             <TableBody>
               {runs.map((run) => (
                 <TableRow key={run.id} hover>
-                  <TableCell sx={{ fontWeight: 600 }}>{run.month}</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>{run.month ? run.month : `${formatDate(run.startDate)} - ${formatDate(run.endDate)}`}</TableCell>
                   <TableCell>{run.totalEmployees}</TableCell>
                   <TableCell>{fmt(run.totalGross)}</TableCell>
                   <TableCell sx={{ color: "error.main" }}>{fmt(run.totalDeductions)}</TableCell>
@@ -82,7 +83,7 @@ const PayrollRunsTable = ({ runs, loading, error }) => {
                     />
                   </TableCell>
                   <TableCell sx={{ color: "text.secondary", fontSize: 12 }}>
-                    {new Date(run.createdAt).toLocaleDateString("en-IN")}
+                    {formatDateTime(run.createdAt)}
                   </TableCell>
                   <TableCell>
                     <Tooltip title="View breakdown">

@@ -1,6 +1,8 @@
 
 import { ValidationError } from "../utils/errors.js";
 import { calculateEmployeePayroll } from "../utils/payrollCalculator.js";
+import { PrismaClient } from "@prisma/client";
+const prisma = new PrismaClient();
 
 const daysMap = {
     sunday: 0,
@@ -156,7 +158,6 @@ export const runPayrollService = async ({
     const entries = employees.map(emp => {
         const calc = calculateEmployeePayroll(emp, activeSettings, taxConfig);
         return {
-            payrollRunId: run.id,
             userId: emp.id,
             ...calc,
             breakdown: calc.breakdown,

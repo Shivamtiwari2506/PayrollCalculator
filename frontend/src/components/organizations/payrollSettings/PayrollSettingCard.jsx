@@ -14,6 +14,7 @@ import IconButton from "@mui/material/IconButton";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
 import { useState } from "react";
+import { formatDate } from "../../../utils/commonFunctions/helpers";
 
 const InfoRow = ({ label, value }) => (
   <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", py: 0.4 }}>
@@ -46,21 +47,9 @@ const PayrollSettingCard = ({ config, handleEdit, handleDelete }) => {
         ? "Monthly"
         : "Weekly";
 
-  const effectiveFrom = config.effectiveFrom
-    ? new Date(config.effectiveFrom).toLocaleDateString("en-IN", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-    })
-    : "—";
+  const effectiveFrom = formatDate(config.effectiveFrom);
 
-  const effectiveTo = config.effectiveTo
-    ? new Date(config.effectiveTo).toLocaleDateString("en-IN", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-    })
-    : null;
+  const effectiveTo = formatDate(config.effectiveTo);
 
   const statusColorMap = {
     DRAFT: "default",

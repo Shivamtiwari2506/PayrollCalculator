@@ -36,3 +36,15 @@ export const getRandomColor = (seed) => {
   const index = seed ? seed.charCodeAt(0) % colors.length : Math.floor(Math.random() * colors.length);
   return colors[index];
 };
+
+export const formatDate = (dateString) => {
+  if (!dateString) return "—";
+  const options = { day: '2-digit', month: 'short', year: 'numeric' };
+  return new Date(dateString).toLocaleDateString('en-IN', options);
+};
+
+export const formatDateTime = (dateString) => {
+  if (!dateString) return "—";
+  const options = { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' };
+  return new Date(dateString).toLocaleDateString('en-IN', options);
+};
