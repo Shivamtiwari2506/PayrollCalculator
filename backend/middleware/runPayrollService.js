@@ -155,8 +155,12 @@ export const runPayrollService = async ({
         }
     }
 
+    const period = payrollCycleType === "monthly"
+        ? null  // monthly doesn't need proration
+        : { startDate, endDate };
+
     const entries = employees.map(emp => {
-        const calc = calculateEmployeePayroll(emp, activeSettings, taxConfig);
+        const calc = calculateEmployeePayroll(emp, activeSettings, taxConfig, period);
         return {
             userId: emp.id,
             ...calc,

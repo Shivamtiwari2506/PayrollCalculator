@@ -1,11 +1,23 @@
 
-// Pure payroll calculation logic — no DB calls here.
-// Takes employee + active payroll settings + tax slabs, returns a full breakdown.
+import dayjs from "dayjs";
 
+const DAY_MAP = {
+  sunday: 0, monday: 1, tuesday: 2, wednesday: 3,
+  thursday: 4, friday: 5, saturday: 6,
+};
 
+function countWorkingDays(startDate, endDate, weekendDays = []) {
+  const weekendNums = weekendDays.map(d => DAY_MAP[d.toLowerCase()]);
+  let count = 0;
+  let cursor = dayjs(startDate);
+  const end  = dayjs(endDate);
 
-// Calculate income tax (TDS) for an employee's annual gross salary.
-// Uses the provided tax slabs (already fetched from DB).
+  while (cursor.isSame(end, "day") || cursor.isBefore(end, "day")) {
+    if (!weekendNums.includes(cursor.day())) count++;
+    cursor = cursor.add(1, "day");
+  }
+  return count;
+}
 
 function calculateTDS(annualGross, standardDeduction, slabs, cessPercent, rebateLimit) {
   // Step 1: Calculate taxable income
@@ -53,55 +65,84 @@ function calculateTDS(annualGross, standardDeduction, slabs, cessPercent, rebate
 // taxConfig - { standardDeduction, cessPercentage, slabs[] } or null if TDS disabled
 // Full per-employee payroll breakdown
 
-export function calculateEmployeePayroll(employee, settings, taxConfig = null) {
-  console.log('employee: ', employee);
-  const annualCTC = employee.ctc ?? 0;
+export function calculateEmployeePayroll(employee, settings, taxConfig = null, period = null) {
+  const annualCTC  = employee.ctc ?? 0;
   const monthlyCTC = annualCTC / 12;
 
+  // ✅ NEW — proration factor
+  let proratedBase = monthlyCTC;
+  let workingDaysInPeriod = null;
+
+  if (settings.payrollCycle !== "monthly" && period) {
+    workingDaysInPeriod = countWorkingDays(period.startDate, period.endDate, settings.weekendDays);
+    proratedBase = (monthlyCTC / settings.workingDaysPerMonth) * workingDaysInPeriod;
+  }
+
   // --- Gross earnings breakdown ---
-  const basic = Math.round((monthlyCTC * settings.basicPercent) / 100);
-  // const hra = Math.round((monthlyCTC * settings.hraPercent) / 100);
-  const hra = Math.round((basic * settings.hraPercent) / 100);
-  const allowance = monthlyCTC - (basic + hra);
+  // ✅ CHANGED — monthlyCTC → proratedBase
+  const basic     = Math.round((proratedBase * settings.basicPercent) / 100);
+  const hra       = Math.round((basic * settings.hraPercent) / 100);
+  const allowance = proratedBase - (basic + hra);
   const grossSalary = basic + hra + allowance;
 
   // --- PF ---
+  // ✅ CHANGED — pfCeiling prorated for non-monthly
   let pfEmployee = 0;
   let pfEmployer = 0;
   if (settings.pfEnabled) {
-    const pfBase = Math.min(basic, settings.pfCeiling);
+    const pfCeiling = settings.payrollCycle === "monthly"
+      ? settings.pfCeiling
+      : (settings.pfCeiling / settings.workingDaysPerMonth) * workingDaysInPeriod;
+
+    const pfBase = Math.min(basic, pfCeiling);
     pfEmployee = Math.round((pfBase * settings.pfPercent) / 100);
     pfEmployer = Math.round((pfBase * settings.pfEmployerContribution) / 100);
   }
 
   // --- ESI ---
+  // ✅ CHANGED — esiCeiling prorated for non-monthly
   let esiEmployee = 0;
   let esiEmployer = 0;
-  if (settings.esiEnabled && grossSalary <= settings.esiCeiling) {
+  const esiCeiling = settings.payrollCycle === "monthly"
+    ? settings.esiCeiling
+    : (settings.esiCeiling / settings.workingDaysPerMonth) * workingDaysInPeriod;
+
+  if (settings.esiEnabled && grossSalary <= esiCeiling) {
     esiEmployee = Math.round((grossSalary * settings.esiPercent) / 100);
     esiEmployer = Math.round((grossSalary * settings.esiEmployerPercent) / 100);
   }
 
   // --- Professional Tax ---
-  const professionalTax = settings.professionalTaxEnabled
-    ? settings.professionalTaxAmount
-    : 0;
+  // ✅ CHANGED — prorated for non-monthly (PT is normally a flat monthly amount)
+  let professionalTax = 0;
+  if (settings.professionalTaxEnabled) {
+    professionalTax = settings.payrollCycle === "monthly"
+      ? settings.professionalTaxAmount
+      : Math.round((settings.professionalTaxAmount / settings.workingDaysPerMonth) * workingDaysInPeriod);
+  }
 
+  // --- Gratuity ---
+  // ✅ CHANGED — basic is already prorated, so this naturally scales
   let gratuity = 0;
   if (settings?.gratuityEnabled) {
     gratuity = Math.round((basic * 4.8) / 100);
   }
 
   // --- TDS ---
+  // ✅ CHANGED — calculate monthly TDS first, then prorate for non-monthly
   let tds = 0;
   if (settings.tdsEnabled && taxConfig) {
-    tds = calculateTDS(
+    const monthlyTds = calculateTDS(
       annualCTC,
       taxConfig.standardDeduction,
       taxConfig.slabs,
       taxConfig.cessPercentage,
       taxConfig?.rebateLimit
     );
+
+    tds = settings.payrollCycle === "monthly"
+      ? monthlyTds
+      : Math.round((monthlyTds / settings.workingDaysPerMonth) * workingDaysInPeriod);
   }
 
   // --- Total deductions (employee side only) ---
@@ -113,6 +154,11 @@ export function calculateEmployeePayroll(employee, settings, taxConfig = null) {
   const breakdown = {
     annualCTC,
     monthlyCTC,
+    payrollCycle: settings.payrollCycle,          // ✅ NEW
+    periodStart:  period?.startDate ?? null,      // ✅ NEW
+    periodEnd:    period?.endDate ?? null,        // ✅ NEW
+    workingDaysInPeriod,                          // ✅ NEW
+    proratedBase,                                 // ✅ NEW
     earnings: { basic, hra, allowance, grossSalary },
     deductions: {
       pfEmployee,

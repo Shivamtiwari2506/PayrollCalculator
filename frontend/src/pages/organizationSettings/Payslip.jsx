@@ -11,7 +11,7 @@ import { useTheme } from "@mui/material/styles";
 import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { useSelector } from "react-redux";
 import api from "../../services/api";
-import { formatIndianRuppee } from "../../utils/commonFunctions/helpers";
+import { formatDate, formatIndianRuppee } from "../../utils/commonFunctions/helpers";
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import PayslipPDF from "../../components/organizations/payrollSettings/PayslipPDF";
 import Loader from "../../utils/Loader";
@@ -83,7 +83,7 @@ const MonthPicker = ({ months, selected, onSelect, loading, error }) => (
 
               {m.type === "monthly"
                 ? displayMonth(m.month)
-                : `${new Date(m.startDate).toLocaleDateString("en-IN")} - ${new Date(m.endDate).toLocaleDateString("en-IN")}`
+                : `${formatDate(m.startDate)} - ${formatDate(m.endDate)}`
               }
 
             </MenuItem>
@@ -123,10 +123,10 @@ const PayslipView = ({ data, month, onChangeMonth, org, printRef }) => {
       <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 1}}>
         <Box>
           <Typography variant="h4" color="primary.main" fontWeight={700}>
-            {displayMonth(month)} Payslip
+            {data?.type === 'month' ? displayMonth(month): `${formatDate(data.startDate)} - ${formatDate(data.endDate)}`} Payslip
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            Processed on {new Date(data.processedOn).toLocaleDateString("en-IN", { dateStyle: "long" })}
+            Processed on {formatDate(data.processedOn)}
           </Typography>
         </Box>
         <Box
@@ -188,8 +188,8 @@ const PayslipView = ({ data, month, onChangeMonth, org, printRef }) => {
             </Box>
             <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
               <Row label="Annual CTC" value={fmt(data.ctc)} />
-              <Row label="Monthly Gross" value={fmt(data.grossSalary)} />
-              <Row label="Month" value={displayMonth(month)} />
+              <Row label={'Gross Pay'}value={fmt(data.grossSalary)} />
+              <Row label={data.type === 'month' ? "Month" : "Date"} value={data.type === 'month' ? displayMonth(month) : `${formatDate(data.startDate)} - ${formatDate(data.endDate)}`} />
             </Box>
           </Paper>
         </Grid>
