@@ -1,4 +1,9 @@
 
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc.js";
+import timezone from "dayjs/plugin/timezone.js";
+dayjs.extend(utc);
+dayjs.extend(timezone);
 import { ValidationError } from "../utils/errors.js";
 import { calculateEmployeePayroll } from "../utils/payrollCalculator.js";
 import { PrismaClient } from "@prisma/client";
@@ -31,8 +36,10 @@ export const runPayrollService = async ({
         ? JSON.parse(activeSettings.cycleConfig)
         : activeSettings.cycleConfig;
 
-    const todayDayNum = now.getDay();
-    const todayDateNum = now.getDate();
+    const tz = activeSettings.orgProfile?.timezone || "Asia/Kolkata";
+    const localNow = dayjs(now).tz(tz);
+    const todayDayNum = localNow.day();
+    const todayDateNum = localNow.date();
 
 
     if (payrollCycleType === "monthly") {

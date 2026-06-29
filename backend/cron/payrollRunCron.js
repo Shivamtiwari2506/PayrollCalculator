@@ -150,6 +150,7 @@ async function runPayrollForOrg(org, systemUserId, now) {
   const activeSettings = await prisma.payrollSettings.findFirst({
     where: { orgProfileId: org.id, status: "ACTIVE" },
     include: {
+      orgProfile: { select: { timezone: true } },
       payrollRuns: {
         where:   { status: "COMPLETED" },
         orderBy: { createdAt: "desc" },
